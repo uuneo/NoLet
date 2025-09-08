@@ -7,7 +7,7 @@
 import Foundation
 import CloudKit
 import SwiftUI
-import Defaults
+
 
 
 struct PushIcon: Identifiable {
@@ -49,9 +49,10 @@ enum PushIconCloudError: Error {
     
     var tips: String {
         switch self {
-        case .notFile(let msg), .paramsSpace(let msg), .saveError(let msg), .nameRepeat(let msg), .iconRepeat(let msg), .success(let msg), .authority(let msg):
+        case .notFile(let msg), .paramsSpace(let msg),
+                .saveError(let msg), .nameRepeat(let msg), .iconRepeat(let msg), .success(let msg), .authority(let msg):
             return msg
-            
+
         }
     }
 }
@@ -73,7 +74,6 @@ extension CKRecord{
 
 
 class CloudManager {
-    
     static let shared = CloudManager()
     
     private init() {}
@@ -87,8 +87,6 @@ class CloudManager {
     func checkAccount() async -> (Bool, String) {
         do {
             let status = try await container.accountStatus()
-            
-          
             
             switch status {
             case .available:
@@ -232,37 +230,13 @@ class CloudManager {
         }
     }
     
-    // MARK: - LOGIN
-    func queryUser(_ userID: String? = nil, email: String? = nil, token: String? = nil) async -> CKRecord?{
-        do{
-            let id = try await container.userRecordID()
-            let user = try await database.record(for: id)
-        
-        
-
-            if let userID{
-                user["phone"] = userID as CKRecordValue
+    func getUserId() {
+        Task.detached(priority: .userInitiated) { [self] in
+            if let user =  try? await container.userRecordID(){
+                Defaults[.id] = user.recordName
             }
-            
-            if let email{
-                user["email"] = email as CKRecordValue
-            }
-            
-            if let token{
-                user["token"] = token as CKRecordValue
-            }
-           
-            guard userID != nil || email != nil || token != nil else {
-                return user
-            }
-           
-            
-            let recordRes = try await database.save(user)
-            return recordRes
-        }catch{
-            debugPrint(error.localizedDescription)
-            return nil
         }
+        
     }
     
 }

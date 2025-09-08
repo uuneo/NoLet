@@ -2,7 +2,7 @@
 //  ShareViewController.swift
 //  ShareExtension
 //
-//  Created by lynn on 2025/6/2.
+//  Created by lynn on 2025/4/3.
 //
 
 import UIKit
@@ -16,30 +16,33 @@ class ShareViewController: UIViewController  {
     
     override func viewDidLoad() {
         if let itemProviders = (extensionContext!.inputItems.first as? NSExtensionItem)?.attachments {
-            let hostingView = UIHostingController(rootView: ShareView(itemProviders: itemProviders, extensionContext: extensionContext, view: view, openHostApp: openURL))
+            let hostingView = UIHostingController(rootView: ShareView(itemProviders: itemProviders, extensionContext: extensionContext, view: view, openHostApp: openHostApp))
             hostingView.view.frame = view.frame
             
             view.addSubview(hostingView.view)
         }
     }
     
-
     
-    @objc func openURL(_ url: URL) -> Bool {
-        var responder: UIResponder? = self
-        while responder != nil {
-            if let application = responder as? UIApplication {
-                if #available(iOS 18.0, *) {
-                    application.open(url, options: [:], completionHandler: nil)
-                    return true
-                } else {
-                    return application.perform(#selector(openURL(_:)), with: url) != nil
+    func openHostApp(_ localKey:URL) {
+        var responder: UIResponder? = self // 从当前对象开始
+        
+        while let currentResponder = responder {
+            // 检查是否是 UIApplication 类型
+            if let app = currentResponder as? UIApplication{
+                app.open(localKey, options: [:]) { success in
+                    Log.debug("打开app状态：\(success)")
                 }
+                return
             }
-            responder = responder?.next
+            
+            // 遍历下一个响应者
+            responder = currentResponder.next
         }
-        return false
+        
+        Log.debug("没有找到响应链")
     }
+    
     
 }
 
@@ -47,7 +50,7 @@ fileprivate struct ShareView: View {
     var itemProviders: [NSItemProvider]
     var extensionContext: NSExtensionContext?
     var view:UIView?
-    var openHostApp:(URL)-> Bool
+    var openHostApp:(URL)-> Void
     
    
     @State private var pushIcon:PushIcon?
@@ -67,7 +70,8 @@ fileprivate struct ShareView: View {
             
             if let pushIcon{
                 UploadIclondIcon(pushIcon: pushIcon) { _ in
-                    _ = openHostApp(PBScheme.pb.scheme(host: .openPage, params: ["page" : "icon"]))
+                    openHostApp(PBScheme.pb.scheme(host: .openPage, params: ["page" : "icon"]))
+                    
                     dismiss()
                 } endEditing: {
                     self.view?.endEditing(true)
@@ -89,8 +93,7 @@ fileprivate struct ShareView: View {
         
         DispatchQueue.global(qos: .userInteractive).async {
             for provider in itemProviders {
-                
-                _ = provider.loadDataRepresentation(for: .data) { data, error in
+                _ = provider.loadDataRepresentation(for: .image) { data, error in
                     guard let data = data else { return }
                     
                     if let image = data.toThumbnail(max: 300){
@@ -106,7 +109,7 @@ fileprivate struct ShareView: View {
                             return
                         }
                         
-                         DispatchQueue.main.async {
+                        DispatchQueue.main.async {
                             
                             self.pushIcon = .init(id: UUID().uuidString, name: "", description: [], size: pngData.count, sha256: pngData.sha256(), file: tempURL, previewImage: image)
                         }

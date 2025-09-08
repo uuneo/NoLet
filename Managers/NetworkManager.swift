@@ -15,7 +15,8 @@ import CommonCrypto
 import Defaults
 
 
-class NetworkManager: NSObject {
+
+class NetworkManager {
 
     let session = URLSession(configuration: .default)
 
@@ -29,12 +30,13 @@ class NetworkManager: NSObject {
 	}
     
     struct EmptyResponse: Codable {}
-   
     
     
     /// 无返回值
-    func fetchVoid(url: String, method: requestMethod = .get, params: [String: Any] = [:]) async {
-        _ = try? await self.fetch(url: url, method: method, params: params, timeout: 3)
+    func fetchVoid(url: String, method: requestMethod = .get, params: [String: Any] = [:]) {
+        Task.detached(priority: .background) {
+            _ = try? await self.fetch(url: url, method: method, params: params)
+        }
     }
     
     /// 通用网络请求方法
@@ -43,25 +45,19 @@ class NetworkManager: NSObject {
     ///   - method: 请求方法（默认为 GET）
     ///   - params: 请求参数（支持 GET 查询参数或 POST body）
     /// - Returns: 返回泛型解码后的模型数据
-    func fetch<T: Codable>(url: String, method: requestMethod = .get, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30) async throws -> T {
-        let data = try await self.fetch(url: url, method: method, params: params, headers: headers, timeout: timeout)
+    func fetch<T: Codable>(url: String, method: requestMethod = .get, params: [String: Any] = [:]) async throws -> T? {
+        let data = try await self.fetch(url: url, method: method, params: params)
         // 尝试将响应的 JSON 解码为泛型模型 T
-        do{
-            let result = try JSONDecoder().decode(T.self, from: data)
-            return result
-        }catch{
-            Log.debug(String(data: data, encoding: .utf8) ?? "")
-            
-            throw error
-        }
+        let result = try JSONDecoder().decode(T.self, from: data)
+        return result
         
     }
     
-    func fetch(url: String, method: requestMethod = .get, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30) async throws -> Data {
+    func fetch(url: String, method: requestMethod = .get, params: [String: Any] = [:]) async throws -> Data {
         
         // 尝试将字符串转换为 URL，如果失败则抛出错误
         guard var requestUrl = URL(string: url) else {
-            throw "url error"
+            throw StringError("url error")
         }
 
         // 如果是 GET 请求并且有参数，将参数拼接到 URL 的 query 中
@@ -80,59 +76,43 @@ class NetworkManager: NSObject {
         var request = URLRequest(url: requestUrl)
         request.httpMethod = method.method  // .get 或 .post
         request.setValue( sign(url: url, params: params, key: BaseConfig.signKey), forHTTPHeaderField: "X-Signature" )
-        request.setValue(self.customUserAgentDetailed(), forHTTPHeaderField: "User-Agent" )
+        request.setValue(self.generateCustomUserAgent(), forHTTPHeaderField: "User-Agent" )
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(Defaults[.id], forHTTPHeaderField: "Authorization") 
-        
-        for (key,value) in headers{
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        request.setValue(Defaults[.id], forHTTPHeaderField: "Authorization")
         
         // 如果是 POST 请求，将参数编码为 JSON 设置到 httpBody
         if method == .post && !params.isEmpty {
             request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
         }
-        request.timeoutInterval = timeout
+        request.timeoutInterval = 30
         
         // 打印请求信息（用于调试）
         Log.debug(request)
        
         // 发起请求并等待响应（带有 30 秒超时）
         let data = try await session.data(for: request)
-        
-        
 
        return data
     }
-   
-
-    func customUserAgentDetailed() -> String {
-        let info = Bundle.main.infoDictionary
+    
+    func generateCustomUserAgent() -> String {
+       
+        // 获取设备信息
+        let device = UIDevice.current
+        let systemName = device.systemName      // iOS
+        let systemVersion = device.systemVersion // 系统版本
+        let model = device.model                 // 设备型号 (例如 iPhone, iPad)
         
-        let appName     =  BaseConfig.appSymbol
-        let appVersion  = info?["CFBundleShortVersionString"] as? String ?? "0.0"
-        let buildNumber = info?["CFBundleVersion"] as? String ?? "0"
+        // 获取应用信息
+        let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "UnknownApp"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         
-        let deviceModel = deviceIdentifier()
-        let systemVer   = UIDevice.current.systemVersion
+        // 自定义User-Agent字符串
+        let userAgent = "\(appName)/\(appVersion) (\(model); \(systemName) \(systemVersion); Build/\(buildVersion))"
         
-        let locale      = Locale.current
-        let regionCode  = locale.region?.identifier ?? "XX"   // e.g. CN
-        let language    = locale.language.languageCode?.identifier ?? "en" // e.g. zh
-        
-        return "\(appName)/\(appVersion) (Build \(buildNumber); \(deviceModel); iOS \(systemVer); \(regionCode)-\(language))"
+        return userAgent
     }
-
-    private func deviceIdentifier() -> String {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        return withUnsafePointer(to: &systemInfo.machine) {
-            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
-                String(cString: $0)
-            }
-        }
-    }
-
     
     
     /// 扁平化嵌套参数
@@ -196,7 +176,7 @@ class NetworkManager: NSObject {
         // 对参数字典按 key 升序排序，然后拼接成字符串：key1:value1,key2:value2,...
         let paramsStr = flatParams
             .sorted(by: { $0.key < $1.key })
-            .map { "\($0.key.lowercased()):\($0.value.lowercased())" }
+            .map { "\($0.key):\($0.value)" }
             .joined(separator: ",")
 
         // 将参数字符串转为 Data，如果失败则返回空字符串
@@ -233,76 +213,5 @@ class NetworkManager: NSObject {
         components.queryItems = queryItems
 
         return components.url?.absoluteString
-    }
-    
-   
-}
-
-extension NetworkManager {
-
-    /// 上传文件
-    /// - Parameters:
-    ///   - url: 接口地址
-    ///   - method: 请求方法，默认为 POST
-    ///   - fileData: 要上传的文件数据
-    ///   - fileName: 文件名
-    ///   - mimeType: 文件 MIME 类型
-    ///   - params: 其他表单数据
-    /// - Returns: 返回服务器响应的 Data
-    func uploadFile(url: String,
-                    method: requestMethod = .post,
-                    fileData: Data,
-                    fileName: String,
-                    mimeType: String,
-                    params: [String: Any] = [:]) async throws -> Data {
-        
-        guard let url = URL(string: url) else {
-            throw "Invalid URL"
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = method.method
-        
-        // 生成唯一的 boundary 字符串
-        let boundary = "Boundary-\(UUID().uuidString)"
-        
-        // 设置 Content-Type 为 multipart/form-data
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.setValue(self.customUserAgentDetailed(), forHTTPHeaderField: "User-Agent")
-        request.setValue(Defaults[.id], forHTTPHeaderField: "Authorization")
-        
-        // 生成表单数据
-        var body = Data()
-        
-        // 添加普通表单字段（如果有的话）
-        for (key, value) in params {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
-            body.append("\(value)\r\n".data(using: .utf8)!)
-        }
-        
-        // 添加文件字段
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
-        body.append(fileData)
-        body.append("\r\n".data(using: .utf8)!)
-        
-        // 结束 boundary
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        // 设置 HTTPBody
-        request.httpBody = body
-        
-        // 设置请求超时时间
-        request.timeoutInterval = 60
-        
-        // 打印请求信息（用于调试）
-        Log.debug(request)
-        
-        // 发送请求并等待响应
-        let data = try await session.data(for: request)
-        
-        return data
     }
 }

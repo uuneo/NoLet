@@ -10,16 +10,16 @@ import SwiftUI
 import Defaults
 import Foundation
 
-
-class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
+class AppManager: NetworkManager, ObservableObject{
 	static let shared = AppManager()
-    
-    
+	
     @Published var page:TabPage = .message
 	@Published var sheetPage:SubPage = .none
 	@Published var fullPage:SubPage = .none
 	@Published var scanUrl:String = ""
     @Published var crashLog:String?
+    
+    
     
 	@Published var PremiumUser:Bool = false
     
@@ -28,39 +28,19 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     @Published var selectGroup:String? = nil
     @Published var searchText:String = ""
     
-    
     @Published var router:[RouterPage] = []
     
     @Published var isWarmStart:Bool = false
     
     @Published var selectMessage:Message? = nil
-    @Published var selectPoint:CGPoint = .zero
-    /// 首页彩色框
-    @Published var isLoading:Bool = false
-    @Published var inAssistant:Bool = false
     
-    /// 问智能助手
-    @Published var askMessageId:String? = nil
-    /// 开始播放语音
-    @Published var speaking:Bool = false
-   
-    
-    var fullShow:Binding<Bool>{
-        Binding {
-            self.fullPage != .none
-        } set: { _ in
-            self.fullPage = .none
-        }
-    }
-    
-    var sheetShow:Binding<Bool>{
-        Binding {
-            self.sheetPage != .none
-        } set: { _ in
-            self.sheetPage = .none
-        }
-    }
-    
+    private static var lastFeedbackTime: TimeInterval = 0
+    private static let cooldown: TimeInterval = 0.1
+	
+    var fullShow:Binding<Bool>{  Binding { self.fullPage != .none } set: { _ in self.fullPage = .none } }
+	
+	var sheetShow:Binding<Bool>{ Binding { self.sheetPage != .none } set: { _ in self.sheetPage = .none } }
+
 
 
 	
@@ -78,25 +58,20 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     }
     
     func registers(msg:Bool = false){
-        Task.detached(priority: .userInitiated) {
+        Task.detached(priority: .background) {
             let servers = Defaults[.servers]
-            let results = await withTaskGroup(of: (Int, PushServerModel).self) { group in
-                for (index, server) in servers.enumerated() {
-                    group.addTask {
-                        let result = await self.register(server: server, msg: msg)
-                        return (index, result)
-                    }
-                }
+            let results =  await withTaskGroup(of: PushServerModel.self){ group in
                 
-                var tmp: [(Int, PushServerModel)] = []
-                for await pair in group {
-                    tmp.append(pair)
+                for server in servers {
+                    group.addTask{  await self.register(server: server,msg: msg) }
                 }
+                var results:[PushServerModel] = []
                 
-                // 按 index 排序，保证和 servers 顺序一致
-                return tmp.sorted { $0.0 < $1.0 }.map { $0.1 }
+                for await result in group{
+                    results.append(result)
+                }
+                return results
             }
-
             await MainActor.run {
                 Defaults[.servers] = results
                 Self.syncLocalToCloud()
@@ -107,47 +82,34 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     
     func register(server:PushServerModel, reset:Bool = false, msg:Bool = true) async -> PushServerModel{
         var server = server
+        let deviceToken = reset ? UUID().uuidString : Defaults[.deviceToken]
+        let params  = DeviceInfo(deviceKey: server.key, deviceToken: deviceToken ).toEncodableDictionary() ?? [:]
         
-        do{ 
-            
-            let deviceToken = reset ? UUID().uuidString : Defaults[.deviceToken]
-            let params  = DeviceInfo(deviceKey: server.key, deviceToken: deviceToken ).toEncodableDictionary() ?? [:]
-            
-            let response:baseResponse<DeviceInfo> = try await self.fetch(url: server.url + "/register",method: .post, params: params)
-            
-            if let data = response.data {
-                server.key = data.deviceKey
-                server.status = true
-                server.voice = data.voice ?? false
-                if msg{
-                    if reset{
-                        Toast.info(title: "解绑成功")
-                    }else{
-                        Toast.success(title: "注册成功")
-                    }
-                    
+        let response:baseResponse<DeviceInfo>? = try? await self.fetch(url: server.url + "/register",method: .post, params: params)
+        
+        if let response = response,  let data = response.data {
+            server.key = data.deviceKey
+            server.status = true
+            if msg{
+                if reset{
+                    Toast.info(title: "解绑成功")
+                }else{
+                    Toast.success(title: "注册成功")
                 }
-            }else{
-                server.status = false
-                server.voice = false
-                if msg{
-                    Toast.error(title: "注册失败")
-                }
+                
             }
-            
-            return server
-        }catch{
-            Log.error(error.localizedDescription)
-            return server
+        }else{
+            server.status = false
+            if msg{
+                Toast.error(title: "注册失败")
+            }
         }
+        
+        return server
     }
     
 
     func appendServer(server:PushServerModel) async -> Bool{
-        
-        if Defaults[.deviceToken].count < 5{
-            AppManager.shared.registerForRemoteNotifications()
-        }
         
         guard !Defaults[.servers].contains(where: {$0.key == server.key && $0.url == server.url})else{
             Toast.error(title: "服务器已存在")
@@ -178,61 +140,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
         }
     }
 
-     func HandlerOpenUrl(url:URL){
-       
-        switch self.outParamsHandler(address: url.absoluteString) {
-        case .crypto(let text):
-            Log.debug(text)
-            if let config = CryptoModelConfig(inputText: text){
-                DispatchQueue.main.async{
-                    self.page = .setting
-                    self.router = [.crypto]
-                    self.sheetPage = .crypto(config)
-                }
-            }
-            
-        case .server(let url):
-            Task.detached(priority: .userInitiated) {
-                let success = await self.appendServer(server: PushServerModel(url: url))
-                if success{
-                    DispatchQueue.main.async {
-                        self.page = .setting
-                        self.router = [.server]
-                    }
-                }
-            }
-        case .serverKey(let url, let key):
-            Task.detached(priority: .userInitiated) {
-                let success = await self.restore(address: url, deviceKey: key)
-                if success{
-                    DispatchQueue.main.async {
-                        self.page = .setting
-                        self.router = [.server]
-                    }
-                }
-            }
-        case .assistant(let text):
-            if let account = AssistantAccount(base64: text){
-                DispatchQueue.main.async {
-                    self.router.append(.assistantSetting(account))
-                }
-            }
-        case .page(page: let page,title: let title, data: let data):
-            switch page{
-            case .widget:
-                DispatchQueue.main.async {
-                    self.page = .setting
-                    self.router = [.more, .widget(title: title, data: data)]
-                }
-            case .icon:
-                self.page = .setting
-                self.sheetPage = .cloudIcon
-            }
-        default:
-            break
-            
-        }
-    }
+	
     
 }
 
@@ -262,7 +170,19 @@ extension AppManager{
         }
     }
 
-
+    
+    class func vibration(style: UIImpactFeedbackGenerator.FeedbackStyle, custom:Bool = false) {
+        if !custom {
+            let now = Date().timeIntervalSince1970
+            guard now - lastFeedbackTime > cooldown else { return } // 限制频率
+            lastFeedbackTime = now
+        }
+       
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
+        generator.impactOccurred()
+    }
+    
     
     class func hideKeyboard(){
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil,from: nil,for: nil)
@@ -271,8 +191,7 @@ extension AppManager{
     
     // MARK: 注册设备以接收远程推送通知
     func registerForRemoteNotifications() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert, .providesAppNotificationSettings]) { (granted, error) in
-
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert, .providesAppNotificationSettings]) { (granted, _) in
             if granted {
                 // 如果授权，注册设备接收推送通知
                 DispatchQueue.main.async {
@@ -293,15 +212,15 @@ extension AppManager{
             for fileURL in contents {
                 do{
                     try fileManager.removeItem(at: fileURL)
-                    Log.info("✅ 删除: \(fileURL.lastPathComponent)")
+                    print("✅ 删除: \(fileURL.lastPathComponent)")
                 }catch{
-                    Log.error("❌ 清空失败: \(error.localizedDescription)")
+                    print("❌ 清空失败: \(error.localizedDescription)")
                 }
             }
             
-            Log.info("🧹 清空完成：\(url.path)")
+            print("🧹 清空完成：\(url.path)")
         } catch {
-            Log.error("❌ 清空失败: \(error.localizedDescription)")
+            print("❌ 清空失败: \(error.localizedDescription)")
         }
     }
     
@@ -318,7 +237,7 @@ extension AppManager{
                         }
                     }
                 } catch {
-                    Log.error("❗️获取文件大小失败: \(fileURL.lastPathComponent) - \(error.localizedDescription)")
+                    print("❗️获取文件大小失败: \(fileURL.lastPathComponent) - \(error.localizedDescription)")
                 }
             }
         }
@@ -337,7 +256,7 @@ extension AppManager{
         if PBScheme.schemes.contains(scheme),let host = url.host(),let host = PBScheme.HostType(rawValue: host), let components = URLComponents(url: url, resolvingAgainstBaseURL: false){
             let params = components.getParams()
             
-            if host == .server, let url = params["text"],let urlResponse = URL(string: url), url.hasHttp() {
+            if host == .server, let url = params["text"],let urlResponse = URL(string: url), url.isHttpAndHttps() {
                 let (result, key) = urlResponse.findNameAndKey()
                 if let key{
                     return .serverKey(url: result, key: key)
@@ -368,4 +287,5 @@ extension AppManager{
     
     
 }
+
 

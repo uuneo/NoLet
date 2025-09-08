@@ -142,7 +142,7 @@ struct AnimatedSideBar<Content: View, MenuView: View, Background: View>: View {
         lastOffsetX = offsetX
         showMenu = true
         calculateProgress()
-        Haptic.impact(.heavy)
+        vibration(style: .heavy)
     }
     
     /// Reset's to it's Initial State
@@ -151,12 +151,18 @@ struct AnimatedSideBar<Content: View, MenuView: View, Background: View>: View {
         lastOffsetX = 0
         showMenu = false
         calculateProgress()
-        Haptic.impact(.heavy)
+        vibration(style: .heavy)
     }
     
     /// Convert's Offset into Series of progress ranging from 0 - 1
     func calculateProgress() {
         progress = max(min(offsetX / sideMenuWidth, 1), 0)
+    }
+    
+   func vibration(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
+        generator.impactOccurred()
     }
     
 }

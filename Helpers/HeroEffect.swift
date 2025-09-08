@@ -233,7 +233,7 @@ fileprivate struct HeroLayerViewModifier<Layer: View>: ViewModifier {
 							heroModel.info[index].sourceAnchor = lastSourceAnchor
 						}
 						
-						 DispatchQueue.main.async {
+						DispatchQueue.main.async {
 							heroModel.info[index].hideView = false
 							withAnimation(.snappy(duration: 0.35, extraBounce: 0)) {
 								heroModel.info[index].animateView = false
@@ -365,4 +365,10 @@ extension View {
 	}
 }
 
+fileprivate class PassthroughWindow: UIWindow {
+	override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+		guard let view = super.hitTest(point, with: event) else { return nil }
+		return rootViewController?.view == view ? nil : view
+	}
+}
 

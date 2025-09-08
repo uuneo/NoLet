@@ -76,6 +76,7 @@ class VoiceManager {
         // Send request
         let (data, response) = try await httpClient.data(for: request)
         
+        debugPrint(response)
         
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
@@ -130,8 +131,8 @@ class VoiceManager {
         // Use default values if not specified
         let voice = request.voice.isEmpty ? Defaults[.ttsConfig].defaultVoice : request.voice
         let style = request.style.isEmpty ? "general" : request.style
-        let rate = request.rate.isEmpty ? "\(Defaults[.ttsConfig].defaultRate)" : request.rate
-        let pitch = request.pitch.isEmpty ? "\(Defaults[.ttsConfig].defaultPitch)" : request.pitch
+        let rate = request.rate.isEmpty ? Defaults[.ttsConfig].defaultRate : request.rate
+        let pitch = request.pitch.isEmpty ? Defaults[.ttsConfig].defaultPitch : request.pitch
         
         // Get locale
         let locale = TextUtils.getLocaleFromVoice(voice)
@@ -156,9 +157,8 @@ class VoiceManager {
         httpRequest.httpMethod = "POST"
         httpRequest.setValue(endpoint["t"], forHTTPHeaderField: "Authorization")
         httpRequest.setValue("application/ssml+xml", forHTTPHeaderField: "Content-Type")
-        httpRequest.setValue( "\(Defaults[.ttsConfig].defaultFormat.rawValue)",
-                              forHTTPHeaderField: "X-Microsoft-OutputFormat")
-        httpRequest.setValue("okhttp/5.1.0", forHTTPHeaderField: "User-Agent")
+        httpRequest.setValue(Defaults[.ttsConfig].defaultFormat.rawValue, forHTTPHeaderField: "X-Microsoft-OutputFormat")
+        httpRequest.setValue("okhttp/4.5.0", forHTTPHeaderField: "User-Agent")
         httpRequest.httpBody = ssml.data(using: .utf8)
         httpRequest.timeoutInterval = TimeInterval(Defaults[.ttsConfig].requestTimeout)
         
@@ -172,17 +172,11 @@ class VoiceManager {
         rate: String? = nil,
         pitch: String? = nil,
         style: String? = nil,
-        noCache:Bool = false,
         maxConcurrency: Int = 10
     ) async throws -> URL {
-        let text = TextUtils.processMarkdownText(text)
         
-        if let fileUrl = try? FileUtils.getCache(text){
-            if noCache{
-                try? FileManager.default.removeItem(at: fileUrl)
-            }else{
-                return fileUrl
-            }
+        if let data = try? FileUtils.getCache(text){
+            return data
         }
         
         guard  text.count < Defaults[.ttsConfig].maxTextLength else {
@@ -195,8 +189,8 @@ class VoiceManager {
             let request = TTSRequest(
                 text: text,
                 voice: voice ?? Defaults[.ttsConfig].defaultVoice,
-                rate: rate ?? "\(Defaults[.ttsConfig].defaultRate)",
-                pitch: pitch ?? "\(Defaults[.ttsConfig].defaultPitch)",
+                rate: rate ?? Defaults[.ttsConfig].defaultRate,
+                pitch: pitch ?? Defaults[.ttsConfig].defaultPitch,
                 style: style ?? "general"
             )
             
@@ -231,8 +225,8 @@ class VoiceManager {
                     let request = TTSRequest(
                         text: segment,
                         voice: voice ?? Defaults[.ttsConfig].defaultVoice,
-                        rate: rate ?? "\(Defaults[.ttsConfig].defaultRate)",
-                        pitch: pitch ?? "\(Defaults[.ttsConfig].defaultPitch)",
+                        rate: rate ?? Defaults[.ttsConfig].defaultRate,
+                        pitch: pitch ?? Defaults[.ttsConfig].defaultPitch,
                         style: style ?? "general"
                     )
                     
@@ -479,17 +473,6 @@ class VoiceManager {
             
             return result
         }
-        
-        static func processMarkdownText(_ input: String) -> String {
-            // 第一步：去除所有空格
-            let text = input.replacingOccurrences(of: " ", with: "")
-            
-            // 第二步：处理每个换行符前的字符
-            return PBMarkdown.plain(text).components(separatedBy: .newlines)
-                .filter { !$0.isEmpty }
-                .joined(separator: ",")
-        }
-
     }
 
     /// File utilities
@@ -505,7 +488,7 @@ class VoiceManager {
         static func FileName(text:String) throws -> URL{
             let fileName = text.sha256()
             
-            guard let group = BaseConfig.getDir(.voice) else {
+            guard let group = BaseConfig.getVoiceDirectory() else {
                 throw NSError(domain: "writeToFile", code: 1, userInfo: [
                     "msg":"No Group"
                 ])
@@ -740,8 +723,8 @@ class VoiceManager {
         static let `default` = TTSConfig(
             region: "eastasia",
             defaultVoice: "zh-CN-XiaochenMultilingualNeural",
-            defaultRate: 0,
-            defaultPitch: 0,
+            defaultRate: "0",
+            defaultPitch: "0",
             defaultFormat: .audio24khz48kbitrateMonoMP3,
             maxTextLength: 65535,
             requestTimeout: 36,
@@ -755,8 +738,8 @@ class VoiceManager {
         
         var region: String
         var defaultVoice: String
-        var defaultRate: Int
-        var defaultPitch: Int
+        var defaultRate: String
+        var defaultPitch: String
         var defaultFormat: AudioFormat
         var maxTextLength: Int
         var requestTimeout: Int
@@ -798,6 +781,7 @@ class VoiceManager {
 
 
 // MARK: - MODELS
+
 extension Defaults.Keys {
     static let ttsConfig = Key<VoiceManager.TTSConfig>("SpeakTTSConfig", VoiceManager.TTSConfig.default)
     static let voiceList = Key<[VoiceManager.MicrosoftVoice]>("SpeakVoiceList", [])

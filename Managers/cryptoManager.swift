@@ -9,126 +9,7 @@ import Foundation
 import CommonCrypto
 import CryptoKit
 import Defaults
-
-
-
-
-
-
-// MARK: - CryptoMode
-
-enum CryptoMode: String, Codable,CaseIterable, RawRepresentable {
-    
-    case CBC, ECB, GCM
-    var padding: String {
-        self == .GCM ? "Space" : "PKCS7"
-    }
-    
-    var Icon:String{
-        switch self{
-        case .CBC: "circle.grid.cross.left.filled"
-        case .ECB: "circle.grid.cross.up.filled"
-        case .GCM: "circle.grid.cross.right.filled"
-        }
-    }
-    
-    
-}
-
-enum CryptoAlgorithm: Int, Codable, CaseIterable,RawRepresentable {
-    case AES128 = 16 // 16 bytes = 128 bits
-    case AES192 = 24 // 24 bytes = 192 bits
-    case AES256 = 32 // 32 bytes = 256 bits
-    
-    var name:String{
-        switch self {
-        case .AES128: "AES128"
-        case .AES192: "AES192"
-        case .AES256: "AES256"
-        }
-    }
-    
-    var Icon:String{
-        switch self{
-        case .AES128: "gauge.low"
-        case .AES192: "gauge.medium"
-        case .AES256: "gauge.high"
-        }
-    }
-    
-    
-    
-}
-
-struct CryptoModelConfig: Identifiable, Equatable, Codable{
-    var id: String = UUID().uuidString
-    var algorithm: CryptoAlgorithm
-    var mode: CryptoMode
-    var key: String
-    var iv: String
-    
-    static let data = CryptoModelConfig(algorithm: .AES256,
-                                        mode: .GCM,
-                                        key: "ToBeOrNotToBeThatIsTheRealDomogo",
-                                        iv: "DreamBigWorkHard")
-    
-    static func generateRandomString(_ length: Int = 16) -> String {
-        Domap.generateRandomString(length)
-    }
-    
-    static func creteNewModel() -> Self{
-        CryptoModelConfig(id: UUID().uuidString, algorithm: .AES256,
-                          mode: .GCM,
-                          key: Self.generateRandomString(32),
-                          iv: Self.generateRandomString())
-    }
-    
-    static func ==(lls:CryptoModelConfig, rls: CryptoModelConfig) -> Bool{
-        return lls.algorithm == rls.algorithm &&
-        lls.mode == rls.mode &&
-        lls.key == rls.key &&
-        lls.iv == rls.iv
-    }
-    
-}
-///  pb://crypto?text=eIxk2XSXdVeC3zsMwmlJevVaXGncCTiUHg5lLiK0S2sG3QLuGMU
-
-extension [CryptoModelConfig]{
-    func config(_ number: Int? = nil) -> CryptoModelConfig{
-        if let number = number, number <= self.count{
-            return self[number - 1]
-        }
-        if let item = self.first{
-            return item
-        }
-        return CryptoModelConfig.data
-    }
-}
-
-extension CryptoModelConfig {
-    func obfuscator() -> String? {
-        Domap.obfuscator(m: mode.rawValue, k: key, iv: iv)
-    }
-    
-    init?(inputText: String){
-        guard let (mode, key, iv) = Domap.deobfuscator(result: inputText),
-              let mode = CryptoMode(rawValue: mode),
-              let algorithm = CryptoAlgorithm(rawValue: key.count)
-        else { return nil}
-        self.init(algorithm: algorithm, mode: mode, key: key, iv: iv)
-    }
-    
-    func encrypt(inputData: Data) -> Data?{
-        let manager = CryptoManager(self)
-        return manager.encrypt(inputData: inputData)
-    }
-    
-    func decrypt(inputData: Data) -> Data? {
-        let manager = CryptoManager(self)
-        return manager.decrypt(inputData: inputData)
-    }
-    
-}
+import SwiftyJSON
 
 
 
@@ -148,47 +29,36 @@ final class CryptoManager {
 		self.algorithm = data.algorithm
 	}
 
-    
-    // MARK: - Public Methods
+
+	// MARK: - Public Methods
 	func encrypt(_ plaintext: String) -> String? {
 		guard let plaintextData = plaintext.data(using: .utf8) else { return nil }
         return self.encrypt(plaintextData)
 	}
     
     func encrypt(_ plaintext: Data) -> String? {
-        let data:Data? = self.encrypt(inputData: plaintext)
-            /// .replacingOccurrences(of: "+", with: "%2B")
-        return data?.base64EncodedString()
-    }
-    
-    func decrypt(_ ciphertext: Data) -> String? {
-        if let decryptedData = self.decrypt(inputData: ciphertext){
-            return String(data: decryptedData, encoding: .utf8)
-        }
-        return nil
-    }
-    
-    func encrypt(inputData: Data) -> Data?{
         let data:Data?
         switch mode {
         case .CBC, .ECB:
-            data = commonCryptoEncrypt(data: inputData, operation: CCOperation(kCCEncrypt))
+            data = commonCryptoEncrypt(data: plaintext, operation: CCOperation(kCCEncrypt))
         case .GCM:
-            data = gcmEncrypt(data: inputData)
+            data = gcmEncrypt(data: plaintext)
         }
-        return data
+            /// .replacingOccurrences(of: "+", with: "%2B")
+        return data?.base64EncodedString()
     }
-    
-    func decrypt(inputData: Data) -> Data? {
-        switch mode {
-        case .CBC, .ECB:
-            return commonCryptoEncrypt(data: inputData, operation: CCOperation(kCCDecrypt))
-        case .GCM:
-            return gcmDecrypt(data: inputData)
-        }
-        
-    }
-    
+
+	func decrypt(_ ciphertext: Data) -> String? {
+		switch mode {
+		case .CBC, .ECB:
+			guard let decryptedData = commonCryptoEncrypt(data: ciphertext, operation: CCOperation(kCCDecrypt)) else { return nil }
+			return String(data: decryptedData, encoding: .utf8)
+		case .GCM:
+			guard let decryptedData = gcmDecrypt(data: ciphertext) else { return nil }
+			return String(data: decryptedData, encoding: .utf8)
+		}
+	}
+
 	// MARK: - Private Methods
 	// CommonCrypto (CBC/ECB) Encryption/Decryption
 	private func commonCryptoEncrypt(data: Data, operation: CCOperation) -> Data? {

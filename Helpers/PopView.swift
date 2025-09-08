@@ -93,7 +93,7 @@ fileprivate struct PopViewHelper<ViewContent: View>: ViewModifier {
                             self.animateView = false
                         }
                         
-                        try? await Task.sleep(for: .seconds(0.2))
+                        try? await Task.sleep(for: .seconds(0.45))
                         
                         toggleView(false)
                     }
@@ -123,11 +123,11 @@ fileprivate struct PopViewHelper<ViewContent: View>: ViewModifier {
     }
     
     var screenSize: CGSize {
-        var size: CGSize = .zero
-         DispatchQueue.main.async{
-            size = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.size ?? .zero
+        if let screenSize = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.size {
+            return screenSize
         }
-        return size
+        
+        return .zero
     }
 }
 

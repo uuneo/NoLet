@@ -47,18 +47,18 @@ struct PushParams:Codable, Defaults.Serializable {
         
         dict.removeValue(forKey: "server")
         
-        if group.trimmingSpaceAndNewLines.isEmpty{
+        if group.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict["group"] = String(localized: "默认")
         }
-        if title.trimmingSpaceAndNewLines.isEmpty{
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict.removeValue(forKey: "title")
         }
         
-        if subTitle.trimmingSpaceAndNewLines.isEmpty{
+        if subTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict.removeValue(forKey: "subTitle")
         }
         
-        if body.trimmingSpaceAndNewLines.isEmpty{
+        if body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict["body"] = String(localized: "测试内容")
         }
         
@@ -66,15 +66,15 @@ struct PushParams:Codable, Defaults.Serializable {
             dict.removeValue(forKey: "call")
         }
         
-        if url.trimmingSpaceAndNewLines.isEmpty{
+        if url.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict.removeValue(forKey: "url")
         }
         
-        if icon.trimmingSpaceAndNewLines.isEmpty{
+        if icon.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict.removeValue(forKey: "icon")
         }
         
-        if image.trimmingSpaceAndNewLines.isEmpty{
+        if image.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty{
             dict.removeValue(forKey: "image")
         }
         
@@ -101,7 +101,7 @@ struct PushParams:Codable, Defaults.Serializable {
         
         if !cipherText.isEmpty{
             guard let jsonData = try? JSONSerialization.data(withJSONObject: dict),
-                  let cipherResult = CryptoManager(Defaults[.cryptoConfigs].config()).encrypt(jsonData) else {
+                  let cipherResult = CryptoManager(Defaults[.cryptoConfig]).encrypt(jsonData) else {
                 return [:]
             }
             return ["cipherText":  cipherResult]

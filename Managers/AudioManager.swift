@@ -21,6 +21,9 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     static let shared = AudioManager()
     private var manager = FileManager.default
     
+    
+    
+    
     private override init() {
         super.init()
         self.setFileList()
@@ -34,9 +37,11 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     @Published var playingAudio:URL? = nil
     
     @Published var speakPlayer:AVAudioPlayer? = nil
+    @Published var speaking:Bool = false
     @Published var loading:Bool = false
     
     @Published var ShareURL: URL?  = nil
+    
     
     func allSounds()-> [String] {
         let (customSounds , defaultSounds) = AudioManager.shared.getFileList()
@@ -64,7 +69,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         // 加载 App Group 共享目录中的自定义 caf 音频资源
         let customSounds: [URL] = {
             // 获取共享目录路径
-            guard let soundsDirectoryUrl = BaseConfig.getDir(.sounds) else { return [] }
+            guard let soundsDirectoryUrl = BaseConfig.getSoundsGroupDirectory() else { return [] }
             
             // 获取指定后缀（caf），排除长音前缀的文件
             var urlemp = self.getFilesInDirectory(directory: soundsDirectoryUrl.path(), suffix: "caf")
@@ -84,13 +89,13 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     
     /// 加载系统默认音效和用户自定义音效文件列表
     private func setFileList() {
-        Task.detached(priority: .userInitiated) {
-            let (customSounds, defaultSounds) = self.getFileList()
-            // 回到主线程，更新界面相关状态（如 SwiftUI 或 UIKit 列表）
-            DispatchQueue.main.async {
-                self.customSounds = customSounds
-                self.defaultSounds = defaultSounds
-            }
+        
+        let (customSounds, defaultSounds) = self.getFileList()
+        
+        // 回到主线程，更新界面相关状态（如 SwiftUI 或 UIKit 列表）
+        DispatchQueue.main.async {
+            self.customSounds = customSounds
+            self.defaultSounds = defaultSounds
         }
         
     }
@@ -100,7 +105,6 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         do {
             // 获取目录下所有文件名（字符串）
             let files = try manager.contentsOfDirectory(atPath: directory)
-        
             
             // 过滤符合条件的文件，并转换为完整的 URL
             return files.compactMap { file -> URL? in
@@ -120,7 +124,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     /// 通用文件保存方法
     func saveSound(url sourceUrl: URL, name lastPath: String? = nil) {
         // 获取 App Group 的共享铃声目录路径
-        guard let groupDirectoryUrl = BaseConfig.getDir(.sounds) else { return }
+        guard let groupDirectoryUrl = BaseConfig.getSoundsGroupDirectory() else { return }
         
         // 构造目标路径：使用传入的自定义文件名（lastPath），否则使用源文件名
         let groupDestinationUrl = groupDirectoryUrl.appendingPathComponent(lastPath ?? sourceUrl.lastPathComponent)
@@ -147,7 +151,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     
     func deleteSound(url: URL) {
         // 获取 App Group 中的共享铃声目录
-        guard let soundsDirectoryUrl = BaseConfig.getDir(.sounds) else { return }
+        guard let soundsDirectoryUrl = BaseConfig.getSoundsGroupDirectory() else { return }
         
         // 删除本地 sounds 目录下的铃声文件
         try? manager.removeItem(at: url)
@@ -162,53 +166,37 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         setFileList()
     }
     
-    func playAudio(url: URL? = nil, complete:(()->Void)? = nil) {
+    func playAudio(url: URL? = nil) {
         // 先释放之前的 SystemSoundID（如果有），避免内存泄漏或重复播放
         AudioServicesDisposeSystemSoundID(self.soundID)
         
         // 如果传入的 URL 为空，或者与当前正在播放的是同一个音频，则认为是“停止播放”的操作
         guard let audio = url, playingAudio != url else {
-            Queue.mainQueue().async {
-                self.playingAudio = nil
-                self.soundID = 0
-            }
+            self.playingAudio = nil
+            self.soundID = 0
             return
         }
-    
+        
+        // 设置当前正在播放的音频
+        self.playingAudio = audio
         
         // 创建 SystemSoundID，用于播放系统音效（仅支持较小的音频文件，通常小于30秒）
-        Queue.mainQueue().async {
-            // 设置当前正在播放的音频
-            self.playingAudio = audio
-            AudioServicesCreateSystemSoundID(audio as CFURL, &self.soundID)
-            // 播放音频，播放完成后执行回调
-            AudioServicesPlaySystemSoundWithCompletion(self.soundID) {
-                // 如果回调时仍是当前音频（防止播放期间被替换）
-                if self.playingAudio == url {
-                    // 释放资源
-                    AudioServicesDisposeSystemSoundID(self.soundID)
-                    DispatchQueue.main.async {
-                        // 重置播放状态
-                        self.playingAudio = nil
-                        self.soundID = 0
-                        complete?()
-                    }
+        AudioServicesCreateSystemSoundID(audio as CFURL, &self.soundID)
+        
+        // 播放音频，播放完成后执行回调
+        AudioServicesPlaySystemSoundWithCompletion(self.soundID) {
+            // 如果回调时仍是当前音频（防止播放期间被替换）
+            if self.playingAudio == url {
+                // 释放资源
+                AudioServicesDisposeSystemSoundID(self.soundID)
+                DispatchQueue.main.async {
+                    // 重置播放状态
+                    self.playingAudio = nil
+                    self.soundID = 0
                 }
             }
         }
-        
-        
-        
     }
-    
-    
-    static func playNumber(number: String){
-        guard let number = Int(number) else { return }
-        AudioServicesPlaySystemSound(SystemSoundID(number))
-    }
-    
-    
-    
     
     func convertAudioToCAF(inputURL: URL) async -> URL?  {
         
@@ -254,20 +242,20 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         
     }
     
-    func Speak(_ text: String, noCache:Bool = false) async -> AVAudioPlayer? {
+    func Speak(_ text: String) async -> AVAudioPlayer? {
         
         do{
             let start = DispatchTime.now()
             await MainActor.run {
                 withAnimation(.default) {
                     self.loading = true
-                    AppManager.shared.speaking = true
+                    self.speaking = true
                 }
                 
             }
             
             let client = try VoiceManager()
-            let audio = try await client.createVoice(text: text,noCache: noCache)
+            let audio = try await client.createVoice(text: text)
             await MainActor.run{
                 self.ShareURL = audio
             }
@@ -282,14 +270,14 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
             
             let end = DispatchTime.now()
             let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-            Log.info("运行时间：",Double(nanoTime) / 1_000_000_000)
+            debugPrint("运行时间：",Double(nanoTime) / 1_000_000_000)
             return self.speakPlayer
         }catch{
             await MainActor.run {
                 self.speakPlayer = nil
                 self.loading = false
             }
-            Log.error(error.localizedDescription)
+            debugPrint(error.localizedDescription)
             return nil
         }
     }
@@ -297,8 +285,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         DispatchQueue.main.async{
             withAnimation(.default) {
-                AppManager.shared.speaking = false
-                self.speakPlayer = nil
+                self.speaking = false
             }
         }
     }

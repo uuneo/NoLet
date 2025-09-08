@@ -70,7 +70,7 @@ struct WaveformScrubber: View {
     struct Config {
         var spacing: Float = 2
         var shapeWidth: Float = 2
-        var activeTint: Color = .primary
+        var activeTint: Color = .black
         var inActiveTint: Color = .gray.opacity(0.7)
         /// OTHER CONFIGS....
     }
@@ -123,7 +123,7 @@ extension WaveformScrubber {
                     self.info(audioInfo)
                 }
             } catch {
-                Log.error(error.localizedDescription)
+                print(error.localizedDescription)
             }
         }
     }
