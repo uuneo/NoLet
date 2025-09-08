@@ -80,23 +80,18 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     func registers(msg:Bool = false){
         Task.detached(priority: .userInitiated) {
             let servers = Defaults[.servers]
-            let results = await withTaskGroup(of: (Int, PushServerModel).self) { group in
-                for (index, server) in servers.enumerated() {
-                    group.addTask {
-                        let result = await self.register(server: server, msg: msg)
-                        return (index, result)
-                    }
-                }
+            let results =  await withTaskGroup(of: PushServerModel.self){ group in
                 
-                var tmp: [(Int, PushServerModel)] = []
-                for await pair in group {
-                    tmp.append(pair)
+                for server in servers {
+                    group.addTask{  await self.register(server: server,msg: msg) }
                 }
+                var results:[PushServerModel] = []
                 
-                // 按 index 排序，保证和 servers 顺序一致
-                return tmp.sorted { $0.0 < $1.0 }.map { $0.1 }
+                for await result in group{
+                    results.append(result)
+                }
+                return results
             }
-
             await MainActor.run {
                 Defaults[.servers] = results
                 Self.syncLocalToCloud()
@@ -118,7 +113,6 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             if let data = response.data {
                 server.key = data.deviceKey
                 server.status = true
-                server.voice = data.voice ?? false
                 if msg{
                     if reset{
                         Toast.info(title: "解绑成功")
@@ -129,7 +123,6 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 }
             }else{
                 server.status = false
-                server.voice = false
                 if msg{
                     Toast.error(title: "注册失败")
                 }

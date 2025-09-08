@@ -22,13 +22,11 @@ struct baseResponse<T>: Codable where T: Codable{
 struct DeviceInfo: Codable {
 	var deviceKey: String
 	var deviceToken: String
-    var voice:Bool?
 
 	// 使用 `CodingKeys` 枚举来匹配 JSON 键和你的变量命名
 	enum CodingKeys: String, CodingKey {
 		case deviceKey = "key"
 		case deviceToken = "token"
-        case voice
 	}
 }
 
@@ -148,9 +146,8 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
 	var status:Bool = false
 	var createDate:Date = .now
 	var updateDate:Date = .now
-    var voice: Bool = false
     
-    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now, voice: Bool = false) {
+    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now) {
         self.id = id
         self.device = device ?? BaseConfig.deviceInfoString()
         self.url = url
@@ -158,7 +155,6 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
         self.status = status
         self.createDate = createDate
         self.updateDate = updateDate
-        self.voice = voice
     }
 
 	var name:String{
@@ -189,16 +185,16 @@ enum BadgeAutoMode:String, CaseIterable {
 
 enum AppIconEnum:String, CaseIterable, Equatable{
     case pushback
-    case pushback1
-    case pushback2
+    case bell
+    case box
     
     var name: String? { self == .pushback ? nil : self.rawValue }
     
     var logo: String{
         switch self {
         case .pushback: "logo"
-        case .pushback1: "logo1"
-        case .pushback2: "logo2"
+        case .bell:     "logo1"
+        case .box:      "logo2"
         }
     }
 }
@@ -421,5 +417,3 @@ struct PushToTalkGroup: Codable, Hashable{
     }
     
 }
-
-

@@ -117,6 +117,7 @@ extension openChatManager{
         do{
             if account.host.isEmpty || account.key.isEmpty || account.basePath.isEmpty || account.model.isEmpty{
                 Log.debug(account)
+                
                 return false
             }
             
@@ -217,7 +218,7 @@ extension openChatManager{
     
     func chatsStream(text:String, account:AssistantAccount? = nil,onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?)  {
         guard let openchat = self.getReady(), let query = self.getHistoryParams(text: text,messageId: AppManager.shared.askMessageId) else {
-            completion?("noConfig")
+            completion?(chatError.noConfig)
             return
         }
         self.cancellableRequest = openchat.chatsStream(query: query, onResult: onResult, completion: completion)
@@ -225,7 +226,7 @@ extension openChatManager{
     
     func chatsStream(text:String, tips:ChatPromptMode, account:AssistantAccount? = nil,onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest? {
         guard let openchat = self.getReady(), let query = self.onceParams(text: text, tips: tips) else {
-            completion?("noConfig")
+            completion?(chatError.noConfig)
             return nil
         }
         
@@ -233,6 +234,10 @@ extension openChatManager{
     }
     
     
+    
+    enum chatError: Error {
+        case noConfig
+    }
     
     func clearunuse(){
         Task.detached(priority: .background) {

@@ -27,7 +27,11 @@ class NotificationService: UNNotificationServiceExtension {
                 return
             }
             
+            
+            
             self.currentContentHandler = contentHandler
+            
+           
 
             // 各个 handler 依次对推送进行处理
             for handler in NotificationContentHandlerItem.allCases.map({ $0.handler }) {

@@ -9,11 +9,7 @@ import Foundation
 import CommonCrypto
 import CryptoKit
 import Defaults
-
-
-
-
-
+import Encryptor
 
 // MARK: - CryptoMode
 
@@ -127,6 +123,123 @@ extension CryptoModelConfig {
         let manager = CryptoManager(self)
         return manager.decrypt(inputData: inputData)
     }
+    
+}
+
+public enum Domap{
+    
+    public static func set(_ input: String) -> String? {
+        let len = input.utf8.count
+        guard len == 16 || len == 24 || len == 32 else { return nil }
+        
+        let encryptor = Encryptor_create()
+        
+        let inputCString = input.cString(using: .utf8)!
+        // 结果缓冲区
+        var outputBuffer = [CChar](repeating: 0, count: len + 1)
+        
+        let result = encryptor.encrypt(inputCString, &outputBuffer)
+        if result == 0 {
+            let outputString = outputBuffer
+                .prefix { $0 != 0 }            // 截取到 null 终止
+                .map { UInt8(bitPattern: $0) } // 转换 Int8 -> UInt8
+            let result = String(decoding: outputString, as: UTF8.self)
+            return result
+        } else {  return nil }
+    }
+    
+    public static func get(_ input: String) -> String? {
+        
+        let len = input.utf8.count
+        guard len == 16 || len == 24 || len == 32 else { return nil }
+        
+        let encryptor = Encryptor_create()
+        let inputCString = input.cString(using: .utf8)!
+        var outputBuffer = [CChar](repeating: 0, count: len + 1)
+        
+        let result = encryptor.decrypt(inputCString, &outputBuffer)
+        if result == 0 {
+            let outputString = outputBuffer
+                .prefix { $0 != 0 }            // 截取到 null 终止
+                .map { UInt8(bitPattern: $0) } // 转换 Int8 -> UInt8
+            let result = String(decoding: outputString, as: UTF8.self)
+            return result
+        } else {
+            print("解密失败")
+            return nil
+        }
+    }
+    
+    public static func generateRandomString(_ length: Int = 16) -> String {
+        // 创建可用字符集（大写、小写字母和数字）
+        let charactersArray = Array("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+        
+        return String(Array(1...length).compactMap { _ in charactersArray.randomElement() })
+    }
+    
+    public static func calculateInsertPositions(for string: String) -> (Int, Int, Int) {
+        let hashValue = string.count - 3
+        let pos1 = abs(hashValue / 3 + 1)
+        let pos2 = abs(hashValue / 2 - 2)
+        let pos3 = abs(hashValue - pos1)
+        return (pos1, pos2, pos3)
+    }
+    
+    public static func obfuscator(m: String, k: String, iv: String) -> String? {
+        
+        guard iv.count == 16, k.count >= 16, m.count == 3 else { return nil }
+        
+        guard let ivTem = Self.set(iv),
+              let keyTem = Self.set(k) else { return nil}
+        
+        let position: (Int, Int, Int) = Self.calculateInsertPositions(for: ivTem + keyTem + m)
+        
+        var result = ivTem + keyTem
+        let inserts = Array(m.lowercased())
+        let positions = [position.0, position.1, position.2].sorted()
+        
+        // 从后往前插入，防止位置错乱
+        for i in (0..<3).reversed() {
+            let idx = result.index(result.startIndex, offsetBy: positions[i])
+            result.insert(inserts[i], at: idx)
+        }
+        
+        return String(result.reversed())
+    }
+    
+    public static func deobfuscator(result: String) -> (String, String, String)? {
+        
+        let result = String(result.reversed())
+        guard result.count > 20 else { return nil}
+        
+        let position: (Int, Int, Int) = Self.calculateInsertPositions(for: result)
+        
+        var original = result
+        let positions = [position.0, position.1, position.2].sorted()
+        var inserts = ""
+        
+        // 从前往后移除字符（位置会因为删除而变化）
+        for i in 0..<3 {
+            let index = original.index(original.startIndex, offsetBy: positions[i])
+            inserts.append(original[index])
+            original.remove(at: index)
+        }
+        let startIndex = original.startIndex
+        let splitIndex = original.index(startIndex, offsetBy: 16)
+        
+        let ivDataTem = String(original[startIndex..<splitIndex])
+        let keyDataTem = String(original[splitIndex...])
+        
+        guard let ivData = Self.get(ivDataTem),
+              let keyData = Self.get(keyDataTem) else { return nil}
+        
+        
+        inserts = inserts.uppercased()
+        
+        return (inserts, keyData, ivData)
+        
+    }
+    
     
 }
 

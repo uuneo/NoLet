@@ -8,10 +8,11 @@
 import UIKit
 import Defaults
 import AVFAudio
-import CloudKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate{
+
+    private let pttManager = PTTManager.shared
     
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -25,8 +26,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if !Defaults[.firstStart] {
             AppManager.shared.registerForRemoteNotifications()
         }
-
-
+        
+ 
+        if Defaults[.id] == ""{
+            Defaults[.id] = KeychainHelper.shared.getDeviceID()
+        }
+  
         return true
     }
     
@@ -38,9 +43,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         
         Defaults[.deviceToken] = token
-        Task.detached(priority: .userInitiated) {
-            _ = await CloudManager.shared.queryUser(token: token)
-        }
         
         let manager = AppManager.shared
         if Defaults[.servers].count == 0{
@@ -132,14 +134,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 .removeDeliveredNotifications(withIdentifiers: [group])
         }
         
-    
-        
         AppManager.shared.registerForRemoteNotifications()
         
         completionHandler(.newData)
-        
     }
     
-
     
 }

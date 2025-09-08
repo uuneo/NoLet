@@ -7,10 +7,7 @@
 
 import AppIntents
 
-
-class PushbackShortcuts:  AppShortcutsProvider, @unchecked Sendable {
-    
-
+class PushbackShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: DeleteMessageIntent(), phrases:
                         [ "清除\(.applicationName)" ],

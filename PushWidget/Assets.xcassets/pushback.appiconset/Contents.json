@@ -1,7 +1,31 @@
 {
   "images" : [
     {
-      "filename" : "logo_画板 1 副本.png",
+      "filename" : "AppIcon-01.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "AppIcon-02.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "AppIcon-03.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

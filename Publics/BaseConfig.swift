@@ -15,15 +15,15 @@ let CONTAINER =  FileManager.default.containerURL(forSecurityApplicationGroupIde
 
 class BaseConfig {
 
-    static let appSymbol = "NoLet"
+    static let appSymbol = "Domogo"
     static let groupName = "group.pushback"
     static let icloudName = "iCloud.pushback"
-
+    static let sounds = "Library/Sounds"
     static let signKey = "com.uuneo.pushback.xxxxxxxxxxxxxxxxxxxxxx"
 #if DEBUG
     static let defaultServer = "https://dev.uuneo.com"
 #else
-    static let defaultServer = "https://wzs.app"
+    static let defaultServer = "https://uuneo.com"
 #endif
 
     static let docServer = "https://docs.uuneo.com"
@@ -42,7 +42,7 @@ class BaseConfig {
     static var AppName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
         ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-        ?? Self.appSymbol
+        ?? "Domogo"
     }
     
     static var testData:String{
@@ -50,38 +50,48 @@ class BaseConfig {
     }
     
     
-    enum FolderType: String, CaseIterable{
-        case voice
-        case ptt
-        case icon
-        case image
-        case sounds = "Library/Sounds"
-        
-        var name:String{  self.rawValue }
-        
-        var path: URL{  BaseConfig.getDir(self)! }
-        
-        func all(files: Bool = false) -> [URL] {
-            if files {
-                Self.allCases.reduce(into: [URL]()) { partialResult, data in
-                    partialResult = partialResult + data.files()
-                }
-            } else {
-                Self.allCases.compactMap {  $0.path }
+    /// 获取共享目录下的 Sounds 文件夹，如果不存在就创建
+    class func getSoundsGroupDirectory() -> URL? {
+        let manager = FileManager.default
+        if let directoryUrl = CONTAINER?.appendingPathComponent(BaseConfig.sounds) {
+            if !manager.fileExists(atPath: directoryUrl.path) {
+                try? manager.createDirectory(atPath: directoryUrl.path, withIntermediateDirectories: true, attributes: nil)
             }
+            return URL(fileURLWithPath: directoryUrl.path)
         }
-        
-        func files() -> [URL]{
-            BaseConfig.files(in: self.path)
-        }
+        return nil
     }
     
+    enum ImageMode: String {
+        case icon
+        case image
+        var name:String{  self.rawValue }
+    }
     
     // Get the directory to store images in the App Group
-    class func getDir(_ name:FolderType) -> URL? {
+    class func getImagesDirectory(mode:ImageMode = .icon) -> URL? {
         guard let containerURL = CONTAINER else { return nil }
         
-        let voicesDirectory = containerURL.appendingPathComponent(name.rawValue)
+        let imagesDirectory = containerURL.appendingPathComponent(mode.name)
+        
+        // If the directory doesn't exist, create it
+        if !FileManager.default.fileExists(atPath: imagesDirectory.path) {
+            do {
+                try FileManager.default.createDirectory(at: imagesDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+            
+                Log.error("Failed to create images directory: \(error.localizedDescription)")
+                return nil
+            }
+        }
+        return imagesDirectory
+    }
+    
+    // Get the directory to store images in the App Group
+    class func getVoiceDirectory() -> URL? {
+        guard let containerURL = CONTAINER else { return nil }
+        
+        let voicesDirectory = containerURL.appendingPathComponent("Voice")
         
         // If the directory doesn't exist, create it
         if !FileManager.default.fileExists(atPath: voicesDirectory.path) {
@@ -95,29 +105,29 @@ class BaseConfig {
         return voicesDirectory
     }
     
-    class func files(in folder: URL) -> [URL] {
+    class func getPTTDirectory() -> URL?{
+        guard let containerURL = CONTAINER else { return nil }
         
-        guard let containerURL = CONTAINER else { return [] }
-
-        do {
-            let items = try FileManager.default.contentsOfDirectory(at: containerURL,
-                                                            includingPropertiesForKeys: [.isDirectoryKey],
-                                                            options: [.skipsHiddenFiles])
-            return items.filter {
-                (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == false
+        let imagesDirectory = containerURL.appendingPathComponent("PUshToTalk")
+        
+        // If the directory doesn't exist, create it
+        if !FileManager.default.fileExists(atPath: imagesDirectory.path) {
+            do {
+                try FileManager.default.createDirectory(at: imagesDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                Log.error("Failed to create images directory: \(error.localizedDescription)")
+                return nil
             }
-        } catch {
-            print("Error: \(error)")
-            return []
         }
-        
+        return imagesDirectory
     }
+    
     
     static  func deviceInfoString() -> String {
         let deviceName = UIDevice.current.localizedModel
-        let deviceModel = UIDevice.current.model
-        let systemName = UIDevice.current.systemName
-        let systemVersion = UIDevice.current.systemVersion
+        let deviceModel = UIDevice.current.model // "iPhone" 变成 "iphone"
+        let systemName = UIDevice.current.systemName // "iOS" 变成 "ios"
+        let systemVersion = UIDevice.current.systemVersion // 版本号比如 "18.0.4"
         
         return "\(deviceName) (\(deviceModel)-\(systemName)-\(systemVersion))"
     }
@@ -152,5 +162,3 @@ class BaseConfig {
         
     }
 }
-
-

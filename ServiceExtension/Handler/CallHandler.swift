@@ -13,7 +13,7 @@ import LiveCommunicationKit
 
 class CallHandler: NotificationContentHandler {
     /// 铃声文件夹，扩展访问不到主APP中的铃声，需要先共享铃声文件
-    let soundsDirectoryUrl = BaseConfig.getDir(.sounds)
+    let soundsDirectoryUrl = BaseConfig.getSoundsGroupDirectory()
     
     
     func handler(identifier: String, content bestAttemptContent: UNMutableNotificationContent) async throws -> UNMutableNotificationContent {

@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "fengche.svg",
+      "filename" : "mogu_chat.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "domogo_chat2.png",
       "idiom" : "universal"
     }
   ],

@@ -1,4 +1,4 @@
-
+//
 //  PTTMessage.swift
 //  pushme
 //
@@ -6,11 +6,13 @@
 //
 
 import Foundation
-import UIKit
 import GRDB
+import UIKit
 
 
-struct PttMessageModel: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable, Equatable{
+
+
+struct PttMessageModel: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable{
     var id:String = UUID().uuidString
     var timestamp:Date = .now
     var channel:String
@@ -38,8 +40,8 @@ struct PttMessageModel: Codable, FetchableRecord, PersistableRecord, Identifiabl
         case none
     }
     
-    func filePath() -> URL?{
-        BaseConfig.getDir(.ptt)?.appendingPathComponent(file)
+    func fileName() -> URL?{
+        BaseConfig.getPTTDirectory()?.appendingPathComponent(file)
     }
     
 }
@@ -70,7 +72,7 @@ struct PttMessageRequest: Codable{
 
 struct PttPlayInfo: Codable{
     var id:UUID = UUID()
-    var name: String
+    var name: String 
     var image: String
     var file: URL
     

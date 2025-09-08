@@ -22,8 +22,6 @@ extension Defaults.Keys {
     static let assistantAccouns = Key<[AssistantAccount]>("AssistantAccount",[], iCloud: true)
     
     static let moreMessageCache = Key<[MoreMessage]>("moreMessageCache", [])
-    
-    
 
 }
 
@@ -39,7 +37,5 @@ extension BadgeAutoMode: Defaults.Serializable{}
 extension PushServerModel: Defaults.Serializable{}
 extension MoreMessage: Defaults.Serializable{}
 extension PushToTalkGroup: Defaults.Serializable{}
-
-
 
 
