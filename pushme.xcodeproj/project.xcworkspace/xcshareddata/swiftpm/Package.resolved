@@ -1,0 +1,105 @@
+{
+  "originHash" : "e0ac25b7863399f4ce5638e5fabe1a4c28593406c137b43a92f99c0dedca71cc",
+  "pins" : [
+    {
+      "identity" : "defaults",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uuneo/Defaults.git",
+      "state" : {
+        "revision" : "d88a5c8cdb498e7536ef5ff88e7120e9b5874806",
+        "version" : "0.0.1"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "a5a1be26b4513dc7ec360eb56bc08a345bac6649",
+        "version" : "7.5.0"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "7deda23bbdca612076c5c315003d8638a08ed0f1",
+        "version" : "8.3.2"
+      }
+    },
+    {
+      "identity" : "openai",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uuneo/OpenAI.git",
+      "state" : {
+        "revision" : "80045fcda7ba727a327eb0a525e983fd7a796c70",
+        "version" : "0.0.3"
+      }
+    },
+    {
+      "identity" : "opus",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uuneo/Opus.git",
+      "state" : {
+        "revision" : "eb2d8a0a7e08c03e4c767a45a6d1afa78e6f64d8",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "qrscanner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uuneo/QRScanner.git",
+      "state" : {
+        "revision" : "72b97e41de89e6fa3fb1fe41f3ef31f14a65e000",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-cmark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-cmark",
+      "state" : {
+        "revision" : "b022b08312decdc46585e0b3440d97f6f22ef703",
+        "version" : "0.6.0"
+      }
+    },
+    {
+      "identity" : "swift-http-types",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-http-types",
+      "state" : {
+        "revision" : "a0a57e949a8903563aba4615869310c0ebf14c03",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "swift-markdown-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uuneo/swift-markdown-ui",
+      "state" : {
+        "revision" : "4e0fea3ec5005204df0d0220e572004c5028e3d8",
+        "version" : "3.0.3"
+      }
+    },
+    {
+      "identity" : "swift-openapi-runtime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-openapi-runtime",
+      "state" : {
+        "revision" : "8f33cc5dfe81169fb167da73584b9c72c3e8bc23",
+        "version" : "1.8.2"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}
