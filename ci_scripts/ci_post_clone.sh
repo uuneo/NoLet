@@ -6,7 +6,7 @@
 #  Created by lynn on 2025/9/7.
 #  
 
-git clone https://"$GITHUB_NAME":"$GITHUB_TOKEN"@github.com/"$GITHUB_NAME"/"$GITHUB_PROJECT_SAFE".git
+git clone https://github.com/"$GITHUB_NAME"/"$GITHUB_PROJECT_SAFE".git
 
 if [ -d "$GITHUB_PROJECT_SAFE" ]; then
     echo "Clone 成功 ✅"
