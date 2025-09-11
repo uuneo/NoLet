@@ -15,8 +15,9 @@ then
     rm -rf $APP_ICON_PATH
     rm -rf $APP_LOGO_PATH
 
-    
     # Replace with NoLet Beta App Icon
     mv "$CI_PRIMARY_REPOSITORY_PATH/ci_scripts/$GITHUB_PROJECT_SAFE/AppIcon" $APP_ICON_PATH
     mv "$CI_PRIMARY_REPOSITORY_PATH/ci_scripts/$GITHUB_PROJECT_SAFE/logo" $APP_LOGO_PATH
 fi
+
+rm -rf $GITHUB_PROJECT_SAFE

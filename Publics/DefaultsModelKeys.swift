@@ -12,7 +12,6 @@ extension Defaults.Keys {
     static let servers = Key<[PushServerModel]>("serverArrayStroage", [])
     static let cloudServers = Key<[PushServerModel]>("serverArrayCloudStroage", [], iCloud: true)
     
-    static let cryptoConfigs = Key<[CryptoModelConfig]>("CryptoSettingFieldsList", [CryptoModelConfig.data], iCloud: true)
     static let badgeMode = Key<BadgeAutoMode>("Meowbadgemode", .auto)
     static let appIcon = Key<AppIconEnum>("setting_active_app_icon", .pushback)
     static let messageExpiration = Key<ExpirationTime>("messageExpirtionTime", .forever)
@@ -27,14 +26,15 @@ extension Defaults.Keys {
 
 }
 
+
+
+
 extension ExpirationTime: Defaults.Serializable{ }
 extension DefaultBrowserModel:Defaults.Serializable {}
 extension AssistantAccount: Defaults.Serializable{}
 extension CategoryParams: Defaults.Serializable{}
 extension AppIconEnum: Defaults.Serializable{}
-extension CryptoModelConfig: Defaults.Serializable{}
-extension CryptoAlgorithm: Defaults.Serializable{}
-extension CryptoMode: Defaults.Serializable{}
+
 extension BadgeAutoMode: Defaults.Serializable{}
 extension PushServerModel: Defaults.Serializable{}
 extension MoreMessage: Defaults.Serializable{}

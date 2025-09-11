@@ -12,11 +12,17 @@ import Defaults
 
 
 
-
+extension Defaults.Keys {
+    
+    static let cryptoConfigs = Key<[CryptoModelConfig]>("CryptoSettingFieldsList", [CryptoModelConfig.data], iCloud: true)
+    
+}
+extension CryptoModelConfig: Defaults.Serializable{}
+extension CryptoAlgorithm: Defaults.Serializable{}
+extension CryptoMode: Defaults.Serializable{}
 
 
 // MARK: - CryptoMode
-
 enum CryptoMode: String, Codable,CaseIterable, RawRepresentable {
     
     case CBC, ECB, GCM
@@ -66,11 +72,13 @@ struct CryptoModelConfig: Identifiable, Equatable, Codable{
     var mode: CryptoMode
     var key: String
     var iv: String
+    var system: Bool = false
     
     static let data = CryptoModelConfig(algorithm: .AES256,
                                         mode: .GCM,
-                                        key: "ToBeOrNotToBeThatIsTheRealDomogo",
-                                        iv: "DreamBigWorkHard")
+                                        key: Domap.KEY,
+                                        iv: Domap.IV,
+                                        system: true)
     
     static func generateRandomString(_ length: Int = 16) -> String {
         Domap.generateRandomString(length)
@@ -94,14 +102,11 @@ struct CryptoModelConfig: Identifiable, Equatable, Codable{
 ///  pb://crypto?text=eIxk2XSXdVeC3zsMwmlJevVaXGncCTiUHg5lLiK0S2sG3QLuGMU
 
 extension [CryptoModelConfig]{
-    func config(_ number: Int? = nil) -> CryptoModelConfig{
-        if let number = number, number <= self.count{
-            return self[number - 1]
+    func config(_ number: Int = 1) -> CryptoModelConfig {
+        guard self.count > 1, number > 0, number < self.count else {
+            return self.first ?? .data
         }
-        if let item = self.first{
-            return item
-        }
-        return CryptoModelConfig.data
+        return self[number]
     }
 }
 

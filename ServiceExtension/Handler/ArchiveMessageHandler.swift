@@ -67,7 +67,7 @@ class ArchiveMessageHandler: NotificationContentHandler{
         }
         
        
-        if let count:Int = userInfo.raw(.count), let index:Int = userInfo.raw(.index), let messageId{
+        if let count:Int = userInfo.raw(.totalcount), let index:Int = userInfo.raw(.currentindex), let messageId{
       
             Defaults[.moreMessageCache].append(MoreMessage(createDate: .now, id: messageId, body: body, index: index, count: count))
             

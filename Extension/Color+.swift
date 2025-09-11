@@ -12,7 +12,11 @@ import SwiftUI
 
 extension UIColor {
     convenience init?(hexString: String) {
-        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        
+        // 只保留 0-9 A-F a-f
+        let hex = hexString.uppercased().filter { "0123456789ABCDEF".contains($0) }
+        guard !hex.isEmpty else { return nil }
+        
         var int = UInt64()
         Scanner(string: hex).scanHexInt64(&int)
         

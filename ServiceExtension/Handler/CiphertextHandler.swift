@@ -18,42 +18,45 @@ class CiphertextHandler:NotificationContentHandler{
 
 		// 解密推送信息
 		do {
-            let ciphertNumber:Int? = userInfo.raw(.ciphernumber)
-            let map = try self.decrypt(ciphertext: ciphertext, iv: userInfo[Params.iv.name] as? String, number: ciphertNumber)
+            let ciphertNumber:Int = userInfo.raw(.ciphernumber) ?? 1
+
+            let map = try self.decrypt(ciphertext: ciphertext,
+                                       iv: userInfo.raw(.iv) as? String,
+                                       number: ciphertNumber)
 			
 			var alert = [String: Any]()
 			var soundName: String? = nil
             
-            if let category = map[Params.category.name] as? String, category == CategoryParams.markdown.rawValue{
+            if let category = map.raw(.category) as? String, category == CategoryParams.markdown.rawValue{
                 bestAttemptContent.categoryIdentifier = category
             }else{
                 bestAttemptContent.categoryIdentifier = CategoryParams.myNotificationCategory.rawValue
             }
             
-            if let id = map[Params.id.name] as? String{
+            if let id = map.raw(.id) as? String{
                 bestAttemptContent.targetContentIdentifier = id
             }
             
-			if let title = map[Params.title.name] as? String {
+			if let title = map.raw(.title) as? String {
                 bestAttemptContent.title = title
                 alert[Params.title.name] = title
 			}
             
             
-			if let subtitle = map[Params.subtitle.name] as? String {
+			if let subtitle = map.raw(.subtitle) as? String {
 				bestAttemptContent.subtitle = subtitle
 				alert[Params.subtitle.name] = subtitle
 			}
-			if let body = map[Params.body.name] as? String {
+			if let body = map.raw(.body) as? String {
 				bestAttemptContent.body = body
 				alert[Params.body.name] = body
 			}
-			if let group = map[Params.group.name] as? String {
+			if let group = map.raw(.group) as? String {
 				bestAttemptContent.threadIdentifier = group
 			}
             
             
-			if var sound = map[Params.sound.name] as? String {
+			if var sound = map.raw(.sound) as? String {
 				if !sound.hasSuffix(Params.caf.name) {
 					sound = "\(sound).\(Params.caf.name)"
 				}
@@ -86,7 +89,7 @@ class CiphertextHandler:NotificationContentHandler{
 	
     
 	// MARK: 解密
-    func decrypt(ciphertext: String, iv: String? = nil, number:Int? = nil) throws -> [AnyHashable: Any] {
+    func decrypt(ciphertext: String, iv: String? = nil, number:Int = 1) throws -> [AnyHashable: Any] {
         var cryptoConfig = Defaults[.cryptoConfigs].config(number)
 		
 		if let iv = iv { cryptoConfig.iv = iv }
