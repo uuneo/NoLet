@@ -21,7 +21,6 @@ rm -rf "$APP_FILE_PATH"
 
 mv "$GITHUB_PROJECT_SAFE"/"$SAFE_FILE_NAME" "$APP_FILE_PATH"
 
-rm -rf $GITHUB_PROJECT_SAFE
 
 if [ -f "$APP_FILE_PATH" ]; then
     echo "MV Success ✅"
