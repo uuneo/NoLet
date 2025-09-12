@@ -7,6 +7,7 @@
 import SwiftUI
 import Kingfisher
 import Defaults
+import OpenAI
 
 enum SelectMessageViewMode:Int, Equatable{
     case translate
@@ -30,19 +31,22 @@ struct SelectMessageView:View {
     @ScaledMetric(relativeTo: .subheadline) var baseSubtitleSize: CGFloat = 15
     @ScaledMetric(relativeTo: .footnote) var basedateSize: CGFloat = 13
     
-    
     @StateObject private var manager = AppManager.shared
     
     @State private var image:UIImage? = nil
-    @State var scale : CGFloat = 1
+    @State private var scale : CGFloat = 1
     
     @State private var isDismiss:Bool = false
     @State private var messageShowMode:SelectMessageViewMode = .raw
-    
     @State private var translateResult:String = ""
+    
     @State private var abstractResult:String = ""
     
     @State private var showAssistantSetting:Bool = false
+    
+    @State private var showOther:Bool = false
+    
+    @State private var cancels:CancellableRequest? = nil
     
     var body: some View {
        
@@ -105,15 +109,26 @@ struct SelectMessageView:View {
                         
                         if messageShowMode == .abstract{
                             VStack{
-                                
-                                AbstractMessageView(message: message, scaleFactor: scaleFactor,lang: translateLang.name, abstractResult: $abstractResult)
+                                if abstractResult.isEmpty{
+                                    Label("正在处理中...", systemImage: "rays")
+                                        .symbolRenderingMode(.palette)
+                                        .foregroundStyle(.green, Color.primary)
+                                        .symbolEffect(.rotate)
+                                }else{
+                                    MarkdownCustomView(content: abstractResult, searchText: "", scaleFactor: scaleFactor)
+                                        .font(.body)
+                                        .textSelection(.enabled)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.bottom, 5)
+                                        
+                                }
                             }
                             .frame(maxWidth: .infinity)
                             .padding(10)
                             .background(.gray.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                             .overlay {
-                                ColoredBorder(cornerRadius: 15)
+                                ColoredBorder(cornerRadius: 5)
                             }
                             
                         }
@@ -121,9 +136,26 @@ struct SelectMessageView:View {
                         
                         if messageShowMode == .translate{
                             
-                            TranslateMesssageView(message: message, scaleFactor: scaleFactor,lang: translateLang.name, translateResult: $translateResult)
+                            VStack{
+                                if translateResult.isEmpty{
+                                    Label("正在处理中...", systemImage: "rays")
+                                        .symbolRenderingMode(.palette)
+                                        .foregroundStyle(.green, Color.primary)
+                                        .symbolEffect(.rotate)
+                                }else{
+                                    MarkdownCustomView(content: translateResult, searchText: "", scaleFactor: scaleFactor)
+                                        .font(.body)
+                                        .textSelection(.enabled)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.bottom, 5)
+                                       
+                                }
+                               
+                            }
                             
                         }else{
+                           
+                            
                             if let title = message.title{
                                 HStack{
                                     Spacer(minLength: 0)
@@ -156,6 +188,30 @@ struct SelectMessageView:View {
                                     Spacer(minLength: 0)
                                 }
                             }
+                            
+                           
+                            
+                            if let other = message.other{
+                                Divider()
+                                    .padding(.top, 10)
+                                DisclosureGroup("其他字段", isExpanded: $showOther){
+                                    HStack{
+                                        MarkdownCustomView(content: other, searchText: "", scaleFactor: scaleFactor)
+                                            .textSelection(.enabled)
+                                        Spacer(minLength: 0)
+                                    }
+                                    .padding(10)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill( .gray.opacity(0.1))
+                                    )
+                                    Divider()
+                                    
+                                }
+                               
+                            }
+                            
+                            
                         }
                         
                     }
@@ -186,17 +242,11 @@ struct SelectMessageView:View {
                         }
                     }
                 }
-                .background(GeometryReader { geo in
-                    Color.clear
-                        .onChange(of: geo.frame(in: .global).minY) { newY in
-                            if newY > 100 && !isDismiss {
-                                self.isDismiss = true
-                                Haptic.impact()
-                                self.dismiss()
-                            }
-                        }
-                       
-                })
+                .onChange(of: translateLang) { value in
+                    self.translateResult = ""
+                    self.abstractResult = ""
+                    self.messageShowMode = .raw
+                }
                 
             }
             .overlay(alignment: .topTrailing, content: {
@@ -280,40 +330,33 @@ struct SelectMessageView:View {
                         
                         
                     }
-                    if messageShowMode == .translate{
-                        Button{
+                    Button{
+                        if messageShowMode == .translate{
                             self.messageShowMode = .raw
-                            Haptic.impact()
-                            
-                        }label: {
-                            Label(  "隐藏", systemImage: "eye.slash")
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(Color.accentColor, Color.primary)
-                            .frame(maxWidth: .infinity)
-                            .contentShape(Rectangle())
-                        }
-                    }else{
-                        Button{
+                        }else{
                             self.messageShowMode = .translate
-                            Haptic.impact()
-                            if assistantAccouns.first(where: {$0.current}) == nil{
-                                self.showAssistantSetting.toggle()
-                            }
-                        }label:{
-                            Label( "翻译" , systemImage:  "translate")
-                                .symbolRenderingMode(.palette)
-                                .foregroundStyle(Color.accentColor, Color.primary)
-                                .frame(maxWidth: .infinity)
-                                .contentShape(Rectangle())
+                            translateMessage()
                         }
+                        Haptic.impact()
+                        
+                    }label: {
+                        Label( messageShowMode == .translate ?  "隐藏" : "翻译",
+                               systemImage: messageShowMode == .translate ?  "eye.slash" : "translate")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(Color.accentColor, Color.primary)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
                     }
                     
                     Button{
-                        self.messageShowMode = (self.messageShowMode == .abstract) ?  .raw : .abstract
-                        Haptic.impact()
-                        if assistantAccouns.first(where: {$0.current}) == nil && messageShowMode == .abstract{
-                            self.showAssistantSetting.toggle()
+                        
+                        if self.messageShowMode == .abstract{
+                            self.messageShowMode = .raw
+                        }else{
+                            self.messageShowMode = .abstract
+                            abstractMessage(message.search.trimmingSpaceAndNewLines)
                         }
+                        Haptic.impact()
                     }label: {
                         Label(messageShowMode == .abstract ?  "隐藏"  : "总结",
                               systemImage: messageShowMode == .abstract ? "eye.slash" : "doc.text.magnifyingglass")
@@ -345,6 +388,99 @@ struct SelectMessageView:View {
     }
     
     
+    
+    
+    private func translateMessage() {
+        self.cancels?.cancelRequest()
+        
+        guard translateResult.isEmpty else { return }
+
+        var datas: String = ""
+
+        if let title = message.title, !title.isEmpty {
+            datas += "\(title) /n "
+        }
+
+        if let subtitle = message.subtitle, !subtitle.isEmpty {
+            datas += "\(subtitle) /n "
+        }
+
+        if let body = message.body, !body.isEmpty {
+            datas += "\(body)"
+        }
+   
+        guard assistantAccouns.first(where: {$0.current}) != nil else {
+            Toast.error(title: "需要配置大模型")
+            translateResult = String(localized: "❗️需要配置大模型")
+            
+            return
+        }
+    
+        self.cancels = chatManager.chatsStream(text: datas, tips: .translate(translateLang.name)) { partialResult in
+            switch partialResult {
+            case .success(let result):
+                
+                if let res = result.choices.first?.delta.content {
+                    DispatchQueue.main.async{
+                        self.translateResult += res
+                        Haptic.selection(limitFrequency: true)
+                    }
+                }
+            case .failure(let error):
+                //Handle chunk error here
+                Log.error(error)
+                Toast.error(title: "发生错误\(error.localizedDescription)")
+            }
+            
+            
+        }completion: { err in
+            if err != nil{
+                DispatchQueue.main.async{
+                    translateResult = ""
+                }
+            }
+        }
+        
+    }
+    
+    
+    
+    private func abstractMessage(_ text: String) {
+        self.cancels?.cancelRequest()
+        guard abstractResult.isEmpty else { return }
+   
+        guard assistantAccouns.first(where: {$0.current}) != nil else {
+            Toast.error(title: "需要配置大模型")
+            abstractResult = String(localized: "❗️需要配置大模型")
+            return
+        }
+    
+        self.cancels = chatManager.chatsStream(text: text, tips: .abstract(translateLang.name)) { partialResult in
+            switch partialResult {
+            case .success(let result):
+                
+                if let res = result.choices.first?.delta.content {
+                    DispatchQueue.main.async{
+                        abstractResult += res
+                        Haptic.selection(limitFrequency: true)
+                    }
+                }
+            case .failure(let error):
+                //Handle chunk error here
+                Log.error(error)
+                Toast.error(title: "发生错误\(error.localizedDescription)")
+            }
+            
+            
+        }completion: { err in
+            if err != nil{
+                DispatchQueue.main.async{
+                    abstractResult = ""
+                }
+            }
+        }
+        
+    }
     
 }
 

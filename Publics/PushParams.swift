@@ -19,8 +19,16 @@ enum Params: String, CaseIterable{
     var name:String{ self.rawValue }
 }
 
+extension [Params] {
+    func allString() -> [String]{
+        self.compactMap { param in
+            param.name
+        }
+    }
+}
 
-extension [AnyHashable : Any]{
+
+extension Dictionary where Key == AnyHashable, Value == Any{
     
     func raw<T:Any>(_ params: Params)-> T?{
         return raw(params) as? T
@@ -41,6 +49,12 @@ extension [AnyHashable : Any]{
             }
             
             return self[params.name]
+        }
+    }
+    func other() -> Self {
+        self.filter { key, _ in
+            guard let keyStr = key as? String else { return true }
+            return !Params.allCases.contains { $0.name == keyStr }
         }
     }
     

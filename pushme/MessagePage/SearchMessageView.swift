@@ -38,8 +38,7 @@ struct SearchMessageView:View {
         }
         .listStyle(.grouped)
         .if(colorScheme == .light) { view in
-            view
-                .background(.ultraThinMaterial)
+            view.background(.ultraThinMaterial)
         }
         .safeAreaInset(edge: .top, content: {
             HStack{
@@ -51,8 +50,6 @@ struct SearchMessageView:View {
                 Text(verbatim: "\(messages.count) / \(max(allCount, messages.count))")
                     .font(.caption)
                     .foregroundStyle(.gray)
-                    
-                
             }
             .padding(.horizontal)
             .padding(.bottom, 3)

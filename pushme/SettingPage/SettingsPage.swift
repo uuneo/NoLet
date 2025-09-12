@@ -55,7 +55,13 @@ struct SettingsPage: View {
 		// 版本号
 		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 		// build号
-		let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        var buildVersion: String{
+            if let version =  Bundle.main.infoDictionary?["CFBundleVersion"] as? String ,
+               let versionNumber = Int(version) {
+                return String(versionNumber, radix: 16).uppercased()
+            }
+            return ""
+        }
 
         return  buildDetail ? "\(appVersion)(\(buildVersion))" : appVersion
 	}

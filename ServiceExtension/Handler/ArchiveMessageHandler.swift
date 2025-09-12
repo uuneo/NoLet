@@ -48,7 +48,7 @@ class ArchiveMessageHandler: NotificationContentHandler{
         let host:String? = userInfo.raw(.host)
         let messageId = bestAttemptContent.targetContentIdentifier
         let level =  bestAttemptContent.getLevel()
-        
+        let other = userInfo.toJSONString(excluding: Params.allCases.allString())
         
         //  获取保存时间
         var saveDays:Int {
@@ -95,7 +95,7 @@ class ArchiveMessageHandler: NotificationContentHandler{
         let message = Message(id: messageId ?? UUID().uuidString, group: group,
                               createDate: .now, title: title, subtitle: subtitle,
                               body: body, icon: icon, url: url, image: image,
-                              host: host, level: Int(level), ttl: saveDays, read: false)
+                              host: host, level: Int(level), ttl: saveDays, read: false, other: other)
         
         
         Task.detached(priority: .userInitiated) {

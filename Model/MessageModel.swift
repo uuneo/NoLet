@@ -22,6 +22,7 @@ struct Message: Codable, FetchableRecord, PersistableRecord, Identifiable, Hasha
     var level: Int
     var ttl: Int
     var read: Bool
+    var other:String?
     
     enum Columns{
         static let id = Column(CodingKeys.id)
@@ -38,6 +39,7 @@ struct Message: Codable, FetchableRecord, PersistableRecord, Identifiable, Hasha
         static let level = Column(CodingKeys.level)
         static let ttl = Column(CodingKeys.ttl)
         static let read = Column(CodingKeys.read)
+        static let other = Column(CodingKeys.other)
     }
     
 }
@@ -60,6 +62,7 @@ extension Message{
                 t.column("level", .integer).notNull()
                 t.column("ttl", .integer).notNull()
                 t.column("read", .boolean).notNull()
+                t.column("other", .text)
             }
             try db.execute(sql: """
                 CREATE INDEX IF NOT EXISTS idx_message_group_createdate

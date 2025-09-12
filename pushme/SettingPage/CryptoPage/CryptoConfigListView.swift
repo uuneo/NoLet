@@ -130,6 +130,10 @@ struct CryptoConfigListView: View {
                             .padding(.vertical, 10)
                             .contentShape(Rectangle())
                     }
+                }else{
+                    Image(systemName: "person.badge.key")
+                        .imageScale(.large)
+                        .padding(.vertical, 10)
                 }
                 
                
