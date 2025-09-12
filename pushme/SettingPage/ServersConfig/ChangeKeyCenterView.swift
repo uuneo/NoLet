@@ -31,12 +31,10 @@ struct ChangeKeyCenterView: View {
     @FocusState private var isPhoneFocused
     @FocusState private var isHostFocused
     
-    var serversSelect:[PushServerModel]{
-        servers.reduce(into: [PushServerModel]()) { result, item in
-            if !result.contains(where: {$0.url == item.url}){
-                result.append(item)
-            }
-        }
+    var serversSelects:[String]{
+        var datas = servers.compactMap {  $0.url }
+        datas.insert(BaseConfig.defaultServer, at: 0)
+        return Array(Set(datas)).sorted()
     }
     
     var dismiss:() -> Void = {}
@@ -73,13 +71,13 @@ struct ChangeKeyCenterView: View {
                 
                 
                 Menu{
-                    ForEach(serversSelect, id: \.id){item in
+                    ForEach(serversSelects, id: \.self){item in
                         
                         Button{
-                            self.keyHost = item.url
+                            self.keyHost = item
                             Haptic.impact()
                         }label:{
-                            Text(item.url.removeHTTPPrefix())
+                            Text(item.removeHTTPPrefix())
                                 .minimumScaleFactor(0.5)
                         }
                     }
@@ -194,6 +192,7 @@ struct ChangeKeyCenterView: View {
                 self.isHostFocused = true
                 Haptic.impact()
             }
+          
     }
     
     @ViewBuilder

@@ -62,7 +62,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     }
     
 
-
+    private var appending:Bool = false
 	
 	private override init() { super.init() }
     
@@ -146,9 +146,8 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
 
     func appendServer(server:PushServerModel) async -> Bool{
         
-        if Defaults[.deviceToken].count < 5{
-            AppManager.shared.registerForRemoteNotifications()
-        }
+        guard !appending && !Defaults[.deviceToken].isEmpty else { return false}
+        self.appending = true
         
         guard !Defaults[.servers].contains(where: {$0.key == server.key && $0.url == server.url})else{
             Toast.error(title: "服务器已存在")
@@ -162,6 +161,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             }
             Toast.success(title: "添加成功")
         }
+        self.appending = false
         return server.status
     }
     
