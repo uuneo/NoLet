@@ -355,13 +355,13 @@ class PttAudioManager{
                                             mode: mode,
                                             options: [
                                                 .defaultToSpeaker,
-                                                .allowBluetoothHFP,
+                                                .allowBluetooth,
                                                 .allowBluetoothA2DP
                                             ])
                 }else{
                     try session.setCategory(category,
                                             mode: mode,
-                                            options: [ .allowBluetoothHFP, .allowBluetoothA2DP ] )
+                                            options: [ .allowBluetooth, .allowBluetoothA2DP ] )
                 }
                 
             }
