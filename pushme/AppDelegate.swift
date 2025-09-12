@@ -26,7 +26,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             AppManager.shared.registerForRemoteNotifications()
         }
 
-
         return true
     }
     
