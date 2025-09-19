@@ -85,30 +85,30 @@
         }
       }
     },
-    "* 左上角切换分组显示\n* 右上角示例和删除消息\n* 单击图片/双击消息全屏查看\n* 左滑删除，右滑朗读，长按显示菜单。" : {
+    "* 左上角功能菜单，使用示例，分组\n* 右上角按时间删除消息\n* 单击图片/双击消息全屏查看\n* 全屏查看，翻译，总结，朗读\n* 左滑删除，右滑复制和智能解答。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "* Switch group display in top left\n* Example and delete messages in top right\n* Click image/double-click message to view full screen\n* Swipe left to delete, swipe right to read, long press to show menu."
+            "value" : "* Top-left menu for functions, examples, and grouping\n* Top-right to delete messages by time\n* Single tap image/double tap message for fullscreen\n* Fullscreen view, translate, summarize, read aloud\n* Swipe left to delete, right for copy and smart reply"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "* 左上でグループ表示を切り替え\n* 右上でサンプルとメッセージを削除\n* 画像をクリック/メッセージをダブルクリックで全画面表示\n* 左スワイプで削除、右スワイプで読み上げ、長押しでメニュー表示"
+            "value" : "* 左上の機能メニュー、使用例、グループ分け\n* 右上で時間順にメッセージを削除\n* 画像をタップ/メッセージをダブルタップで全画面表示\n* 全画面表示、翻訳、要約、読み上げ\n* 左スワイプで削除、右スワイプでコピーとスマート返信"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "* 왼쪽 상단에서 그룹 표시 전환\n* 오른쪽 상단에서 샘플 및 메시지 삭제\n* 이미지 클릭/메시지 더블 클릭으로 전체 화면 보기\n* 왼쪽으로 스와이프하여 삭제, 오른쪽으로 스와이프하여 읽기, 길게 눌러 메뉴 표시"
+            "value" : "* 좌측 상단 기능 메뉴, 사용 예시, 그룹화\n* 우측 상단에서 시간별 메시지 삭제\n* 이미지 클릭/메시지 더블클릭으로 전체화면\n* 전체화면 보기, 번역, 요약, 읽기\n* 왼쪽 스와이프로 삭제, 오른쪽 스와이프로 복사 및 스마트 답변"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "* 左上角切换分组显示\n* 右上角示例和删除消息\n* 单击图片/双击消息全屏查看\n* 左滑删除，右滑朗读，长按显示菜单。"
+            "value" : "* 左上角功能菜单，使用示例，分组\n* 右上角按时间删除消息\n* 单击图片/双击消息全屏查看\n* 全屏查看，翻译，总结，朗读\n* 左滑删除，右滑复制和智能解答。"
           }
         }
       }
@@ -781,34 +781,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "API Key"
-          }
-        }
-      }
-    },
-    "App 使用的最基本前提,用来接收通知" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The most basic prerequisite for using the app, used to receive notifications"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アプリを使用するための最も基本的な前提条件、通知を受信するために使用"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱 사용의 가장 기본적인 전제 조건, 알림을 수신하는 데 사용"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App 使用的最基本前提,用来接收通知"
           }
         }
       }
@@ -2181,34 +2153,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不保存"
-          }
-        }
-      }
-    },
-    "不需要任何的设置\n 打开即用" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No setup required\nOpen and use"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "セットアップ不要\n開いて使用"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정이 필요하지 않습니다\n열고 사용"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不需要任何的设置\n 打开即用"
           }
         }
       }
@@ -6357,34 +6301,6 @@
         }
       }
     },
-    "开始使用" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get started"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使い始める"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "시작하기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "开始使用"
-          }
-        }
-      }
-    },
     "开始新聊天" : {
       "localizations" : {
         "en" : {
@@ -6535,7 +6451,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "必須の権限が選択されていません"
           }
         },
@@ -8355,7 +8271,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "サーバーアドレスが無効です"
           }
         },
@@ -9293,34 +9209,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此操作将删除所有聊天记录和设置数据，且无法恢复。确定要继续吗？"
-          }
-        }
-      }
-    },
-    "每个月需要打开一次App用来更新设备推送密钥." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You need to open the app once a month to update the device push key."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "デバイスのプッシュキーを更新するために、毎月一度アプリを開く必要があります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "장치 푸시 키를 업데이트하려면 매달 한 번 앱을 열어야 합니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每个月需要打开一次App用来更新设备推送密钥."
           }
         }
       }
@@ -10473,34 +10361,6 @@
         }
       }
     },
-    "用来获取提送密钥和接收通知." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Used to obtain push key and receive notifications."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プッシュキーの取得と通知の受信に使用されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "푸시 키를 얻고 알림을 수신하는 데 사용됩니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "用来获取提送密钥和接收通知."
-          }
-        }
-      }
-    },
     "监听公共频道" : {
       "localizations" : {
         "en" : {
@@ -11323,7 +11183,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "ネットワーク権限はアプリの正常な動作に不可欠です。続行するにはネットワーク権限を許可してください。"
           }
         },
@@ -12268,34 +12128,6 @@
         }
       }
     },
-    "语音" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voice"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "音声"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "음성"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "语音"
-          }
-        }
-      }
-    },
     "语音对讲" : {
       "localizations" : {
         "en" : {
@@ -12614,7 +12446,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "有効なサーバーURLを入力してください。例：https://example.com"
           }
         },
@@ -13444,34 +13276,6 @@
         }
       }
     },
-    "通知权限" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notification Permission"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通知の許可"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "알림 권한"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通知权限"
-          }
-        }
-      }
-    },
     "通知权限设置" : {
       "localizations" : {
         "en" : {
@@ -14182,7 +13986,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "ネットワーク権限が必要"
           }
         },

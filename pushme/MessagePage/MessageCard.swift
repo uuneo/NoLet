@@ -241,7 +241,7 @@ struct MessageCard: View {
                
             }
             .padding(8)
-            .swipeActions(edge: .leading, allowsFullSwipe: true){
+            .swipeActions(edge: .leading){
                 Button{
                     Haptic.impact()
                     DispatchQueue.main.async{
@@ -253,19 +253,20 @@ struct MessageCard: View {
                         .symbolEffect(.bounce, delay: 2)
                 }.tint(.green)
             }
-            .swipeActions(edge: .leading){
+            .swipeActions(edge: .leading , allowsFullSwipe: true){
                 Button{
                     Haptic.impact()
-                    Task(priority: .high) {
-                        guard let player = await AudioManager.shared.Speak(message.voiceText) else {
-                            return
-                        }
-                        player.play()
+                    if let image = image {
+                        Clipboard.set(message.search,[UTType.image.identifier: image])
+                    }else{
+                        Clipboard.set(message.search)
                     }
+                    Toast.copy(title: "复制成功")
                 }label:{
-                    Label("语音", systemImage: "speaker.wave.2.bubble.left")
+                    Label("复制", systemImage: "doc.on.clipboard")
                         .symbolEffect(.variableColor)
-                   
+                        .customForegroundStyle(.orange, .primary)
+
                 }.tint(.blue)
             }
             .swipeActions(edge: .trailing) {
@@ -374,25 +375,7 @@ struct MessageCard: View {
 
 
             Spacer()
-            
-            HStack(spacing: 25){
-               
-                Image(systemName: "doc.on.clipboard")
-                    .scaleEffect(0.9)
-                    .VButton { _ in
-                        if let image = image {
-                            Clipboard.set(message.search,[UTType.image.identifier: image])
-                        }else{
-                            Clipboard.set(message.search)
-                        }
-                        Toast.copy(title: "复制成功")
-                        return true
-                    }
-                    
-            }
-            .font(.title3)
-            .symbolRenderingMode(.palette)
-            .customForegroundStyle(.accent, .primary)
+
             
             
         }

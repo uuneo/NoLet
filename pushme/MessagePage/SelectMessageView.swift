@@ -389,11 +389,11 @@ struct SelectMessageView:View {
         var datas: String = ""
 
         if let title = message.title, !title.isEmpty {
-            datas += "\(title)<br>"
+            datas += "\(title) <br>"
         }
 
         if let subtitle = message.subtitle, !subtitle.isEmpty {
-            datas += "\(subtitle)<br>"
+            datas += "\(subtitle) <br>"
         }
 
         if let body = message.body, !body.isEmpty {

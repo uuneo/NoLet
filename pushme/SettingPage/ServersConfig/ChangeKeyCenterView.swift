@@ -309,12 +309,15 @@ struct ChangeKeyCenterView: View {
                         .init(title: String(localized: "注册中..."), background: .cyan)
                     ]
             ) { view in
-                
+                    // 检查完善url
+                await MainActor.run {
+                    self.keyHost = normalizedURLString(from: keyHost)
+                }
                 self.disabledPage = true
                 self.buttonState = .loading(0)
                 try? await Task.sleep(for: .seconds(0.5))
                 
-                guard keyHost.count > 3 && keyHost.hasHttp() else {
+                guard keyHost.count >  10 else {
                     Toast.error(title: "格式错误")
                     await view.next(.fail)
                      DispatchQueue.main.async {
@@ -322,7 +325,11 @@ struct ChangeKeyCenterView: View {
                     }
                     return
                 }
-                
+
+
+
+
+
                 await view.next(.loading(1))
                 
                 
@@ -364,7 +371,27 @@ struct ChangeKeyCenterView: View {
             appear[2] = true
         }
     }
-    
+
+    func normalizedURLString(from input: String) -> String {
+            // 尝试解析
+        if let url = URL(string: input),
+           let scheme = url.scheme?.lowercased(),
+           scheme == "http" || scheme == "https" {
+                // 已经是 http/https
+            return input
+        }
+
+            // 否则强制替换掉错误的 scheme 或缺省情况
+        var trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // 如果原本就带 "://"，去掉前缀再补 https://
+        if let range = trimmed.range(of: "://") {
+            trimmed = String(trimmed[range.upperBound...])
+        }
+
+        return "https://" + trimmed
+    }
+
 }
 
 struct ChangeKeyView: View {
