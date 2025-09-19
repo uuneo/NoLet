@@ -46,6 +46,9 @@ struct MessageCard: View {
     @State private var image:UIImage? = nil
     @State private var imageHeight:CGFloat = .zero
     @EnvironmentObject private var messageManager: MessagesManager
+
+    @State private var showDetail:Bool = false
+    @Namespace private var sms
     var body: some View {
         Section {
             VStack{
@@ -107,14 +110,28 @@ struct MessageCard: View {
                 }
                 .contentShape(Rectangle())
                 .if(message.url != nil){ view in
-                    view
-                        .VButton{ _ in
-                            if let url = message.url, let fileUrl = URL(string: url){
-                                AppManager.openUrl(url: fileUrl)
-                                
-                            }
-                            return true
+                    Group{
+                        if #available(iOS 26.0, *){
+                            view
+                                .onTapGesture {
+                                    if let url = message.url, let fileUrl = URL(string: url){
+                                        AppManager.openUrl(url: fileUrl)
+
+                                    }
+                                    Haptic.impact()
+                                }
+                        }else{
+                            view
+                                .VButton{ _ in
+                                    if let url = message.url, let fileUrl = URL(string: url){
+                                        AppManager.openUrl(url: fileUrl)
+
+                                    }
+                                    return true
+                                }
                         }
+                    }
+
                 }
                 
                 
@@ -177,14 +194,27 @@ struct MessageCard: View {
                                     .padding(.horizontal, 3)
                             }
                         }
-                        
                         .frame(height: imageHeight)
                         .clipShape(Rectangle())
                         .contentShape(Rectangle())
-                        .VButton{ _ in
-                            self.complete?()
-                            return true
+                        .diff{ view in
+                            Group{
+                                if #available(iOS 18.0, *){
+                                    view.onTapGesture {
+                                            self.showDetail.toggle()
+                                            Haptic.impact()
+                                        }
+                                }else{
+                                    view
+                                        .VButton{ _ in
+                                            self.complete?()
+                                            
+                                            return true
+                                        }
+                                }
+                            }
                         }
+
                     }
                     
                     if let body = message.body{
@@ -198,7 +228,11 @@ struct MessageCard: View {
                         .frame(maxHeight: 365)
                         .scrollIndicators(.hidden)
                         .onTapGesture(count: 2) {
-                            self.complete?()
+                            if #available(iOS 18.0, *){
+                                self.showDetail.toggle()
+                            }else{
+                                self.complete?()
+                            }
                             Haptic.impact(.light)
                         }
                     }
@@ -272,7 +306,31 @@ struct MessageCard: View {
             }
             .padding(.horizontal, 15)
             .padding(.vertical, 5)
-            
+            .diff{ view in
+                Group{
+                    if #available(iOS 18.0, *){
+                        view
+                            .matchedTransitionSource(id: message.id, in: sms)
+                            .fullScreenCover( isPresented: $showDetail){
+                                VStack{
+                                    NavigationStack{
+                                        SelectMessageView(message: message) {
+                                            self.showDetail = false
+                                        }
+                                    }
+                                }
+                                .navigationTransition(
+                                    .zoom(sourceID: message.id, in: sms)
+                                )
+
+                            }
+                    }else{
+                        view
+                    }
+                }
+            }
+
+
         }header: {
             MessageViewHeader()
                 
@@ -313,8 +371,8 @@ struct MessageCard: View {
                     }
                     return true
                 })
-            
-            
+
+
             Spacer()
             
             HStack(spacing: 25){
@@ -322,22 +380,12 @@ struct MessageCard: View {
                 Image(systemName: "doc.on.clipboard")
                     .scaleEffect(0.9)
                     .VButton { _ in
-                        if  let image = image {
+                        if let image = image {
                             Clipboard.set(message.search,[UTType.image.identifier: image])
                         }else{
                             Clipboard.set(message.search)
                         }
                         Toast.copy(title: "复制成功")
-                        return true
-                    }
-                
-                Image(systemName: "rectangle.and.arrow.up.right.and.arrow.down.left")
-                    .scaleEffect(0.95)
-                    .bold()
-                    .padding(.trailing)
-                    .symbolEffect(.wiggle, delay: 2)
-                    .VButton { _ in
-                        self.complete?()
                         return true
                     }
                     

@@ -3361,35 +3361,6 @@
         }
       }
     },
-    "内容:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content:"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内容："
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내용："
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内容："
-          }
-        }
-      }
-    },
     "内置" : {
       "localizations" : {
         "en" : {
@@ -6554,6 +6525,34 @@
         }
       }
     },
+    "必选权限未选择" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Required permissions not selected"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "必須の権限が選択されていません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "필수 권한이 선택되지 않음"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "必选权限未选择"
+          }
+        }
+      }
+    },
     "必须%d位" : {
       "localizations" : {
         "en" : {
@@ -8178,6 +8177,34 @@
         }
       }
     },
+    "普通通知权限为必选项。如果开启重要通知权限，所有权限将自动开启。请选择必要的权限以继续使用应用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular notification permission is required. If you enable critical notification permission, all permissions will be automatically enabled. Please select the necessary permissions to continue using the app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通常の通知権限は必須です。重要な通知権限を有効にすると、すべての権限が自動的に有効になります。アプリを引き続き使用するために必要な権限を選択してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일반 알림 권한은 필수입니다. 중요 알림 권한을 활성화하면 모든 권한이 자동으로 활성화됩니다. 앱을 계속 사용하려면 필요한 권한을 선택하십시오."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "普通通知权限为必选项。如果开启重要通知权限，所有权限将自动开启。请选择必要的权限以继续使用应用。"
+          }
+        }
+      }
+    },
     "智能助手" : {
       "localizations" : {
         "en" : {
@@ -8314,6 +8341,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "服务器"
+          }
+        }
+      }
+    },
+    "服务器地址无效" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid server address"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "サーバーアドレスが無効です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 주소가 유효하지 않습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器地址无效"
           }
         }
       }
@@ -11258,6 +11313,34 @@
         }
       }
     },
+    "网络权限是应用正常运行的基础，请授予网络权限以继续。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network permission is essential for the app to function properly. Please grant network permission to continue."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "ネットワーク権限はアプリの正常な動作に不可欠です。続行するにはネットワーク権限を許可してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 권한은 앱이 정상적으로 작동하는 데 필수적입니다. 계속하려면 네트워크 권한을 허용해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络权限是应用正常运行的基础，请授予网络权限以继续。"
+          }
+        }
+      }
+    },
     "网络通知权限" : {
       "localizations" : {
         "en" : {
@@ -12517,6 +12600,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "请输入旧的KEY"
+          }
+        }
+      }
+    },
+    "请输入有效的服务器URL地址，例如：https://example.com" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter a valid server URL, e.g.: https://example.com"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "有効なサーバーURLを入力してください。例：https://example.com"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유효한 서버 URL을 입력하세요. 예: https://example.com"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入有效的服务器URL地址，例如：https://example.com"
           }
         }
       }
@@ -14057,6 +14168,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要在"
+          }
+        }
+      }
+    },
+    "需要网络权限" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network permission required"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "ネットワーク権限が必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 권한 필요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要网络权限"
           }
         }
       }

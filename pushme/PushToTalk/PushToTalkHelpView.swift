@@ -149,8 +149,7 @@ struct CustomSheetForTalk<Sub: View>: ViewModifier{
                 }
                 
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .background(
-                    Color.clear)
+                .background(Color.clear)
                 .background(BackgroundClearView())
                 .ignoresSafeArea()
                 

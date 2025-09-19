@@ -5,6 +5,8 @@ struct SearchMessageView:View {
 
 	@Binding var searchText: String
     var group:String?
+
+    
     @Environment(\.colorScheme) var  colorScheme
     @State private var messages:[Message] = []
     @State private var allCount:Int = 0

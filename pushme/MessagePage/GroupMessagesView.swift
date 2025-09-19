@@ -22,11 +22,13 @@ struct GroupMessagesView: View {
                 ForEach(messageManager.groupMessages, id: \.id){ message in
                     
                     MessageRow(message: message)
+
                         .if(true){ view in
 
                             Group{
                                 if #available(iOS 26.0, *){
                                     view
+                                        .contentShape(Rectangle())
                                         .onTapGesture {
                                             manager.router = [.messageDetail(message.group)]
                                             Haptic.impact()

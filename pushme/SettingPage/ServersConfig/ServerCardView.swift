@@ -186,11 +186,7 @@ struct ServerCardView:View {
             
         }
         .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(.message)
-                .shadow(group: true)
-        )
+        .background26(.message, radius: 15)
         .padding(.vertical, 5)
         .transaction { view in
             view.animation = .snappy

@@ -34,7 +34,6 @@ struct SelectMessageView:View {
     @StateObject private var manager = AppManager.shared
     
     @State private var image:UIImage? = nil
-    @State private var scale : CGFloat = 1
     
     @State private var isDismiss:Bool = false
     @State private var messageShowMode:SelectMessageViewMode = .raw
@@ -234,6 +233,7 @@ struct SelectMessageView:View {
                     
                 }
                 .frame(width: windowWidth)
+                .padding(.top, 30)
                 .onAppear{
                     Task(priority: .userInitiated) {
                         if let image = message.image,
@@ -249,61 +249,39 @@ struct SelectMessageView:View {
                 }
                 
             }
-            .overlay(alignment: .topTrailing, content: {
-                HStack{
-                   
-                    
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading) {
                     Picker("Select Language", selection: $translateLang) {
                         ForEach(Multilingual.commonLanguages, id: \.id) { country in
-                            
+
                             Text("\(country.flag)  \(country.name)")
-                            .tag(country)
+                                .tag(country)
                         }
                     }
                     .pickerStyle(.menu)
-                    
-                    Spacer(minLength: 0)
-                    
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         withAnimation(.spring()){
                             self.dismiss()
                         }
                         Haptic.impact(.light)
                     }) {
-                        
+
                         Image(systemName: "xmark")
                             .foregroundColor(.primary)
-                            .padding(10)
-                            .background(.ultraThickMaterial)
-                            .clipShape(Circle())
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top,  UIApplication.shared.topSafeAreaHeight )
-            })
-            .scaleEffect(scale)
-            .background(
-                ZStack(alignment: .top){
-                    Rectangle()
-                        .fill(.background)
-                        
-                    if let image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .blur(radius: 20)
-                            .scaleEffect(x: 2)
-                    }
-                }.ignoresSafeArea()
-               
-            )
-            .safeAreaInset(edge: .bottom, alignment: .leading){
-                HStack{
-                    
+
+
+
+                ToolbarItem(placement: .bottomBar) {
+
                     Button{
-                        
+
                         Task(priority: .userInitiated) {
-                            
+
                             var text:String = ""
                             switch messageShowMode {
                             case .translate:
@@ -320,16 +298,20 @@ struct SelectMessageView:View {
                             player.play()
                         }
                     }label:{
-                        ZStack{
-                            
-                            Image(systemName: "speaker.wave.2.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                            
-                        }.frame(width: 80)
-                        
-                        
+                        Image(systemName: "speaker.wave.2.circle.fill")
+                            .resizable()
+                            .frame(width: 30, height: 30)
                     }
+
+                }
+
+                if #available(iOS 26.0, *) {
+                    ToolbarSpacer(.flexible, placement: .bottomBar)
+                }
+
+
+                ToolbarItem(placement: .bottomBar) {
+
                     Button{
                         if messageShowMode == .translate{
                             self.messageShowMode = .raw
@@ -338,18 +320,31 @@ struct SelectMessageView:View {
                             translateMessage()
                         }
                         Haptic.impact()
-                        
+
                     }label: {
-                        Label( messageShowMode == .translate ?  "隐藏" : "翻译",
-                               systemImage: messageShowMode == .translate ?  "eye.slash" : "translate")
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(Color.accentColor, Color.primary)
-                        .frame(maxWidth: .infinity)
+
+                        HStack{
+                            if #available(iOS 17.4, *){
+                                Image(systemName: messageShowMode == .translate ?  "eye.slash" : "translate")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(Color.accentColor, Color.primary)
+
+                            }else{
+                                Image(systemName: messageShowMode == .translate ?  "eye.slash" : "globe.europe.africa")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(Color.accentColor, Color.primary)
+                            }
+
+                            Text(messageShowMode == .translate ?  "隐藏" : "翻译")
+                        }
                         .contentShape(Rectangle())
+
                     }
-                    
+                }
+
+                ToolbarItem(placement: .bottomBar) {
                     Button{
-                        
+
                         if self.messageShowMode == .abstract{
                             self.messageShowMode = .raw
                         }else{
@@ -358,37 +353,33 @@ struct SelectMessageView:View {
                         }
                         Haptic.impact()
                     }label: {
-                        Label(messageShowMode == .abstract ?  "隐藏"  : "总结",
-                              systemImage: messageShowMode == .abstract ? "eye.slash" : "doc.text.magnifyingglass")
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(.green, Color.primary)
-                        .frame(maxWidth: .infinity)
+
+                        HStack{
+                            Image(systemName: messageShowMode == .abstract ? "eye.slash" : "doc.text.magnifyingglass")
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.green, Color.primary)
+                            Text(messageShowMode == .abstract ?  "隐藏"  : "总结")
+                        }
                         .contentShape(Rectangle())
                     }
-                    
                 }
-                .padding(.bottom)
-                .padding(.top)
-                .background(.background)
-                
             }
+            .scrollContentBackground(.hidden)
+            .background26(.background, radius: 0)
+            .background(BackgroundClearView())
             .animation(.spring(), value: messageShowMode)
-            .onAppear{
-                self.hideKeyboard()
-            }
-            .onDisappear{
-                chatManager.cancellableRequest?.cancelRequest()
-            }
+            .onAppear{ self.hideKeyboard() }
+            .onDisappear{ chatManager.cancellableRequest?.cancelRequest() }
             .sheet(isPresented: $showAssistantSetting) {
                 NavigationStack{
                     AssistantSettingsView()
                 }
             }
-        
+            .ignoresSafeArea()
+
     }
-    
-    
-    
+
+
     
     private func translateMessage() {
         self.cancels?.cancelRequest()

@@ -22,13 +22,11 @@ struct baseResponse<T>: Codable where T: Codable{
 struct DeviceInfo: Codable {
 	var deviceKey: String
 	var deviceToken: String
-    var voice:Bool?
 
 	// 使用 `CodingKeys` 枚举来匹配 JSON 键和你的变量命名
 	enum CodingKeys: String, CodingKey {
 		case deviceKey = "key"
 		case deviceToken = "token"
-        case voice
 	}
 }
 

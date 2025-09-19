@@ -154,25 +154,25 @@ struct ButtonPress: ViewModifier{
 	}
 }
 
-struct replaceSymbol: ViewModifier{
-    var icon1:String
-    var icon2:String
-    var delay:Double = 1
-    private let timer = Timer.publish(every: 1.0, on: .current, in: .common).autoconnect()
-    @State private var errorAnimate: Bool = true
-    
-    func body(content: Content) -> some View {
-        Image(systemName: errorAnimate ? icon1 : icon2)
-            .symbolEffect(.replace, delay: delay)
-            .onReceive(timer){ _ in
-                withAnimation(Animation.bouncy(duration: 0.5)) {
-                    errorAnimate.toggle()
-                }
-            }
-        
-    }
-    
-}
+//struct replaceSymbol: ViewModifier{
+//    var icon1:String
+//    var icon2:String
+//    var delay:Double = 1
+//    private let timer = Timer.publish(every: 1.0, on: .current, in: .common).autoconnect()
+//    @State private var errorAnimate: Bool = true
+//    
+//    func body(content: Content) -> some View {
+//        Image(systemName: errorAnimate ? icon1 : icon2)
+//            .symbolEffect(.replace, delay: delay)
+//            .onReceive(timer){ _ in
+//                withAnimation(Animation.bouncy(duration: 0.5)) {
+//                    errorAnimate.toggle()
+//                }
+//            }
+//        
+//    }
+//    
+//}
 // MARK: - TextFieldModifier
 struct TextFieldModifier: ViewModifier {
 	var icon: String

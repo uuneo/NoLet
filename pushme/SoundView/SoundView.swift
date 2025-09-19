@@ -16,7 +16,8 @@ struct SoundView: View {
     @State private var showUpload:Bool = false
     
     @State private var uploadLoading:Bool = false
-    
+
+
     var body: some View {
         List {
             
@@ -41,8 +42,21 @@ struct SoundView: View {
                                     Spacer()
                                 }
                             }
-                        
-                    }.disabled(uploadLoading)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
+
+                    }
+                    .if(true){view in
+                        Group{
+                            if #available(iOS 26.0, *){
+                                view
+                                    .buttonStyle(.glass)
+                            }else{
+                                view
+                            }
+                        }
+                    }
+                    .disabled(uploadLoading)
                     ///  UTType.types(tag: "caf", tagClass: UTTagClass.filenameExtension,conformingTo: nil)
                     .fileImporter(isPresented: $showUpload, allowedContentTypes: [.audio] ) { result in
                         self.uploadLoading = true
@@ -85,8 +99,9 @@ struct SoundView: View {
                 HStack{
                     Text( "选择铃声，超出30秒的将截断")
                 }
-            }
-            
+            }.listRowBackground(Color.clear)
+
+
             if audioManager.customSounds.count > 0{
                 Section{
                     

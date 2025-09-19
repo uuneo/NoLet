@@ -257,6 +257,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     func Speak(_ text: String, noCache:Bool = false) async -> AVAudioPlayer? {
         
         do{
+            self.speakPlayer = nil
             let start = DispatchTime.now()
             await MainActor.run {
                 withAnimation(.default) {

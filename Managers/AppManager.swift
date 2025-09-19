@@ -121,7 +121,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             if let data = response.data {
                 server.key = data.deviceKey
                 server.status = true
-                server.voice = data.voice ?? false
+            
                 if msg{
                     if reset{
                         Toast.info(title: "解绑成功")

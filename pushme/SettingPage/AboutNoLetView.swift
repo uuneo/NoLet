@@ -28,10 +28,12 @@ struct AboutNoLetView: View {
             }
             return ""
         }
-        
+
         return buildDetail ? "\(appVersion)(\(buildNumber))" : appVersion
     }
-    
+
+
+
     var body: some View {
         List {
             // Logo 部分
@@ -157,7 +159,10 @@ struct AboutNoLetView: View {
             } header: {
                 Text("应用信息")
                     .textCase(.none)
-            }footer: {
+            }
+        }
+        .overlay(alignment: .bottom) {
+            VStack{
                 HStack(spacing: 7){
                     Spacer(minLength: 10)
 
@@ -184,27 +189,19 @@ struct AboutNoLetView: View {
                 .font(.caption)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
-            }
-        }
-
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    manager.fullPage = .scan
-                    Haptic.impact()
-                } label: {
-                    Image(systemName: "qrcode.viewfinder")
-                        .symbolRenderingMode(.palette)
-                        .customForegroundStyle(.accent, Color.primary)
+                .padding(.bottom)
+                HStack{
+                    Spacer()
+                    Text(verbatim: "© 2024 uuneo. All rights reserved.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 8)
+                    Spacer()
                 }
             }
+
         }
-        .overlay(alignment: .bottom) {
-            Text(verbatim: "© 2024 uuneo. All rights reserved.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 8)
-        }
+
     }
 
     func requestReview() {

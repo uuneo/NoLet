@@ -67,10 +67,16 @@ struct MessageDetailPage: View {
             }
         }
         .searchable(text: $searchText)
+
         .refreshable {
             loadData( limit: min(messages.count, 200))
         }
         .toolbar{
+
+            if #available(iOS 26.0, *) {
+                DefaultToolbarItem(kind: .search, placement: .bottomBar)
+            }
+
             ToolbarItem {
                 Button{
                     withAnimation {
@@ -84,6 +90,15 @@ struct MessageDetailPage: View {
             }
 
 
+        }
+        .diff{ view in
+            Group{
+                if #available(iOS 26.0, *) {
+                    view.searchToolbarBehavior(.minimize)
+                }else{
+                    view
+                }
+            }
         }
         .task{
             loadData()
@@ -114,7 +129,8 @@ struct MessageDetailPage: View {
 
             }
         }
-        
+
+
         
     }
     

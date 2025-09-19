@@ -12,7 +12,8 @@ import Defaults
 
 
 struct SingleMessagesView: View {
-    
+
+
     @Default(.showMessageAvatar) var showMessageAvatar
     
     @State private var isLoading: Bool = false
@@ -22,10 +23,15 @@ struct SingleMessagesView: View {
     
     @EnvironmentObject private var manager:AppManager
     @EnvironmentObject private var messageManager: MessagesManager
-    
+   
+
     @State private var showLoading:Bool = false
     @State private var scrollItem:String = ""
-    @Namespace var namespace
+
+    @State private var selectMessage: Message? = nil
+
+    @Namespace private var sms
+
     var body: some View {
         
         ScrollViewReader { proxy in
@@ -42,7 +48,6 @@ struct SingleMessagesView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .listSectionSeparator(.hidden)
-                        
                         .onAppear{
                             if messageManager.singleMessages.count < messageManager.allCount &&
                                 messageManager.singleMessages.last == message{
@@ -62,7 +67,6 @@ struct SingleMessagesView: View {
                 loadData(proxy: proxy, limit: max(messageManager.singleMessages.count, 50))
             }
         }
-        
         .safeAreaInset(edge: .bottom, content: {
             HStack{
                 Spacer()
@@ -92,6 +96,28 @@ struct SingleMessagesView: View {
 
             }
             
+        }
+        .fullScreenCover(item: $selectMessage) { message in
+            NavigationStack{
+                SelectMessageView(message: message) {
+                    withAnimation(.easeInOut) {
+                        self.selectMessage = nil
+                    }
+                }
+                .diff { view in
+                    Group{
+                        if #available(iOS 18.0, *){
+                            view
+                                .navigationTransition(
+                                    .zoom(sourceID: message.id, in: sms)
+                                )
+                        }else{
+                            view
+                        }
+                    }
+                }
+
+            }
         }
     }
     
