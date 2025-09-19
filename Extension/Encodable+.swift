@@ -22,6 +22,7 @@ extension Dictionary where Key == AnyHashable, Value == Any {
     
     /// 转成 [String: String]，可排除一些 key
     func toStringDict(excluding keysToExclude: [String] = []) -> [String: String] {
+  
         var result: [String: String] = [:]
         for (keyAny, valueAny) in self {
             // 只处理 key 为 String 的情况
@@ -43,7 +44,7 @@ extension Dictionary where Key == AnyHashable, Value == Any {
     
     /// 转成 JSON 字符串
     func toJSONString(excluding keysToExclude: [String] = []) -> String? {
-        guard self.count == 0 else{ return nil}
+        
         let stringDict = self.toStringDict(excluding: keysToExclude)
          
         guard JSONSerialization.isValidJSONObject(stringDict),

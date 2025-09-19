@@ -17,8 +17,9 @@ struct MessageCard: View {
     var showGroup:Bool =  false
     var showAllTTL:Bool = false
     var showAvatar:Bool = true
-    var complete:(()->Void)? = nil
-    
+    var complete:()->Void
+    var delete:()->Void
+
     @State private var showLoading:Bool = false
     
     @State private var timeMode:Int = 0
@@ -45,7 +46,8 @@ struct MessageCard: View {
     }
     @State private var image:UIImage? = nil
     @State private var imageHeight:CGFloat = .zero
-    @EnvironmentObject private var messageManager: MessagesManager
+    @State private var showDetail:Bool = false
+    @Namespace private var sms
     var body: some View {
         Section {
             VStack{
@@ -107,14 +109,28 @@ struct MessageCard: View {
                 }
                 .contentShape(Rectangle())
                 .if(message.url != nil){ view in
-                    view
-                        .VButton{ _ in
-                            if let url = message.url, let fileUrl = URL(string: url){
-                                AppManager.openUrl(url: fileUrl)
-                                
-                            }
-                            return true
+                    Group{
+                        if #available(iOS 26.0, *){
+                            view
+                                .onTapGesture {
+                                    if let url = message.url, let fileUrl = URL(string: url){
+                                        AppManager.openUrl(url: fileUrl)
+
+                                    }
+                                    Haptic.impact()
+                                }
+                        }else{
+                            view
+                                .VButton{ _ in
+                                    if let url = message.url, let fileUrl = URL(string: url){
+                                        AppManager.openUrl(url: fileUrl)
+
+                                    }
+                                    return true
+                                }
                         }
+                    }
+
                 }
                 
                 
@@ -177,14 +193,27 @@ struct MessageCard: View {
                                     .padding(.horizontal, 3)
                             }
                         }
-                        
                         .frame(height: imageHeight)
                         .clipShape(Rectangle())
                         .contentShape(Rectangle())
-                        .VButton{ _ in
-                            self.complete?()
-                            return true
+                        .diff{ view in
+                            Group{
+                                if #available(iOS 18.0, *){
+                                    view.onTapGesture {
+                                            self.showDetail.toggle()
+                                            Haptic.impact()
+                                        }
+                                }else{
+                                    view
+                                        .VButton{ _ in
+                                            self.complete()
+                                            
+                                            return true
+                                        }
+                                }
+                            }
                         }
+
                     }
                     
                     if let body = message.body{
@@ -198,7 +227,11 @@ struct MessageCard: View {
                         .frame(maxHeight: 365)
                         .scrollIndicators(.hidden)
                         .onTapGesture(count: 2) {
-                            self.complete?()
+                            if #available(iOS 18.0, *){
+                                self.showDetail.toggle()
+                            }else{
+                                self.complete()
+                            }
                             Haptic.impact(.light)
                         }
                     }
@@ -207,7 +240,8 @@ struct MessageCard: View {
                
             }
             .padding(8)
-            .swipeActions(edge: .leading, allowsFullSwipe: true){
+
+            .swipeActions(edge: .leading , allowsFullSwipe: true){
                 Button{
                     Haptic.impact()
                     DispatchQueue.main.async{
@@ -216,35 +250,27 @@ struct MessageCard: View {
                     }
                 }label:{
                     Label("智能助手", systemImage: "atom")
-                        .symbolEffect(.bounce, delay: 2)
+                        .symbolEffect(.rotate, delay: 2)
                 }.tint(.green)
-            }
-            .swipeActions(edge: .leading){
+
                 Button{
                     Haptic.impact()
-                    Task(priority: .high) {
-                        guard let player = await AudioManager.shared.Speak(message.voiceText) else {
-                            return
-                        }
-                        player.play()
+                    if let image = image {
+                        Clipboard.set(message.search,[UTType.image.identifier: image])
+                    }else{
+                        Clipboard.set(message.search)
                     }
+                    Toast.copy(title: "复制成功")
                 }label:{
-                    Label("语音", systemImage: "speaker.wave.2.bubble.left")
-                        .symbolEffect(.variableColor)
-                   
-                }.tint(.blue)
+                    Label("复制", systemImage: "doc.on.clipboard")
+                        .symbolEffect(.bounce, delay: 2)
+                        .customForegroundStyle(.yellow, .white)
+
+                }.tint(.accent)
             }
             .swipeActions(edge: .trailing) {
                 Button {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                        withAnimation(.default){
-                            messageManager.singleMessages.removeAll(where: {$0.id == message.id})
-                        }
-                    }
-                    
-                    Task.detached(priority: .background){
-                        _ = await DatabaseManager.shared.delete(message)
-                    }
+                    self.delete()
                 } label: {
                     
                     Label( "删除", systemImage: "trash")
@@ -272,7 +298,31 @@ struct MessageCard: View {
             }
             .padding(.horizontal, 15)
             .padding(.vertical, 5)
-            
+            .diff{ view in
+                Group{
+                    if #available(iOS 18.0, *){
+                        view
+                            .matchedTransitionSource(id: message.id, in: sms)
+                            .fullScreenCover( isPresented: $showDetail){
+                                VStack{
+                                    NavigationStack{
+                                        SelectMessageView(message: message) {
+                                            self.showDetail = false
+                                        }
+                                    }
+                                }
+                                .navigationTransition(
+                                    .zoom(sourceID: message.id, in: sms)
+                                )
+
+                            }
+                    }else{
+                        view
+                    }
+                }
+            }
+
+
         }header: {
             MessageViewHeader()
                 
@@ -313,38 +363,10 @@ struct MessageCard: View {
                     }
                     return true
                 })
-            
-            
+
+
             Spacer()
-            
-            HStack(spacing: 25){
-               
-                Image(systemName: "doc.on.clipboard")
-                    .scaleEffect(0.9)
-                    .VButton { _ in
-                        if  let image = image {
-                            Clipboard.set(message.search,[UTType.image.identifier: image])
-                        }else{
-                            Clipboard.set(message.search)
-                        }
-                        Toast.copy(title: "复制成功")
-                        return true
-                    }
-                
-                Image(systemName: "rectangle.and.arrow.up.right.and.arrow.down.left")
-                    .scaleEffect(0.95)
-                    .bold()
-                    .padding(.trailing)
-                    .symbolEffect(.wiggle, delay: 2)
-                    .VButton { _ in
-                        self.complete?()
-                        return true
-                    }
-                    
-            }
-            .font(.title3)
-            .symbolRenderingMode(.palette)
-            .customForegroundStyle(.accent, .primary)
+
             
             
         }
@@ -378,11 +400,16 @@ struct MessageCard: View {
 #Preview {
     
     List {
-        MessageCard(message: DatabaseManager.examples().first!)
+        MessageCard(message: DatabaseManager.examples().first!){
+
+        }delete:{
+
+        }
             .listRowBackground(Color.clear)
             .listSectionSeparator(.hidden)
             .environmentObject(AppManager.shared)
             .listRowInsets(EdgeInsets())
+            .environmentObject(MessagesManager.shared)
     }.listStyle(.grouped)
     
     

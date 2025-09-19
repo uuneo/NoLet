@@ -45,7 +45,7 @@ struct ChatInputView<Content: View>: View  {
             
             
         }
-        .background(.background)
+        .background26(.background)
         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .onTapGesture {
             self.isFocusedInput = !manager.isLoading

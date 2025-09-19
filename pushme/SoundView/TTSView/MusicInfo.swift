@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Combine
 
 
 /// Resuable File
 struct MusicInfo: View {
     @StateObject private var audioManager = AudioManager.shared
+    @StateObject private var manager = AppManager.shared
     @State private var progress: CGFloat = 0
     @State private var duration: TimeInterval = 0
     
@@ -21,7 +23,8 @@ struct MusicInfo: View {
    
     
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-    
+
+
     var body: some View {
         HStack(spacing: 0) {
             Button {
@@ -44,20 +47,30 @@ struct MusicInfo: View {
             /// Adding Matched Geometry Effect (Hero Animation
             VStack{
                 Spacer()
-                
+                var config: WaveformScrubber.Config{
+                    var data = WaveformScrubber.Config()
+                    data.activeTint = .accent
+                    return data
+                }
+
                 if let player = audioManager.speakPlayer, let audio = player.url{
-                    WaveformScrubber( url: audio, progress: $progress, info: { info in
-                        self.duration = info.duration
-                    }, onGestureActive: { active in
-                        onActive = active
-                        player.currentTime = duration * progress
-                    })
+                    WaveformScrubber(
+                        config: config,
+                        url: audio,
+                        progress: $progress,
+                        info: { info in
+                            self.duration = info.duration
+                        },
+                        onGestureActive: { active in
+                            onActive = active
+                            player.currentTime = duration * progress
+                        })
                     .overlay( alignment: .top){
                         HStack {
                             Text(formatTime(currentTime))
                                 .font(.caption)
                                 .foregroundColor(.gray)
-                            
+
                             Spacer(minLength: 0)
                             
                             Text(formatTime(duration))
@@ -134,6 +147,7 @@ struct MusicInfo: View {
         .frame(height: 70)
         .contentShape(Rectangle())
         .onReceive(timer) { _ in
+
             if let player = audioManager.speakPlayer {
                 currentTime = player.currentTime
                 if !onActive{
@@ -144,13 +158,16 @@ struct MusicInfo: View {
                 waitTimes += 1
             }
         }
+
+
     }
     func formatTime(_ time: TimeInterval) -> String {
         let minutes = Int(time) / 60
         let seconds = Int(time) % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
+
+
     
     func safeFrameWidth(progress: CGFloat, width: CGFloat) -> CGFloat {
         guard progress.isFinite, width.isFinite, width > 0 else { return 0.1 }

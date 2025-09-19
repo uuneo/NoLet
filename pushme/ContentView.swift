@@ -23,7 +23,9 @@ struct ContentView: View {
     @Default(.badgeMode) private var badgeMode
     
     @State private var HomeViewMode:NavigationSplitViewVisibility = .detailOnly
-    
+
+    @Namespace private var selectMessageSpace
+
     var body: some View {
         
         ZStack{
@@ -38,18 +40,6 @@ struct ContentView: View {
             
         }
         .environmentObject(manager)
-        .overlay{
-            if let message = manager.selectMessage{
-                SelectMessageView(message: message) {
-                    withAnimation(.easeInOut){
-                        manager.selectMessage = nil
-                    }
-                }
-                .ignoresSafeArea(.all, edges: .top)
-                .transition(.move(edge: .leading))
-            }
-        }
-        
         .overlay{
             if manager.isLoading && manager.inAssistant{
                 ColoredBorder()
@@ -75,15 +65,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: manager.sheetShow){ ContentSheetViewPage().customPresentationCornerRadius(20) }
         .fullScreenCover(isPresented: manager.fullShow){ ContentFullViewPage() }
-        .safeAreaInset(edge: .top) {
-            
-            MusicInfo()
-                .background(.ultraThinMaterial)
-                .frame(height: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .offset( y: manager.speaking ? 0 : -200)
-                .animation(.linear, value: manager.speaking)
-        }
+        
         
         
     }
@@ -104,7 +86,7 @@ struct ContentView: View {
                     } label: {
                         Label( "消息", systemImage: "ellipsis.message")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
                     .badge(messageManager.unreadCount)
 
@@ -119,7 +101,7 @@ struct ContentView: View {
                     } label: {
                         Label( "设置", systemImage: "gear.badge.questionmark")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
 
 
@@ -128,14 +110,12 @@ struct ContentView: View {
                             // MARK: 设置页面
                             SearchMessageView(searchText: $manager.searchText)
                                 .router(manager)
-
                         }
                     } label: {
-                        Image(systemName: "mail.and.text.magnifyingglass")
+                        Image(systemName: "magnifyingglass")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
-
 
                 }.tabBarMinimizeBehavior(.onScrollDown)
             }else{
@@ -149,7 +129,8 @@ struct ContentView: View {
                     .tabItem {
                         Label( "消息", systemImage: "ellipsis.message")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
+
                     }
                     .badge(messageManager.unreadCount)
                     .tag(TabPage.message)
@@ -164,7 +145,7 @@ struct ContentView: View {
                     .tabItem {
                         Label( "设置", systemImage: "gear.badge.questionmark")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
                     .tag(TabPage.setting)
 
@@ -203,6 +184,9 @@ struct ContentView: View {
                 for item in DatabaseManager.examples(){
                     await  DatabaseManager.shared.add(item)
                 }
+#if DEBUG
+               _ =  await DatabaseManager.CreateStresstest(max: 30000)
+#endif
             }
             
         }
@@ -317,8 +301,12 @@ extension View{
                         
                     case .pushtalk:
                         PushToTalkView()
+                        
                     case .about:
                         AboutNoLetView()
+
+                    case .dataSetting:
+                        DataSettingView()
 
                     }
                 }

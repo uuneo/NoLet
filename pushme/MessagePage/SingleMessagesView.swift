@@ -12,7 +12,8 @@ import Defaults
 
 
 struct SingleMessagesView: View {
-    
+
+
     @Default(.showMessageAvatar) var showMessageAvatar
     
     @State private var isLoading: Bool = false
@@ -22,10 +23,14 @@ struct SingleMessagesView: View {
     
     @EnvironmentObject private var manager:AppManager
     @EnvironmentObject private var messageManager: MessagesManager
-    
+   
+
     @State private var showLoading:Bool = false
     @State private var scrollItem:String = ""
-    @Namespace var namespace
+
+    @State private var selectMessage: Message? = nil
+
+
     var body: some View {
         
         ScrollViewReader { proxy in
@@ -37,24 +42,36 @@ struct SingleMessagesView: View {
                             withAnimation(.easeInOut) {
                                 manager.selectMessage = message
                             }
+                        }delete:{
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                                withAnimation(.default){
+                                    messageManager.singleMessages.removeAll(where: {$0.id == message.id})
+                                }
+                            }
+
+                            Task.detached(priority: .background){
+                                _ = await DatabaseManager.shared.delete(message)
+                            }
+                            Toast.success(title: "删除成功")
                         }
                         .id(message.id)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .listSectionSeparator(.hidden)
-                        
                         .onAppear{
                             if messageManager.singleMessages.count < messageManager.allCount &&
                                 messageManager.singleMessages.last == message{
                                 self.loadData(proxy: proxy, item: message)
                             }
                         }
-                        
+
+
                     }
                 
                 
             }
             .listStyle(.grouped)
+            .animation(.easeInOut, value: messageManager.singleMessages)
             .refreshable {
                 self.loadData(proxy: proxy , limit: min(messageManager.singleMessages.count, 200))
             }
@@ -62,18 +79,32 @@ struct SingleMessagesView: View {
                 loadData(proxy: proxy, limit: max(messageManager.singleMessages.count, 50))
             }
         }
-        
-        .safeAreaInset(edge: .bottom, content: {
-            HStack{
-                Spacer()
-                Text(verbatim: "\(messageManager.singleMessages.count) / \(max(messageManager.allCount, messageManager.singleMessages.count))")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                    .padding(.horizontal, 20)
-                    .background(.ultraThinMaterial)
-            }.opacity((messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount) ? 0 : 1)
-            
-        })
+        .diff{ view in
+            Group{
+                if #available(iOS 26.0, *){
+                    view
+                        .toolbar {
+                            if !(messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount){
+                                ToolbarItem(placement: .subtitle) {
+                                    allMessageCount
+                                }
+                            }
+
+                        }
+                }else{
+                    view
+                        .safeAreaInset(edge: .bottom){
+                            HStack{
+                                Spacer()
+                                allMessageCount
+                                    .padding(.horizontal, 10)
+                                    .background26(.ultraThinMaterial, radius: 5)
+                            }.opacity((messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount) ? 0 : 1)
+                        }
+                }
+            }
+        }
+
         .task {
             self.loadData()
             Task.detached(priority: .background) {
@@ -93,8 +124,15 @@ struct SingleMessagesView: View {
             }
             
         }
+
     }
-    
+
+    private var allMessageCount: some View{
+        Text(verbatim: "\(messageManager.singleMessages.count) / \(max(messageManager.allCount, messageManager.singleMessages.count))")
+            .font(.caption)
+            .foregroundStyle(.gray)
+    }
+
     private func proxyTo(proxy: ScrollViewProxy, selectId:String?){
         if let selectId = selectId{
             withAnimation {

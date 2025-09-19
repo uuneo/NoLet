@@ -29,6 +29,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             
         }
 
+        if Defaults[.id] == ""{
+            Defaults[.id] = KeychainHelper.shared.getDeviceID()
+        }
+
         return true
     }
     
@@ -46,7 +50,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let manager = AppManager.shared
         if Defaults[.servers].count == 0{
             Task.detached(priority: .userInitiated) {
-                _ = await manager.appendServer(server: PushServerModel(url: BaseConfig.defaultServer))
+                if !manager.customServerURL.isEmpty{
+                    _ = await manager.appendServer(server: PushServerModel(url: manager.customServerURL))
+                }else{
+                    _ = await manager.appendServer(server: PushServerModel(url: BaseConfig.defaultServer))
+                }
+
             }
         }else{
             manager.registers()
@@ -105,9 +114,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             completionHandler(.banner)
         }else{
             completionHandler(.badge)
-            Haptic.impact(.light)
         }
-        
+        Haptic.impact(.light)
+
         notificatonHandler(userInfo: notification.request.content.userInfo)
     }
     

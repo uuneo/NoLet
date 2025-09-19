@@ -107,10 +107,11 @@ extension DatabaseManager{
             Message(id: UUID().uuidString, group: String(localized: "示例"), createDate: .now + 10,
                     title: String(localized: "使用方法"),
                     body: String(localized:  """
-                        * 左上角切换分组显示
-                        * 右上角示例和删除消息
+                        * 左上角功能菜单，使用示例，分组
+                        * 右上角按时间删除消息
                         * 单击图片/双击消息全屏查看
-                        * 左滑删除，右滑朗读，长按显示菜单。
+                        * 全屏查看，翻译，总结，朗读
+                        * 左滑删除，右滑复制和智能解答。
                         """),
                     level: 1, ttl: 1, read: false),
             
@@ -229,11 +230,10 @@ extension DatabaseManager{
                 }
 
                 // 4. 排序与限制
-                request = request
-                    .order(Message.Columns.createDate.desc)
-                    .limit(lim)
+                request = request.order(Message.Columns.createDate.desc)
 
-                return (try request.fetchAll(db), try request.fetchCount(db))
+
+                return (try request.limit(lim).fetchAll(db), try request.fetchCount(db))
             }
         } catch {
             Log.error("Query error: \(error)")

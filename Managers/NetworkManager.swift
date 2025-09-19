@@ -64,7 +64,7 @@ class NetworkManager: NSObject {
     }
     
     func health(url: String) async -> Bool {
-        guard let data  = try? await self.fetch(url: url + "/nolet", method: .HEAD, params: [:], headers: [:], timeout: 3),  let response = data.1 as? HTTPURLResponse  else {
+        guard let data  = try? await self.fetch(url: url + "/health", method: .GET, params: [:], headers: [:], timeout: 3),  let response = data.1 as? HTTPURLResponse  else {
             return false
         }
         return String(bytes: data.0, encoding: .utf8) == "OK" && response.statusCode == 200

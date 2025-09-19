@@ -318,6 +318,7 @@
 				cryptoManager.swift,
 				DatabaseManager.swift,
 				ImageManager.swift,
+				KeychainHelper.swift,
 				MessagesManager.swift,
 				NetworkManager.swift,
 				openChatManager.swift,

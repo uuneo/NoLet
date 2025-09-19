@@ -123,3 +123,25 @@ extension Character {
     }
 }
 
+
+extension String{
+    func normalizedURLString() -> String {
+            // 尝试解析
+        if let url = URL(string: self),
+           let scheme = url.scheme?.lowercased(),
+           scheme == "http" || scheme == "https" {
+                // 已经是 http/https
+            return self
+        }
+
+            // 否则强制替换掉错误的 scheme 或缺省情况
+        var trimmed = self.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // 如果原本就带 "://"，去掉前缀再补 https://
+        if let range = trimmed.range(of: "://") {
+            trimmed = String(trimmed[range.upperBound...])
+        }
+
+        return "https://" + trimmed
+    }
+}

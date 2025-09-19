@@ -22,13 +22,11 @@ struct baseResponse<T>: Codable where T: Codable{
 struct DeviceInfo: Codable {
 	var deviceKey: String
 	var deviceToken: String
-    var voice:Bool?
 
 	// 使用 `CodingKeys` 枚举来匹配 JSON 键和你的变量命名
 	enum CodingKeys: String, CodingKey {
 		case deviceKey = "key"
 		case deviceToken = "token"
-        case voice
 	}
 }
 
@@ -221,6 +219,22 @@ struct PushExampleModel:Identifiable {
     var title:String
 	var params:String
 	var index:Int
+
+
+    init<Header: View, Footer: View>(
+        header: Header,
+        footer: Footer,
+        title: String,
+        params: String,
+        index: Int
+    ) {
+        self.header = AnyView(header)
+        self.footer = AnyView(footer)
+        self.title = title
+        self.params = params
+        self.index = index
+    }
+
 }
 
 

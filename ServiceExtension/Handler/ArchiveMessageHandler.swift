@@ -49,7 +49,8 @@ class ArchiveMessageHandler: NotificationContentHandler{
         let messageId = bestAttemptContent.targetContentIdentifier
         let level =  bestAttemptContent.getLevel()
         let other = userInfo.toJSONString(excluding: Params.allCases.allString())
-        
+
+
         //  获取保存时间
         var saveDays:Int {
             if let isArchive = ttl, let saveDaysTem = Int(isArchive){

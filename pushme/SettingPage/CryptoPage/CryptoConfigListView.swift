@@ -140,11 +140,7 @@ struct CryptoConfigListView: View {
                 
             }
             .padding(10)
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(.message)
-                    .shadow(group: false)
-            )
+            .background26(.message, radius: 15)
             .if(!item.system, transform: { view in
                 view
                     .swipeActions(edge: .leading, allowsFullSwipe: true){

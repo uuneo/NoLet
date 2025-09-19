@@ -44,23 +44,6 @@ struct AngularButton: View {
                             onTap()
                         })
                 )
-//
-//				.VButton { _ in
-//					if !disable && loading == "" {
-//						self.ispress = true
-//					}
-//				  
-//				} onRelease: { res in
-//                    if !disable && loading == "" {
-//                        self.ispress = false
-//                    }
-//                    
-//                    if !disable && loading == "" && abs(res.translation.width) < 10 {
-//                        
-//                        onTap()
-//					}
-//                    return !disable && loading == ""
-//				}
 			Spacer()
 		}
 		

@@ -51,33 +51,18 @@ struct SettingsPage: View {
 	}
 
 
-	var buildVersion:String{
-		// 版本号
-		let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-		// build号
-        var buildVersion: String{
-            if let version =  Bundle.main.infoDictionary?["CFBundleVersion"] as? String ,
-               let versionNumber = Int(version) {
-                return String(versionNumber, radix: 16).uppercased()
-            }
-            return ""
-        }
-
-        return  buildDetail ? "\(appVersion)(\(buildVersion))" : appVersion
-	}
-
-
-
 	var body: some View {
         List{
 
-            
-            
+
+
             if ISPAD{
                 ListButton {
                     Label( "消息", systemImage: "ellipsis.message")
                 } action: {
-                    manager.router = []
+                    Task{@MainActor in
+                        manager.router = []
+                    }
                     return true
                 }
             }
@@ -100,7 +85,10 @@ struct SettingsPage: View {
                             }
                     }
                 } action: {
-                    manager.router = [.server]
+                    Task{@MainActor in
+                        manager.router = [.server]
+                    }
+
                     return true
                     
                 }
@@ -122,7 +110,9 @@ struct SettingsPage: View {
                         }
                     }
                 } action: {
-                    manager.sheetPage = .cloudIcon
+                    Task{@MainActor in
+                        manager.sheetPage = .cloudIcon
+                    }
                     return true
                 }
                 
@@ -139,7 +129,9 @@ struct SettingsPage: View {
                     Text(sound)
                         .foregroundStyle(.gray)
                 } action: {
-                    manager.router.append(.sound)
+                    Task{@MainActor in
+                        manager.router.append(.sound)
+                    }
                     return true
                     
                 }
@@ -155,46 +147,47 @@ struct SettingsPage: View {
                             .scaleEffect(0.9)
                     }
                 } action: {
-                    manager.router.append(.crypto)
+                    Task{@MainActor in
+                        manager.router.append(.crypto)
+                    }
                     return true
                 }
 
+               
                 ListButton {
                     Label {
-                        Text( "系统设置")
+                        Text( "数据管理")
                             .foregroundStyle(.textBlack)
                     } icon: {
-                        Image(systemName: "gear.circle")
-
+                        Image(systemName: "archivebox.circle")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.accent, Color.primary)
-                            .symbolEffect(.rotate)
+                            .symbolEffect(.pulse, delay: 2)
                     }
                 } action:{
-                    AppManager.openSetting()
+                    Task{@MainActor in
+                        manager.router = [.dataSetting]
+                    }
                     return true
                 }
 
-                
-                if #available(iOS 18.0, *) {
-                    
-                    ListButton  {
-                        Label {
-                            Text( "更多操作")
-                        } icon: {
-                            Image(systemName: "dial.high")
-                            
-                                .symbolRenderingMode(.palette)
-                                .customForegroundStyle(.accent, Color.primary)
-                                .symbolEffect(.rotate, delay: 2)
-                        }
-                    } action: {
-                        manager.router = [.more]
-                        return true
-                        
+                ListButton  {
+                    Label {
+                        Text( "更多设置")
+                    } icon: {
+                        Image(systemName: "dial.high")
+                            .symbolRenderingMode(.palette)
+                            .customForegroundStyle(.accent, Color.primary)
+                            .symbolEffect(.rotate, delay: 2)
                     }
+                } action: {
+                    Task{@MainActor in
+                        manager.router = [.more]
+                    }
+                    return true
+
                 }
-                
+
             }
             
 
@@ -211,7 +204,9 @@ struct SettingsPage: View {
                             .customForegroundStyle(.accent, Color.primary)
                     }
                 } action: {
-                    manager.router = [.about]
+                    Task{@MainActor in
+                        manager.router = [.about]
+                    }
                     return true
                 }
 
@@ -230,65 +225,16 @@ struct SettingsPage: View {
                                 .symbolEffect(delay: 0)
                         }
                     } action: {
-                        manager.sheetPage = .paywall
-                        return true
-                    }
-                }else{
-                    
-                    ListButton  {
-                        Label {
-                            Text( "更多操作")
-                        } icon: {
-                            Image(systemName: "dial.high")
-                                .symbolRenderingMode(.palette)
-                                .customForegroundStyle(.accent, Color.primary)
-                                .symbolEffect(.rotate, delay: 2)
+                        Task{@MainActor in
+                            manager.sheetPage = .paywall
                         }
-                    } action: {
-                        manager.router = [.more]
                         return true
-                        
                     }
                 }
                 
             }header:{
                 Text( "其他" )
                     .textCase(.none)
-            }footer:{
-                HStack(spacing: 7){
-                    Spacer(minLength: 10)
-                    
-                    
-                    Text(verbatim: "\(buildVersion)")
-                        .onTapGesture {
-                            buildDetail.toggle()
-                            Haptic.impact()
-                        }
-                    Circle()
-                        .frame(width: 3,height: 3)
-                    Button{
-                        manager.fullPage = .web(BaseConfig.privacyURL)
-                        Haptic.impact()
-                    }label: {
-                        Text("隐私政策")
-                        
-                        
-                    }
-                    Circle()
-                        .frame(width: 3,height: 3)
-                    Button{
-                        manager.fullPage = .web(BaseConfig.userAgreement)
-                        Haptic.impact()
-                    }label: {
-                        Text("用户协议")
-                        
-                    }
-                    
-                    Spacer(minLength: 10)
-                }
-                .font(.caption)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
             }
             
             

@@ -309,12 +309,15 @@ struct ChangeKeyCenterView: View {
                         .init(title: String(localized: "注册中..."), background: .cyan)
                     ]
             ) { view in
-                
+                    // 检查完善url
+                await MainActor.run {
+                    self.keyHost = keyHost.normalizedURLString()
+                }
                 self.disabledPage = true
                 self.buttonState = .loading(0)
                 try? await Task.sleep(for: .seconds(0.5))
                 
-                guard keyHost.count > 3 && keyHost.hasHttp() else {
+                guard keyHost.count >  10 else {
                     Toast.error(title: "格式错误")
                     await view.next(.fail)
                      DispatchQueue.main.async {
@@ -322,7 +325,11 @@ struct ChangeKeyCenterView: View {
                     }
                     return
                 }
-                
+
+
+
+
+
                 await view.next(.loading(1))
                 
                 
@@ -364,7 +371,8 @@ struct ChangeKeyCenterView: View {
             appear[2] = true
         }
     }
-    
+
+
 }
 
 struct ChangeKeyView: View {

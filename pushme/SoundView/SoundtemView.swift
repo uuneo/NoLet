@@ -62,20 +62,44 @@ struct SoundItemView: View {
                     }
                 
             }
-            .VButton(onRelease:{ _ in
-                self.progress = 0
-                 DispatchQueue.main.async{
-                    withAnimation(.easeInOut(duration: duration )) {
-                        self.progress = 1
-                    }
-                    
-                    audioManager.playAudio(url: audio)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
-                        self.progress = selectSound ? 1 : 0
+            .diff{view in
+                Group{
+                    if #available(iOS 26.0, *){
+                        view
+                            .onTapGesture {
+                                self.progress = 0
+                                 DispatchQueue.main.async{
+                                    withAnimation(.easeInOut(duration: duration )) {
+                                        self.progress = 1
+                                    }
+
+                                    audioManager.playAudio(url: audio)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
+                                        self.progress = selectSound ? 1 : 0
+                                    }
+                                }
+                                Haptic.impact()
+                            }
+                    }else{
+                        view
+                            .VButton(onRelease:{ _ in
+                                self.progress = 0
+                                 DispatchQueue.main.async{
+                                    withAnimation(.easeInOut(duration: duration )) {
+                                        self.progress = 1
+                                    }
+
+                                    audioManager.playAudio(url: audio)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
+                                        self.progress = selectSound ? 1 : 0
+                                    }
+                                }
+                                return true
+                            })
                     }
                 }
-                return true
-            })
+            }
+
             
             
             
@@ -96,9 +120,6 @@ struct SoundItemView: View {
                 Text("长度不能超过30秒")
                     .foregroundStyle(.red)
             }
-            
-            
-            
             
         }
         .swipeActions(edge: .leading) {

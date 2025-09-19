@@ -19,7 +19,8 @@ class MusicInfoView: UIView, AVAudioPlayerDelegate {
     private var isUserSeeking = false
     private var waitingTime:Int = 0
     private var lastWaitingUpdate: CFTimeInterval = .zero
-    
+
+
     var audioPlayer: AVAudioPlayer? {
         didSet {
             if let player = audioPlayer {
@@ -29,7 +30,7 @@ class MusicInfoView: UIView, AVAudioPlayerDelegate {
                 stopButton.setTitle(formatTime(player.duration), for: .normal)
                 progressSlider.value = 0
                 playPauseButton.setTitle("0:00", for: .normal)
-                
+
                 if Defaults[.voicesAutoSpeak]{
                     startTimer()
                     self.playStatue = !player.isPlaying
@@ -58,6 +59,7 @@ class MusicInfoView: UIView, AVAudioPlayerDelegate {
     var playStatue:Bool = false{
         didSet{
             if playStatue {
+                isUserSeeking = false
                 startTimer()
                 audioPlayer?.play()
             }else{
@@ -212,7 +214,7 @@ class MusicInfoView: UIView, AVAudioPlayerDelegate {
     @objc private func handleSliderChange() {
         guard let player = audioPlayer else { return }
         playPauseButton.setTitle(formatTime(TimeInterval(progressSlider.value) * player.duration), for: .normal)
-        Haptic.selection(limitFrequency: false)
+        Haptic.selection(limitFrequency: true)
     }
 
     private func formatTime(_ time: TimeInterval) -> String {

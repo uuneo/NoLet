@@ -5,6 +5,8 @@ struct SearchMessageView:View {
 
 	@Binding var searchText: String
     var group:String?
+
+    
     @Environment(\.colorScheme) var  colorScheme
     @State private var messages:[Message] = []
     @State private var allCount:Int = 0
@@ -17,7 +19,17 @@ struct SearchMessageView:View {
                 MessageCard(message: message, searchText: searchText, showGroup: true){
                     self.hideKeyboard()
                     withAnimation(.easeInOut){
-                        AppManager.shared.selectMessage = message
+                        manager.selectMessage = message
+                    }
+                }delete:{
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                        withAnimation(.default){
+                            messages.removeAll(where: {$0.id == message.id})
+                        }
+                    }
+
+                    Task.detached(priority: .background){
+                        _ = await DatabaseManager.shared.delete(message)
                     }
                 }
                 .listRowInsets(EdgeInsets())
@@ -28,6 +40,8 @@ struct SearchMessageView:View {
                         loadData( item: message)
                     }
                 }
+
+
             }
             
             Spacer()
@@ -38,6 +52,7 @@ struct SearchMessageView:View {
             
         }
         .listStyle(.grouped)
+        .animation(.easeInOut, value: messages)
         .if(colorScheme == .light) { view in
             view.background(.ultraThinMaterial)
         }
@@ -47,6 +62,16 @@ struct SearchMessageView:View {
                     view
                         .searchable(text: $manager.searchText)
                         .navigationTitle("搜索数据")
+                        .safeAreaInset(edge: .bottom) {
+                            HStack{
+                                Spacer()
+                                Text(verbatim: "\(messages.count) / \(max(allCount, messages.count))")
+                                    .font(.caption)
+                                    .foregroundStyle(.gray)
+
+
+                            }.padding(.trailing)
+                        }
                 }else{
                     view
                         .safeAreaInset(edge: .top, content: {
@@ -75,6 +100,7 @@ struct SearchMessageView:View {
                 loadData()
             }
         }
+
 	}
     
     func loadData(limit:Int = 50, item:Message? = nil){
@@ -102,3 +128,9 @@ struct SearchMessageView:View {
 
 
 
+#Preview {
+    NavigationStack{
+        SearchMessageView(searchText: .constant(""))
+    }
+
+}

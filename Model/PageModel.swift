@@ -49,6 +49,7 @@ enum RouterPage: Hashable, Equatable {
     case tts
     case pushtalk
     case about
+    case dataSetting
 }
 
 

@@ -105,12 +105,6 @@ enum ToastSymbol: String{
 struct ToastGroup: View {
     @ObservedObject var model = Toast.shared
     @StateObject private var manager = AppManager.shared
-        var hideStatus:Bool{
-            if let last = manager.router.last{
-                return last == .pushtalk
-            }
-            return false
-        }
 
     var body: some View {
         GeometryReader {
@@ -132,7 +126,34 @@ struct ToastGroup: View {
             }
             .padding(.bottom, safeArea.top == .zero ? 15 : 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .statusBarHidden(hideStatus)
+            .safeAreaInset(edge: .top) {
+                if manager.speaking{
+                    MusicInfo()
+                        .frame(height: 60)
+                        .diff{ view in
+                            Group{
+                                if #available(iOS 26.0, *){
+                                    view
+                                        .glassEffect(
+                                            .regular.interactive(),
+                                            in: .rect(cornerRadius: 5)
+                                        )
+
+                                }else{
+                                    view
+                                        .background(.ultraThinMaterial)
+
+                                }
+                            }
+                        }
+                        .transition(
+                            .move(edge: .top)
+                            .combined(with: .opacity)
+                            .animation(.easeInOut)
+                        )
+
+                }
+            }
         }
     }
     
@@ -167,13 +188,24 @@ fileprivate struct ToastView: View {
         .foregroundStyle(item.tint)
         .padding(.horizontal, 15)
         .padding(.vertical, 8)
-        .background(
-            .background
-                .shadow(.drop(color: .primary.opacity(0.06), radius: 5, x: 5, y: 5))
-                .shadow(.drop(color: .primary.opacity(0.06), radius: 8, x: -5, y: -5)),
-           in: .capsule
-                
-        )
+        .diff{ view in
+            Group{
+                if #available(iOS 26.0, *){
+                    view
+                        .glassEffect(.regular.interactive(), in: .capsule)
+                }else{
+                    view
+                        .background(
+                            .background
+                                .shadow(.drop(color: .primary.opacity(0.06), radius: 5, x: 5, y: 5))
+                                .shadow(.drop(color: .primary.opacity(0.06), radius: 8, x: -5, y: -5)),
+                            in: .capsule
+
+                        )
+                }
+            }
+        }
+
         .contentShape(.capsule)
         .gesture(
             DragGesture(minimumDistance: 0)

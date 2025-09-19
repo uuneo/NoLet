@@ -55,13 +55,7 @@ struct AssistantPageView:View {
                             .scaledToFit()
                             .frame(width: 200)
                             .minimumScaleFactor(0.5)
-                            .rotationEffect(fengche ? .degrees(360) :  .degrees(0))
-                            .onAppear{
-                                withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                                    fengche.toggle()
-                                }
-                                
-                            }
+                           
                         
                         Text("嗨! 我是智能助手")
                             .font(.title)
