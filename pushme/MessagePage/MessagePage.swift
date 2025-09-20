@@ -81,7 +81,7 @@ struct MessagePage: View {
                         } label: {
                             Label("使用示例", systemImage: "questionmark.bubble")
                                 .symbolRenderingMode(.palette)
-                                .foregroundStyle(Color.accent, Color.primary)
+                                .customForegroundStyle(Color.accent, Color.primary)
                         }
                     }
 
@@ -94,7 +94,7 @@ struct MessagePage: View {
                         } label: {
                             Label(showGroup ? "列表模式" : "分组模式", systemImage: showGroup ? "rectangle.3.group.bubble.left" : "checklist")
                                 .symbolRenderingMode(.palette)
-                                .foregroundStyle(.accent, .primary)
+                                .customForegroundStyle(.accent, .primary)
                                 .animation(.easeInOut, value: showGroup)
                                 .symbolEffect(delay: 0)
                         }
@@ -107,11 +107,11 @@ struct MessagePage: View {
                             if #available(iOS 18.0, *) {
                                 Label("智能助手", systemImage: "apple.intelligence")
                                     .symbolRenderingMode(.palette)
-                                    .foregroundStyle(.accent, .primary)
+                                    .customForegroundStyle(.accent, .primary)
                             } else {
                                 Label("智能助手", systemImage: "atom")
                                     .symbolRenderingMode(.palette)
-                                    .foregroundStyle(.accent, .primary)
+                                    .customForegroundStyle(.accent, .primary)
                             }
                         }
                     }
@@ -124,7 +124,7 @@ struct MessagePage: View {
                             } label: {
                                 Label("语音对讲", systemImage: "person.line.dotted.person")
                                     .symbolRenderingMode(.palette)
-                                    .foregroundStyle(.accent, .primary)
+                                    .customForegroundStyle(.accent, .primary)
                             }
                         }
                     }

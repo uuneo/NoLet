@@ -86,7 +86,7 @@ struct ContentView: View {
                     } label: {
                         Label( "消息", systemImage: "ellipsis.message")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
                     .badge(messageManager.unreadCount)
 
@@ -101,7 +101,7 @@ struct ContentView: View {
                     } label: {
                         Label( "设置", systemImage: "gear.badge.questionmark")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
 
 
@@ -114,7 +114,7 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "magnifyingglass")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
 
                 }.tabBarMinimizeBehavior(.onScrollDown)
@@ -129,7 +129,8 @@ struct ContentView: View {
                     .tabItem {
                         Label( "消息", systemImage: "ellipsis.message")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
+
                     }
                     .badge(messageManager.unreadCount)
                     .tag(TabPage.message)
@@ -144,7 +145,7 @@ struct ContentView: View {
                     .tabItem {
                         Label( "设置", systemImage: "gear.badge.questionmark")
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle( .green, colorScheme == .dark ? Color.white : Color.black)
+                            .customForegroundStyle(.green, .primary)
                     }
                     .tag(TabPage.setting)
 
