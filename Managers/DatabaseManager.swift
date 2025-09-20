@@ -230,11 +230,10 @@ extension DatabaseManager{
                 }
 
                 // 4. 排序与限制
-                request = request
-                    .order(Message.Columns.createDate.desc)
-                    .limit(lim)
+                request = request.order(Message.Columns.createDate.desc)
 
-                return (try request.fetchAll(db), try request.fetchCount(db))
+
+                return (try request.limit(lim).fetchAll(db), try request.fetchCount(db))
             }
         } catch {
             Log.error("Query error: \(error)")

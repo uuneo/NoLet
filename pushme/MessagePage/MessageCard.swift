@@ -17,8 +17,9 @@ struct MessageCard: View {
     var showGroup:Bool =  false
     var showAllTTL:Bool = false
     var showAvatar:Bool = true
-    var complete:(()->Void)? = nil
-    
+    var complete:()->Void
+    var delete:()->Void
+
     @State private var showLoading:Bool = false
     
     @State private var timeMode:Int = 0
@@ -45,8 +46,6 @@ struct MessageCard: View {
     }
     @State private var image:UIImage? = nil
     @State private var imageHeight:CGFloat = .zero
-    @EnvironmentObject private var messageManager: MessagesManager
-
     @State private var showDetail:Bool = false
     @Namespace private var sms
     var body: some View {
@@ -207,7 +206,7 @@ struct MessageCard: View {
                                 }else{
                                     view
                                         .VButton{ _ in
-                                            self.complete?()
+                                            self.complete()
                                             
                                             return true
                                         }
@@ -231,7 +230,7 @@ struct MessageCard: View {
                             if #available(iOS 18.0, *){
                                 self.showDetail.toggle()
                             }else{
-                                self.complete?()
+                                self.complete()
                             }
                             Haptic.impact(.light)
                         }
@@ -241,7 +240,8 @@ struct MessageCard: View {
                
             }
             .padding(8)
-            .swipeActions(edge: .leading){
+
+            .swipeActions(edge: .leading , allowsFullSwipe: true){
                 Button{
                     Haptic.impact()
                     DispatchQueue.main.async{
@@ -250,10 +250,9 @@ struct MessageCard: View {
                     }
                 }label:{
                     Label("智能助手", systemImage: "atom")
-                        .symbolEffect(.bounce, delay: 2)
+                        .symbolEffect(.rotate, delay: 2)
                 }.tint(.green)
-            }
-            .swipeActions(edge: .leading , allowsFullSwipe: true){
+
                 Button{
                     Haptic.impact()
                     if let image = image {
@@ -264,22 +263,14 @@ struct MessageCard: View {
                     Toast.copy(title: "复制成功")
                 }label:{
                     Label("复制", systemImage: "doc.on.clipboard")
-                        .symbolEffect(.variableColor)
-                        .customForegroundStyle(.orange, .primary)
+                        .symbolEffect(.bounce, delay: 2)
+                        .customForegroundStyle(.yellow, .white)
 
-                }.tint(.blue)
+                }.tint(.accent)
             }
             .swipeActions(edge: .trailing) {
                 Button {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                        withAnimation(.default){
-                            messageManager.singleMessages.removeAll(where: {$0.id == message.id})
-                        }
-                    }
-                    
-                    Task.detached(priority: .background){
-                        _ = await DatabaseManager.shared.delete(message)
-                    }
+                    self.delete()
                 } label: {
                     
                     Label( "删除", systemImage: "trash")
@@ -409,11 +400,16 @@ struct MessageCard: View {
 #Preview {
     
     List {
-        MessageCard(message: DatabaseManager.examples().first!)
+        MessageCard(message: DatabaseManager.examples().first!){
+
+        }delete:{
+
+        }
             .listRowBackground(Color.clear)
             .listSectionSeparator(.hidden)
             .environmentObject(AppManager.shared)
             .listRowInsets(EdgeInsets())
+            .environmentObject(MessagesManager.shared)
     }.listStyle(.grouped)
     
     

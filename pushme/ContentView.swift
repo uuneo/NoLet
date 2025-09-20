@@ -183,6 +183,9 @@ struct ContentView: View {
                 for item in DatabaseManager.examples(){
                     await  DatabaseManager.shared.add(item)
                 }
+#if DEBUG
+               _ =  await DatabaseManager.CreateStresstest(max: 30000)
+#endif
             }
             
         }

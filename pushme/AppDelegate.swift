@@ -110,9 +110,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             completionHandler(.banner)
         }else{
             completionHandler(.badge)
-            Haptic.impact(.light)
         }
-        
+        Haptic.impact(.light)
+
         notificatonHandler(userInfo: notification.request.content.userInfo)
     }
     

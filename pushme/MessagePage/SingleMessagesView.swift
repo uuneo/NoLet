@@ -30,7 +30,6 @@ struct SingleMessagesView: View {
 
     @State private var selectMessage: Message? = nil
 
-    @Namespace private var sms
 
     var body: some View {
         
@@ -43,6 +42,17 @@ struct SingleMessagesView: View {
                             withAnimation(.easeInOut) {
                                 manager.selectMessage = message
                             }
+                        }delete:{
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                                withAnimation(.default){
+                                    messageManager.singleMessages.removeAll(where: {$0.id == message.id})
+                                }
+                            }
+
+                            Task.detached(priority: .background){
+                                _ = await DatabaseManager.shared.delete(message)
+                            }
+                            Toast.success(title: "删除成功")
                         }
                         .id(message.id)
                         .listRowInsets(EdgeInsets())
@@ -54,12 +64,14 @@ struct SingleMessagesView: View {
                                 self.loadData(proxy: proxy, item: message)
                             }
                         }
-                        
+
+
                     }
                 
                 
             }
             .listStyle(.grouped)
+            .animation(.easeInOut, value: messageManager.singleMessages)
             .refreshable {
                 self.loadData(proxy: proxy , limit: min(messageManager.singleMessages.count, 200))
             }
@@ -67,17 +79,32 @@ struct SingleMessagesView: View {
                 loadData(proxy: proxy, limit: max(messageManager.singleMessages.count, 50))
             }
         }
-        .safeAreaInset(edge: .bottom, content: {
-            HStack{
-                Spacer()
-                Text(verbatim: "\(messageManager.singleMessages.count) / \(max(messageManager.allCount, messageManager.singleMessages.count))")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                    .padding(.horizontal, 20)
-                    .background(.ultraThinMaterial)
-            }.opacity((messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount) ? 0 : 1)
-            
-        })
+        .diff{ view in
+            Group{
+                if #available(iOS 26.0, *){
+                    view
+                        .toolbar {
+                            if !(messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount){
+                                ToolbarItem(placement: .subtitle) {
+                                    allMessageCount
+                                }
+                            }
+
+                        }
+                }else{
+                    view
+                        .safeAreaInset(edge: .bottom){
+                            HStack{
+                                Spacer()
+                                allMessageCount
+                                    .padding(.horizontal, 10)
+                                    .background26(.ultraThinMaterial, radius: 5)
+                            }.opacity((messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount) ? 0 : 1)
+                        }
+                }
+            }
+        }
+
         .task {
             self.loadData()
             Task.detached(priority: .background) {
@@ -97,30 +124,15 @@ struct SingleMessagesView: View {
             }
             
         }
-        .fullScreenCover(item: $selectMessage) { message in
-            NavigationStack{
-                SelectMessageView(message: message) {
-                    withAnimation(.easeInOut) {
-                        self.selectMessage = nil
-                    }
-                }
-                .diff { view in
-                    Group{
-                        if #available(iOS 18.0, *){
-                            view
-                                .navigationTransition(
-                                    .zoom(sourceID: message.id, in: sms)
-                                )
-                        }else{
-                            view
-                        }
-                    }
-                }
 
-            }
-        }
     }
-    
+
+    private var allMessageCount: some View{
+        Text(verbatim: "\(messageManager.singleMessages.count) / \(max(messageManager.allCount, messageManager.singleMessages.count))")
+            .font(.caption)
+            .foregroundStyle(.gray)
+    }
+
     private func proxyTo(proxy: ScrollViewProxy, selectId:String?){
         if let selectId = selectId{
             withAnimation {

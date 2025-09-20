@@ -102,7 +102,7 @@ struct ServersConfigView: View {
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
-                            
+
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive){
                                     if let index = cloudServers.firstIndex(where: {$0.id == item.id}){
@@ -126,7 +126,7 @@ struct ServersConfigView: View {
                         Text(verbatim: "\(cloudServers.count - servers.count)")
                     }
                 }
-                
+
             }
             .animation(.easeInOut, value: servers)
             .listRowSpacing(10)

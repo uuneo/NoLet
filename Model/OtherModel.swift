@@ -219,6 +219,22 @@ struct PushExampleModel:Identifiable {
     var title:String
 	var params:String
 	var index:Int
+
+
+    init<Header: View, Footer: View>(
+        header: Header,
+        footer: Footer,
+        title: String,
+        params: String,
+        index: Int
+    ) {
+        self.header = AnyView(header)
+        self.footer = AnyView(footer)
+        self.title = title
+        self.params = params
+        self.index = index
+    }
+
 }
 
 

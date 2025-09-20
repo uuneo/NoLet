@@ -154,25 +154,6 @@ struct ButtonPress: ViewModifier{
 	}
 }
 
-//struct replaceSymbol: ViewModifier{
-//    var icon1:String
-//    var icon2:String
-//    var delay:Double = 1
-//    private let timer = Timer.publish(every: 1.0, on: .current, in: .common).autoconnect()
-//    @State private var errorAnimate: Bool = true
-//    
-//    func body(content: Content) -> some View {
-//        Image(systemName: errorAnimate ? icon1 : icon2)
-//            .symbolEffect(.replace, delay: delay)
-//            .onReceive(timer){ _ in
-//                withAnimation(Animation.bouncy(duration: 0.5)) {
-//                    errorAnimate.toggle()
-//                }
-//            }
-//        
-//    }
-//    
-//}
 // MARK: - TextFieldModifier
 struct TextFieldModifier: ViewModifier {
 	var icon: String
@@ -303,6 +284,7 @@ struct ListButton<LEFT:View, Trailing: View>:View {
     
     
     var body: some View {
+        // 适配26.0暂时只能设置为button
         Button{
             if action(){
                 Haptic.impact()
@@ -368,14 +350,16 @@ extension View {
             .background(ViewExtractHelper(result: result))
             .compositingGroup()
     }
-    
+
+    @available(iOS, deprecated: 26.0, message: "谨慎使用,这个代码影响手势识别")
     func VButton(_ maxX:Double = 0.0,
                  release:Double = 0.0,
                  changeHaptic:Bool = false,
                  onRelease: ((DragGesture.Value)->Bool)? = nil)-> some View{
         modifier(ButtonPress(releaseStyles: release, maxX: maxX, changeHaptic: changeHaptic, onRelease: onRelease))
     }
-    
+
+    @available(iOS, deprecated: 26.0, message: "谨慎使用,这个代码影响手势识别")
     func VButton(changeHaptic:Bool = false, onRelease: @escaping (DragGesture.Value)->Bool)-> some View{
         modifier(ButtonPress(releaseStyles: 0, maxX: 0, changeHaptic:changeHaptic,  onRelease: onRelease))
     }

@@ -249,7 +249,7 @@ extension AppManager{
     /// - Parameters:
     ///   - url: The URL to open
     ///   - unOpen: A closure called when the URL cannot be opened, passing the URL as an argument
-    class func openUrl(url: URL, unOpen: ((URL) -> Void)? = nil) {
+    class func openUrl(url: URL) {
 
         if ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
 
@@ -262,6 +262,12 @@ extension AppManager{
 
         } else {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+
+    class func openUrl(url: String) {
+        if let url = URL(string: url) {
+            self.openUrl(url: url)
         }
     }
 

@@ -116,7 +116,7 @@ struct AboutNoLetView: View {
                     }
                 } action: {
 
-                    manager.fullPage = .web(BaseConfig.GITHUBAPP)
+                    AppManager.openUrl(url: BaseConfig.GITHUBAPP)
                     return true
                 }
                 
@@ -131,7 +131,7 @@ struct AboutNoLetView: View {
                             .customForegroundStyle(.green, Color.primary)
                     }
                 } action: {
-                    manager.fullPage = .web(BaseConfig.GITHUBSERVER)
+                    AppManager.openUrl(url: BaseConfig.GITHUBSERVER)
                     return true
                 }
 
@@ -147,10 +147,7 @@ struct AboutNoLetView: View {
                             .symbolEffect(.bounce)
                     }
                 } action: {
-                    if let url = URL(string: BaseConfig.APPSTORE){
-                        AppManager.openUrl(url: url)
-                    }
-
+                    AppManager.openUrl(url: BaseConfig.APPSTORE)
                     return true
                 }
 
@@ -176,6 +173,7 @@ struct AboutNoLetView: View {
                     }
                     Circle()
                         .frame(width: 3,height: 3)
+
                     Button{
                         manager.fullPage = .web(BaseConfig.userAgreement)
                         Haptic.impact()
@@ -201,7 +199,20 @@ struct AboutNoLetView: View {
             }
 
         }
-
+        .diff { view in
+            Group{
+                if #available(iOS 26.0, *){
+                    view
+                        .toolbar {
+                            ToolbarItem(placement: .largeTitle) {
+                                Text(verbatim: "")
+                            }
+                        }
+                }else{
+                    view
+                }
+            }
+        }
     }
 
     func requestReview() {

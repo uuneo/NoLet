@@ -39,6 +39,16 @@ struct MessageDetailPage: View {
                                 withAnimation(.easeInOut.speed(10)) {
                                     manager.selectMessage = message
                                 }
+                            }delete:{
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                                    withAnimation(.default){
+                                        messages.removeAll(where: {$0.id == message.id})
+                                    }
+                                }
+
+                                Task.detached(priority: .background){
+                                    _ = await DatabaseManager.shared.delete(message)
+                                }
                             }
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
@@ -49,13 +59,12 @@ struct MessageDetailPage: View {
                                     loadData(proxy: proxy,item: message)
                                 }
                             }
-                            .opacity(manager.selectMessage == message ? 0 : 1)
-               
-
                         }
                         
                     }
                     .listStyle(.grouped)
+                    .animation(.easeInOut, value: messages)
+                    .environmentObject(messageManager)
                     .onChange(of: messageManager.updateSign) {  newValue in
                         loadData(proxy: proxy, limit: max(messages.count, 50))
                     }
