@@ -133,7 +133,8 @@ struct ServersConfigView: View {
             .listStyle(.grouped)
             .refreshable {
                 // MARK: - 刷新策略
-                manager.registers()
+                manager.registers(msg: true)
+
             }
             
             .toolbar{

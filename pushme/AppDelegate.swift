@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             }
         }else{
-            manager.registers()
+            manager.registers(msg: true)
         }
     }
     

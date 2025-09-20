@@ -103,6 +103,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 Defaults[.servers] = results
                 Self.syncLocalToCloud()
             }
+
         }
     }
 
