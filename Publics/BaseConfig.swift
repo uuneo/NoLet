@@ -15,6 +15,7 @@ let CONTAINER =  FileManager.default.containerURL(forSecurityApplicationGroupIde
 
 class BaseConfig {
 
+
     static let appSymbol = "NoLet"
     static let groupName = "group.pushback"
     static let icloudName = "iCloud.pushback"

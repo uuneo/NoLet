@@ -308,3 +308,43 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
 
 
 
+extension AudioManager{
+   static func setCategory(_ active: Bool = true,
+                     _ category: AVAudioSession.Category = .playback,
+                     mode: AVAudioSession.Mode = .default) {
+        let session = AVAudioSession.sharedInstance()
+
+        do {
+            if active {
+                if category == .playAndRecord {
+                    try session.setCategory(category,
+                                            mode: mode,
+                                            options: [
+                                                .defaultToSpeaker,
+                                                .allowBluetoothHFP,
+                                                .allowBluetoothA2DP,
+                                            ])
+                } else {
+                    try session.setCategory(category,
+                                            mode: mode,
+                                            options: [
+                                                .allowBluetoothHFP,
+                                                .allowBluetoothA2DP,
+                                            ])
+                }
+            }
+
+            try session.setActive(active, options: .notifyOthersOnDeactivation)
+            try session.overrideOutputAudioPort(.speaker)
+
+            if let inputs = AVAudioSession.sharedInstance().availableInputs {
+                if let bluetooth = inputs.first(where: { $0.portType == .bluetoothHFP }) {
+                    try AVAudioSession.sharedInstance().setPreferredInput(bluetooth)
+                }
+            }
+        } catch {
+            Log.error("设置setActive失败：", error.localizedDescription)
+        }
+    }
+
+}

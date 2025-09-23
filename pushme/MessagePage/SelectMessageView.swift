@@ -295,6 +295,7 @@ struct SelectMessageView:View {
                             guard let player = await AudioManager.shared.Speak(text) else {
                                 return
                             }
+                            AudioManager.setCategory(true, .playback, mode: .default)
                             player.play()
                         }
                     }label:{
