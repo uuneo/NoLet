@@ -27,24 +27,21 @@ class BaseConfig {
     static let defaultServer = "https://wzs.app"
 #endif
 
-    static let docServer = "https://docs.uuneo.com"
-    static let docHelp = docServer + String(localized: "/#/tutorial")
-    static let defaultImage = docServer + "/_media/avatar.jpg"
-    static let problemWebUrl = docServer + "/#/faq"
-    static let delpoydoc = docServer + "/#/?id=pushback"
-    static let emailHelpUrl = docServer + "/#/email"
-    static let helpRegisterWebUrl = docServer + "/#/registerUser"
-    static let callback = defaultServer + "/callback"
-    static let iconRemote = docServer + "/_media/avatar.png"
+    static let docServer = "https://wiki.wzs.app/"
+    static let logoImage = docServer + "/_media/egglogo.png"
+    static let ogImage = docServer + "/_media/og.png"
+    static let delpoydoc = docServer + String(localized: "/#/deploy")
     static let privacyURL = docServer + String(localized: "/#/policy")
+    static let tutorialURL = docServer + String(localized: "/#/tutorial")
+
+
     static let longSoundPrefix = "pb.sounds.30s"
     static let userAgreement = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
 
-    static let GITHUBAPP = "https://github.com/uuneo/NoLet"
-    static let GITHUBSERVER = "https://github.com/uuneo/NoLetServer"
-    static let APPSTORE = "itms-apps://apps.apple.com/app/id6615073345"
+    static let appSource = "https://github.com/sunvc/NoLet"
+    static let serverSource = "https://github.com/sunvc/NoLets"
+    static let appStore = "https://apps.apple.com/app/id6615073345"
 
-    
     static var AppName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
         ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String

@@ -43,7 +43,9 @@ struct SFSafariView: UIViewControllerRepresentable {
 	var onDismiss: (() -> Void)? // 闭包处理关闭事件
 
 	func makeUIViewController(context: Context) -> SFSafariViewController {
-		let requestUrl: URL = URL(string: url) ?? URL(string: BaseConfig.problemWebUrl)!
+        let requestUrl: URL = URL(string: url) ?? URL(
+            string: BaseConfig.defaultServer
+        )!
 		let sfVC = PushbackSafariViewController(url: requestUrl)
 		sfVC.delegate = context.coordinator // 设置委托
 

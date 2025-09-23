@@ -426,7 +426,7 @@ extension ExampleView{
                                 },
                              footer: Spacer(),
                              title: String(localized:"自定义icon"),
-                             params:  "\(String(localized: "推送内容"))?icon=\(BaseConfig.iconRemote)",
+                             params:  "\(String(localized: "推送内容"))?icon=\(BaseConfig.logoImage)",
                              index: 5),
             
             PushExampleModel(header: Text("可对通知设置中断级别"),
@@ -457,7 +457,7 @@ extension ExampleView{
             PushExampleModel(header: Text( "下拉消息会显示图片"),
                              footer: Text( "携带一个image,会自动下载缓存"),
                              title:  String(localized: "携带图片"),
-                             params:  "?title=\(String(localized: "标题" ))&body=\(String(localized: "内容" ))&image=\(BaseConfig.iconRemote)",
+                             params:  "?title=\(String(localized: "标题" ))&body=\(String(localized: "内容" ))&image=\(BaseConfig.logoImage)",
                              index: 9),
 
             PushExampleModel(header:

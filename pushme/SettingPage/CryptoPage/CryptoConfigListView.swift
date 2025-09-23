@@ -187,7 +187,7 @@ struct CryptoConfigListView: View {
         let nonce = config.mode == .GCM ? "iv[:12]" : "iv"
         
         return """
- # Documentation: \(BaseConfig.docServer)\(String(localized: "/#/encryption"))
+ # Documentation: \(BaseConfig.appSource)\(String(localized: "/#/encryption"))
  # python demo: \(String(localized: "使用AES加密数据，并发送到服务器"))
  # pip3 install pycryptodome
  

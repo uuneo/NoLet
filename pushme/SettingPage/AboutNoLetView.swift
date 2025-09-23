@@ -146,7 +146,7 @@ struct AboutNoLetView: View {
                             .customForegroundStyle(.accent, Color.primary)
                     }
                 } action: {
-                    manager.fullPage = .web(BaseConfig.docHelp)
+                    manager.fullPage = .web(BaseConfig.tutorialURL)
                     return true
                 }
 
@@ -165,7 +165,7 @@ struct AboutNoLetView: View {
                     }
                 } action: {
 
-                    AppManager.openUrl(url: BaseConfig.GITHUBAPP)
+                    AppManager.openUrl(url: BaseConfig.appSource)
                     return true
                 }
                 
@@ -180,7 +180,7 @@ struct AboutNoLetView: View {
                             .customForegroundStyle(.green, Color.primary)
                     }
                 } action: {
-                    AppManager.openUrl(url: BaseConfig.GITHUBSERVER)
+                    AppManager.openUrl(url: BaseConfig.serverSource)
                     return true
                 }
 

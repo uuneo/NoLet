@@ -113,6 +113,34 @@
         }
       }
     },
+    "/#/deploy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/#/en-us/deploy"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/#/ja/deploy"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/#/ko/deploy"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/#/deploy"
+          }
+        }
+      }
+    },
     "/#/encryption" : {
       "localizations" : {
         "en" : {
@@ -2997,35 +3025,6 @@
         }
       }
     },
-    "信息页面" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Information page"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "情報ページ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "정보 페이지"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "信息页面"
-          }
-        }
-      }
-    },
     "修改分组名称" : {
       "localizations" : {
         "en" : {
@@ -3559,7 +3558,32 @@
       }
     },
     "分组设置" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group Settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "グループ設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그룹 설정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分组设置"
+          }
+        }
+      }
     },
     "分组选择" : {
       "localizations" : {
@@ -4010,7 +4034,32 @@
       }
     },
     "删除静音分组" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete muted group"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "ミュートしたグループを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음소거된 그룹 삭제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除静音分组"
+          }
+        }
+      }
     },
     "刷新间隔（分钟）" : {
       "localizations" : {
@@ -4852,35 +4901,6 @@
         }
       }
     },
-    "取消静音分组" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unmute group"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "グループのミュートを解除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "그룹 음소거 해제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消静音分组"
-          }
-        }
-      }
-    },
     "只能导入.exv结尾的JSON数据" : {
       "localizations" : {
         "en" : {
@@ -5353,35 +5373,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "图片未加载"
-          }
-        }
-      }
-    },
-    "图片默认保存时间，本地化图片不受影响" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Default save time for images, localized images are not affected"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画像のデフォルト保存時間、ローカライズされた画像には影響しません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이미지의 기본 저장 시간, 로컬화된 이미지는 영향을 받지 않습니다"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "图片默认保存时间，本地化图片不受影响"
           }
         }
       }
@@ -7991,7 +7982,32 @@
       }
     },
     "是否收到消息自动保存图片" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically save images when receiving messages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "メッセージを受信時に画像を自動保存"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메시지 수신 시 이미지 자동 저장"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是否收到消息自动保存图片"
+          }
+        }
+      }
     },
     "是否确定清空?" : {
       "localizations" : {
@@ -8245,37 +8261,33 @@
         }
       }
     },
-    "更多操作" : {
-      "extractionState" : "stale",
+    "更多设置" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "More actions"
+            "value" : "More Settings"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "さらに操作"
+            "state" : "translated", 
+            "value" : "その他の設定"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "더 많은 작업"
+            "value" : "추가 설정"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更多操作"
+            "value" : "更多设置"
           }
         }
       }
-    },
-    "更多设置" : {
-
     },
     "服务器" : {
       "localizations" : {
@@ -9874,7 +9886,32 @@
       }
     },
     "消息卡片未分组时是否显示logo" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show logo when message cards are not grouped"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "メッセージカードがグループ化されていない場合にロゴを表示する"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메시지 카드가 그룹화되지 않았을 때 로고 표시"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消息卡片未分组时是否显示logo"
+          }
+        }
+      }
     },
     "消息存档" : {
       "localizations" : {
@@ -10236,35 +10273,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "版本 %@"
-          }
-        }
-      }
-    },
-    "版本更新" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version Update"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バージョン更新"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "버전 업데이트"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "版本更新"
           }
         }
       }
@@ -11532,7 +11540,32 @@
       }
     },
     "自动模式按照未读数，自定义按照推送badge参数" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto mode follows unread count, custom mode follows push badge parameter"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動モードは未読数に従い、カスタムモードはプッシュバッジパラメータに従います"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동 모드는 읽지 않은 수에 따르고, 사용자 정의 모드는 푸시 배지 매개변수에 따릅니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动模式按照未读数，自定义按照推送badge参数"
+          }
+        }
+      }
     },
     "自定义" : {
       "localizations" : {
@@ -12039,35 +12072,6 @@
         }
       }
     },
-    "设备信息" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Device Information"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "デバイス情報"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기기 정보"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设备信息"
-          }
-        }
-      }
-    },
     "设置" : {
       "localizations" : {
         "en" : {
@@ -12181,7 +12185,32 @@
       }
     },
     "详细配置查看文档" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View documentation for detailed configuration"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "詳細設定についてはドキュメントをご覧ください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자세한 구성은 문서를 참조하십시오"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "详细配置查看文档"
+          }
+        }
+      }
     },
     "语音对讲" : {
       "localizations" : {
@@ -13780,7 +13809,32 @@
       }
     },
     "链接默认打开方式" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default link opening method"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated", 
+            "value" : "リンクのデフォルト開き方"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "링크 기본 열기 방식"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "链接默认打开方式"
+          }
+        }
+      }
     },
     "锁屏" : {
       "localizations" : {
@@ -14282,35 +14336,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "默认浏览器"
-          }
-        }
-      }
-    },
-    "默认浏览器设置" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Default browser settings"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "デフォルトブラウザ設定"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기본 브라우저 설정"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "默认浏览器设置"
           }
         }
       }

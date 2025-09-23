@@ -22,8 +22,8 @@ struct PushParams: Codable, Defaults.Serializable {
     var sound:String = "xiu"
     var call:String = "0"
     var url:String = ""
-    var icon:String = BaseConfig.iconRemote
-    var image:String = ""
+    var icon:String = BaseConfig.logoImage
+    var image:String = BaseConfig.ogImage
     var cipherText:String = ""
     var category:Identifiers = .myNotificationCategory
     var level:LevelTitle = .timeSensitive
