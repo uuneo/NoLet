@@ -251,7 +251,7 @@ struct SelectMessageView:View {
             }
             .toolbar{
                 ToolbarItem(placement: .topBarLeading) {
-                    Picker("Select Language", selection: $translateLang) {
+                    Picker("选择翻译语言", selection: $translateLang) {
                         ForEach(Multilingual.commonLanguages, id: \.id) { country in
 
                             Text("\(country.flag)  \(country.name)")
@@ -302,6 +302,7 @@ struct SelectMessageView:View {
                         Image(systemName: "speaker.wave.2.circle.fill")
                             .resizable()
                             .frame(width: 30, height: 30)
+                            .accessibilityLabel("朗读内容")
                     }
 
                 }

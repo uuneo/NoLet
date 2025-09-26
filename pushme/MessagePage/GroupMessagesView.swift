@@ -47,6 +47,11 @@ struct GroupMessagesView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .listSectionSeparator(.hidden)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityValue("\(message.group)")
+                        .accessibilityLabel("分组消息")
+                        .accessibilityHint("点击进入分组列表")
+
                 }
                 if messageManager.showGroupLoading && messageManager.groupMessages.count == 0{
                     HStack{

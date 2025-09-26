@@ -107,7 +107,7 @@ struct SoundView: View {
                     
                     ForEach(audioManager.customSounds, id: \.self) { url in
                         SoundItemView(audio: url)
-                           
+
                     }.onDelete { indexSet in
                         for index in indexSet{
                             audioManager.deleteSound(url: audioManager.customSounds[index])
@@ -123,6 +123,7 @@ struct SoundView: View {
             Section{
                 ForEach(audioManager.defaultSounds, id: \.self) { url in
                     SoundItemView(audio: url)
+
                 } .environmentObject(audioManager)
             }header: {
                 Text(  "自带铃声")
@@ -141,7 +142,7 @@ struct SoundView: View {
                         manager.router.append(.tts)
                         return true
                     })
-
+                    .accessibilityLabel("语音朗读设置")
             }
         }
         .onDisappear{

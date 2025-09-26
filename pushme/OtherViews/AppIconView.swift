@@ -60,6 +60,8 @@ struct AppIconView: View {
                                     }
                                     return true
                                 })
+                                .accessibilityLabel("滚动到开始")
+                                .accessibilityAddTraits(.isButton)
                         }
                         
                         Image(systemName: "\(AppIconEnum.allCases.count).circle")
@@ -76,6 +78,8 @@ struct AppIconView: View {
                                     }
                                     return true
                                 })
+                                .accessibilityLabel("滚动到结束")
+                                .accessibilityAddTraits(.isButton)
                         }
                     }
                 }

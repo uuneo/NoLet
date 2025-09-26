@@ -113,7 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         
         if notification.request.content.interruptionLevel.rawValue > 1{
-            completionHandler(.banner)
+            completionHandler([.banner])
         }else{
             completionHandler(.badge)
         }

@@ -41,6 +41,7 @@ struct MusicInfo: View {
             } label: {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                     .font(.title2)
+                    .accessibilityLabel(isPlaying ? "暂停" : "播放")
             }
             
           
@@ -78,6 +79,7 @@ struct MusicInfo: View {
                                 .foregroundColor(.gray)
                         }.padding(.top, 5)
                     }
+                    .accessibilityLabel("滑动拖动进度")
                 }else{
                     VStack{
                         Spacer()
@@ -134,6 +136,7 @@ struct MusicInfo: View {
                     Image(systemName: "xmark.seal.fill")
                         .font(.title2)
                         .foregroundStyle(.red)
+                        .accessibilityLabel("关闭")
                 }
                 .padding(.leading, 10)
             }

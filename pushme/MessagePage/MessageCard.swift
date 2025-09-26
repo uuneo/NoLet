@@ -227,12 +227,18 @@ struct MessageCard: View {
                         .frame(maxHeight: 365)
                         .scrollIndicators(.hidden)
                         .onTapGesture(count: 2) {
-                            if #available(iOS 18.0, *){
-                                self.showDetail.toggle()
-                            }else{
-                                self.complete()
-                            }
-                            Haptic.impact(.light)
+                            showFull()
+                        }
+
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityValue("\(PBMarkdown.plain(message.accessibilityValue()))")
+                        .accessibilityLabel("消息内容`")
+                        .accessibilityHint("双击全屏显示")
+                        .onAppear{
+                            Log.debug(PBMarkdown.plain(body))
+                        }
+                        .accessibilityAction(named: "显示全屏") {
+                            showFull()
                         }
                     }
                 }
@@ -325,15 +331,15 @@ struct MessageCard: View {
 
         }header: {
             MessageViewHeader()
-                
-            
+
         }footer: {
             
             HStack{
                 if showGroup{
                     MarkdownCustomView.highlightedText(searchText: searchText, text: message.group)
                         .textSelection(.enabled)
-                    
+                        .accessibilityLabel("群组名")
+                        .accessibilityValue( message.group)
                 }
                 Spacer()
                 
@@ -345,7 +351,17 @@ struct MessageCard: View {
         }
         
     }
-    
+
+    func showFull(){
+        if #available(iOS 18.0, *){
+            self.showDetail.toggle()
+        }else{
+            self.complete()
+        }
+
+        Haptic.impact(.light)
+    }
+
     @ViewBuilder
     func MessageViewHeader()-> some View{
         HStack{
@@ -363,7 +379,9 @@ struct MessageCard: View {
                     }
                     return true
                 })
-
+                .accessibilityLabel("时间:")
+                .accessibilityValue(message.createDate
+                    .formatted(date: .long, time: .standard))
 
             Spacer()
 

@@ -52,6 +52,7 @@ struct AboutNoLetView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .accessibilityLabel("点击切换应用图标")
                         }
 
                         
@@ -66,6 +67,7 @@ struct AboutNoLetView: View {
                                 buildDetail.toggle()
                                 Haptic.impact()
                             }
+                            .accessibilityLabel("版本 \(buildVersion)，双击切换显示")
                     }
                     Spacer()
                 }
@@ -105,7 +107,7 @@ struct AboutNoLetView: View {
                         Toast.copy(title: "复制成功")
 
                     }else{
-                        Toast.shared.present(title: "请先注册", symbol: "questionmark.circle.dashed")
+                        Toast.question(title: "请先注册")
                     }
                     return true
                 }

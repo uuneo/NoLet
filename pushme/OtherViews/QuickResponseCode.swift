@@ -80,6 +80,8 @@ struct QuickResponseCodeview:View {
                             self.dismiss()
                             return true
                         })
+                        .accessibilityLabel("关闭")
+                        .accessibilityAddTraits(.isButton)
                 }
                 
                 ToolbarItem{
@@ -92,6 +94,9 @@ struct QuickResponseCodeview:View {
                             self.raw.toggle()
                             return true
                         })
+                        .accessibilityLabel( "切换显示")
+                        .accessibilityAddTraits(.isButton)
+
                 }
                 
                 

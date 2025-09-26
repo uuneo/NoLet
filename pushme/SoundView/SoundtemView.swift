@@ -67,37 +67,18 @@ struct SoundItemView: View {
                     if #available(iOS 26.0, *){
                         view
                             .onTapGesture {
-                                self.progress = 0
-                                 DispatchQueue.main.async{
-                                    withAnimation(.easeInOut(duration: duration )) {
-                                        self.progress = 1
-                                    }
-
-                                    audioManager.playAudio(url: audio)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
-                                        self.progress = selectSound ? 1 : 0
-                                    }
-                                }
+                                playAudio()
                                 Haptic.impact()
                             }
                     }else{
                         view
                             .VButton(onRelease:{ _ in
-                                self.progress = 0
-                                 DispatchQueue.main.async{
-                                    withAnimation(.easeInOut(duration: duration )) {
-                                        self.progress = 1
-                                    }
-
-                                    audioManager.playAudio(url: audio)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
-                                        self.progress = selectSound ? 1 : 0
-                                    }
-                                }
+                                playAudio()
                                 return true
                             })
                     }
                 }
+
             }
 
             
@@ -116,6 +97,7 @@ struct SoundItemView: View {
                         Toast.copy(title: "复制成功")
                         Haptic.impact()
                     }
+
             }else{
                 Text("长度不能超过30秒")
                     .foregroundStyle(.red)
@@ -128,6 +110,7 @@ struct SoundItemView: View {
                 audioManager.playAudio(url: audio)
             } label: {
                 Text("设置")
+                    .accessibilityLabel("设置默认铃声")
             }.tint(.green)
         }
         .task {
@@ -140,9 +123,33 @@ struct SoundItemView: View {
                 
             }
         }
-	
+
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("铃声" + name)
+        .accessibilityAction(named: "复制") {
+            Clipboard.set(self.name)
+            Toast.copy(title: "复制成功")
+            Haptic.impact()
+        }
+        .accessibilityAction(named: "播放铃声") {
+            playAudio()
+        }
+
         
-        
+    }
+
+    func playAudio(){
+        self.progress = 0
+        DispatchQueue.main.async{
+            withAnimation(.easeInOut(duration: duration )) {
+                self.progress = 1
+            }
+
+            audioManager.playAudio(url: audio)
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration + 0.1){
+                self.progress = selectSound ? 1 : 0
+            }
+        }
     }
 
 	

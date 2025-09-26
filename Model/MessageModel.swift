@@ -127,7 +127,39 @@ extension Message{
         
         return text.joined(separator: ",")
     }
-    
+
+
+    func accessibilityValue() -> String{
+        var text:[String] = []
+
+        text
+            .append(
+                String(localized: "时间:") + createDate
+                    .formatted(date: .long, time: .standard)
+            )
+
+        if let title = title{
+            text.append(String(localized: "标题:") + title)
+        }
+        if let subtitle = subtitle{
+            text.append(String(localized: "副标题:") + subtitle)
+        }
+
+        if let body = body{
+            text.append(String(localized: "内容:") + body)
+        }
+
+        if image != nil{
+            text.append(String(localized: "附件: 一张图片"))
+        }
+
+        if let url = url{
+            text.append(String(localized: "跳转链接:") + url)
+        }
+
+        return text.joined(separator: "\n")
+    }
+
     
 }
 

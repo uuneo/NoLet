@@ -161,6 +161,7 @@ struct CloudIcon: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     PhotosPicker(selection: $selectItem) {
                         Image(systemName: "photo.circle")
+                            .accessibilityLabel("选择图片")
                     }
                 }
                 

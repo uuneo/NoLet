@@ -14,7 +14,9 @@ class Toast: ObservableObject {
     
     
     func present(title: String, symbol: String?, tint: Color = .primary,isUserInteractionEnabled:Bool = true, timing: ToastTime = .medium) {
+
         DispatchQueue.main.async{
+            UIAccessibility.post(notification: .announcement, argument: title)
             withAnimation(.snappy) {
                 self.toasts.append(
                     .init(
@@ -32,6 +34,7 @@ class Toast: ObservableObject {
     func present(title: String, symbol: ToastSymbol?, tint: Color = .primary,isUserInteractionEnabled:Bool = true ,timing: ToastTime = .medium) {
         
         DispatchQueue.main.async{
+            UIAccessibility.post(notification: .announcement, argument: title)
             withAnimation(.snappy) {
                 self.toasts.append(
                     .init(
@@ -184,6 +187,7 @@ fileprivate struct ToastView: View {
             }
             
             Text(item.title)
+                .accessibilityLabel(item.title)
         }
         .foregroundStyle(item.tint)
         .padding(.horizontal, 15)

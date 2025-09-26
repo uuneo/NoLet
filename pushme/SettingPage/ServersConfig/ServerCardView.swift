@@ -14,32 +14,40 @@ import Defaults
 struct ServerCardView:View {
     @EnvironmentObject private var manager: AppManager
     @State private var textAnimation:Bool = false
-    @State private var showDevice:Bool = false
+//    @State private var showDevice:Bool = false
 	var item: PushServerModel
 	var isCloud:Bool = false
     var complete:() -> Void
-	
+
+    var accessText: String{
+        if item.status {
+            return String(localized: "服务器:") + item.url + String(localized: "状态正常")
+        }else{
+            return String(localized: "服务器:") + item.url + String(localized: "状态异常")
+        }
+    }
+
 	var body: some View {
         VStack{
             
-            if showDevice{
-                HStack{
-                    Image(systemName: "qrcode")
-                        .imageScale(.small)
-                        .foregroundStyle(.gray)
-                    Text(item.device)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .foregroundStyle(.accent)
-                    Spacer()
-                }
-                .font(.caption2)
-                .padding(5)
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
-                .padding(.leading, 10)
-            }
-            
+//            if showDevice{
+//                HStack{
+//                    Image(systemName: "qrcode")
+//                        .imageScale(.small)
+//                        .foregroundStyle(.gray)
+//                    Text(item.device)
+//                        .lineLimit(1)
+//                        .minimumScaleFactor(0.5)
+//                        .foregroundStyle(.accent)
+//                    Spacer()
+//                }
+//                .font(.caption2)
+//                .padding(5)
+//                .background(.ultraThinMaterial)
+//                .clipShape(RoundedRectangle(cornerRadius: 5))
+//                .padding(.leading, 10)
+//            }
+//            
             
             HStack(spacing: 10){
                 
@@ -63,44 +71,44 @@ struct ServerCardView:View {
                             .padding(.horizontal,5)
                     }
                 }
-                .if(true){ view in
-
-                    Group{
-                        if #available(iOS 26.0, *){
-                            view
-                                .onTapGesture {
-                                    if !showDevice{
-                                        withAnimation(.easeInOut) {
-                                            self.showDevice = true
-                                        }
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
-                                            withAnimation(.easeInOut) {
-                                                self.showDevice = false
-                                            }
-                                        }
-                                        Haptic.impact()
-                                    }
-                                }
-                        }else{
-                            view
-                                .VButton( onRelease: { _ in
-                                    if !showDevice{
-                                        withAnimation(.easeInOut) {
-                                            self.showDevice = true
-                                        }
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
-                                            withAnimation(.easeInOut) {
-                                                self.showDevice = false
-                                            }
-                                        }
-                                        return true
-                                    }
-                                    return false
-                                })
-                        }
-                    }
-
-                }
+//                .if(true){ view in
+//
+//                    Group{
+//                        if #available(iOS 26.0, *){
+//                            view
+//                                .onTapGesture {
+//                                    if !showDevice{
+//                                        withAnimation(.easeInOut) {
+//                                            self.showDevice = true
+//                                        }
+//                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
+//                                            withAnimation(.easeInOut) {
+//                                                self.showDevice = false
+//                                            }
+//                                        }
+//                                        Haptic.impact()
+//                                    }
+//                                }
+//                        }else{
+//                            view
+//                                .VButton( onRelease: { _ in
+//                                    if !showDevice{
+//                                        withAnimation(.easeInOut) {
+//                                            self.showDevice = true
+//                                        }
+//                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
+//                                            withAnimation(.easeInOut) {
+//                                                self.showDevice = false
+//                                            }
+//                                        }
+//                                        return true
+//                                    }
+//                                    return false
+//                                })
+//                        }
+//                    }
+//
+//                }
 
 
                 
@@ -155,6 +163,7 @@ struct ServerCardView:View {
                                 })
                         }
                     }
+
                 }
 
 
@@ -190,6 +199,15 @@ struct ServerCardView:View {
         .padding(.vertical, 5)
         .transaction { view in
             view.animation = .snappy
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessText)
+        .accessibilityAction(named: "分享"){
+            let local = PBScheme.pb.scheme(host: .server, params: ["text": item.server])
+            manager.sheetPage = .quickResponseCode(text: local.absoluteString, title: String(localized: "服务器配置"),preview: nil)
+        }
+        .accessibilityAction(named:isCloud ? "下载云服务器" : "复制"){
+            complete()
         }
 	}
 }

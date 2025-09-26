@@ -62,6 +62,7 @@ struct CryptoConfigListView: View {
                     Text(String(format: "%02d", index))
                         .font(.title)
                         .fontWeight(.bold)
+
                 }
                 VStack(alignment: .leading, spacing: 5){
                     
@@ -86,6 +87,7 @@ struct CryptoConfigListView: View {
                     }
                     .lineLimit(1)
                 }
+
                 Spacer(minLength: 0)
                 
                 if !item.system{
@@ -135,9 +137,9 @@ struct CryptoConfigListView: View {
                         .imageScale(.large)
                         .padding(.vertical, 10)
                 }
-                
-               
-                
+
+
+
             }
             .padding(10)
             .background26(.message, radius: 15)
@@ -160,16 +162,50 @@ struct CryptoConfigListView: View {
                             }else{
                                 self.cryptoConfigs.removeAll(where: {$0.id == item.id})
                             }
-                            
+
                         }label:{
                             Label("删除", systemImage: "trash")
                         }.tint(.red)
                     }
             })
-            
-        
-        .frame(maxWidth: .infinity)
-        
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .ignore)
+            .if( !item.system ){ view in
+                view
+                    .accessibilityLabel(
+                        String(
+                            localized: "\(String(format: "%02d", index))号密钥"
+                        ) + item.algorithm.name + item.mode.rawValue
+                    )
+                    .accessibilityAction(named: "分享配置") {
+                    if let config = item.obfuscator(){
+                        let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
+                        DispatchQueue.main.async{
+                            AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
+                        }
+                    }
+                }
+                .accessibilityAction(named: "编辑") {
+                    AppManager.shared.sheetPage = .crypto(item)
+                }
+                .accessibilityAction(named: "复制") {
+                    let data = cryptoExampleHandler(config: item)
+                    Clipboard.set(data)
+                    Toast.copy(title: "复制成功")
+                }
+
+            }
+            .if( item.system ){ view in
+                view
+                    .accessibilityLabel(
+                        String(
+                            localized: "系统密钥,不能进行操作"
+                        )
+                    )
+            }
+
+
+
     }
     
     func cryptoExampleHandler(config: CryptoModelConfig) -> String {

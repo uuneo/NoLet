@@ -49,8 +49,10 @@ struct ServersConfigView: View {
                                 }
                                 
                             }label:{
-                                Text("重置")
+                                Label("重置", systemImage: "arrow.clockwise")
                                     .fontWeight(.bold)
+                                    .accessibilityLabel("崇置")
+
                             }.tint(.accentColor)
                         }
                         .if( servers.count > 1){ view in
@@ -66,7 +68,7 @@ struct ServersConfigView: View {
                                             }
                                         }
                                     }label:{
-                                        Text("移除")
+                                        Label("移除", systemImage: "arrow.up.bin")
                                             .fontWeight(.bold)
                                     }.tint(.red)
                                 }
@@ -150,6 +152,7 @@ struct ServersConfigView: View {
                             Image(systemName: "externaldrive.badge.plus")
                                 .symbolRenderingMode(.palette)
                                 .foregroundStyle( Color.accentColor,Color.primary)
+                                .accessibilityLabel("添加服务器")
                         }
                     }
                     
@@ -163,6 +166,7 @@ struct ServersConfigView: View {
                             dismiss()
                         } label: {
                             Image(systemName: "xmark.seal")
+                                .accessibilityLabel("关闭")
                         }
                         
                     }
