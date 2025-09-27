@@ -234,9 +234,6 @@ struct MessageCard: View {
                         .accessibilityValue("\(PBMarkdown.plain(message.accessibilityValue()))")
                         .accessibilityLabel("消息内容`")
                         .accessibilityHint("双击全屏显示")
-                        .onAppear{
-                            Log.debug(PBMarkdown.plain(body))
-                        }
                         .accessibilityAction(named: "显示全屏") {
                             showFull()
                         }

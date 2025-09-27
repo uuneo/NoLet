@@ -10,11 +10,13 @@ import UserNotifications
 
 class CiphertextHandler:NotificationContentHandler{
 	func handler(identifier: String, content bestAttemptContent: UNMutableNotificationContent) async throws -> UNMutableNotificationContent {
-		
-        guard let ciphertext:String = bestAttemptContent.userInfo[Params.cipherText.name] as? String  else {
+
+        var userInfo = bestAttemptContent.userInfo
+
+        guard let ciphertext:String = userInfo.raw(.cipherText)  else {
 			return bestAttemptContent
 		}
-		var userInfo = bestAttemptContent.userInfo
+
 
 		// 解密推送信息
 		do {
@@ -24,40 +26,43 @@ class CiphertextHandler:NotificationContentHandler{
             let map = try self.decrypt(ciphertext: ciphertext,
                                        iv: ivData,
                                        number: ciphertNumber)
-			
+
 			var alert = [String: Any]()
 			var soundName: String? = nil
             
-            if let category: String = map.raw(.category), category == Identifiers.markdown.rawValue{
+            if let category: String = map.raw(.category, nesting: false), category == Identifiers.markdown.rawValue{
                 bestAttemptContent.categoryIdentifier = category
             }else{
                 bestAttemptContent.categoryIdentifier = Identifiers.myNotificationCategory.rawValue
             }
-            
-            if let id:String = map.raw(.id){
+
+            /// map 不能使用.raw 因为没有aps的层级嵌套
+            if let id:String = map.raw(.id, nesting: false){
                 bestAttemptContent.targetContentIdentifier = id
             }
-            
-            if let title:String = map.raw(.title) {
+
+
+            if let title: String = map.raw(.title, nesting: false) {
                 bestAttemptContent.title = title
                 alert[Params.title.name] = title
 			}
             
             
-            if let subtitle:String = map.raw(.subtitle) {
+            if let subtitle: String = map.raw(.subtitle, nesting: false){
 				bestAttemptContent.subtitle = subtitle
 				alert[Params.subtitle.name] = subtitle
 			}
-            if let body: String = map.raw(.body) {
+            if let body: String = map.raw(.body, nesting: false) {
 				bestAttemptContent.body = body
 				alert[Params.body.name] = body
 			}
-            if let group: String = map.raw(.group) {
+            
+            if let group: String = map.raw(.group, nesting: false)   {
 				bestAttemptContent.threadIdentifier = group
 			}
             
             
-            if var sound:String = map.raw(.sound)  {
+            if var sound: String = map.raw(.sound, nesting: false) {
 				if !sound.hasSuffix(Params.caf.name) {
 					sound = "\(sound).\(Params.caf.name)"
 				}
@@ -77,7 +82,9 @@ class CiphertextHandler:NotificationContentHandler{
 			}
             
 			bestAttemptContent.userInfo = userInfo
-			
+
+            return bestAttemptContent
+
 		} catch {
 			bestAttemptContent.title = String(localized: "解密失败!")
 			bestAttemptContent.body = ciphertext
@@ -85,7 +92,7 @@ class CiphertextHandler:NotificationContentHandler{
 			throw NotificationContentHandlerError.error(content: bestAttemptContent)
 		}
 		
-		return bestAttemptContent
+
 	}
 	
     

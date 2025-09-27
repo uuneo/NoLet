@@ -31,9 +31,9 @@ extension [Params] {
 
 extension Dictionary where Key == AnyHashable, Value == Any{
 
-    func raw<T>(_ params: Params) -> T? {
-        let value = raw(params)
-        
+    func raw<T>(_ params: Params, nesting:Bool = true) -> T? {
+        let value = raw(params, nesting: nesting)
+
         switch T.self {
         case is String.Type:
             // 字符串类型转换
@@ -77,13 +77,23 @@ extension Dictionary where Key == AnyHashable, Value == Any{
         }
     }
 
-    private func raw(_ params: Params)-> Any? {
+    private func raw(_ params: Params, nesting:Bool = true)-> Any? {
         switch params {
         case .title,.subtitle, .body:
-            let alert = (self[Params.aps.name] as? [String: Any])?[Params.alert.name] as? [String: Any]
-            return alert?[params.name]
+            if nesting{
+                let alert = (self[Params.aps.name] as? [String: Any])?[Params.alert.name] as? [String: Any]
+                return alert?[params.name]
+            }else{
+                return self[params.name]
+            }
+
         case .sound:
-            return (self[Params.aps.name] as? [AnyHashable: Any])?[Params.sound.name]
+            if nesting{
+                return  (self[Params.aps.name] as? [AnyHashable: Any])?[Params.sound.name]
+            }else{
+                return self[params.name]
+            }
+
         default:
             return self[params.name]
         }
