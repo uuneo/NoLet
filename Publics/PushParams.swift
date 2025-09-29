@@ -61,12 +61,14 @@ extension Dictionary where Key == AnyHashable, Value == Any{
             // 布尔类型转换
             if let b = value as? Bool {
                 return b as? T
+            }else if let data = value as? Int{
+                return  (data > 0) as? T
             } else if let data = value as? String {
                 // 支持更多布尔值字符串格式
                 let lowercased = data.lowercased()
-                if ["true", "yes", "1"].contains(lowercased) {
+                if ["true", "y", "yes", "1"].contains(lowercased) {
                     return true as? T
-                } else if ["false", "no", "0"].contains(lowercased) {
+                } else if ["false", "n", "no", "0"].contains(lowercased) {
                     return false as? T
                 }
             }

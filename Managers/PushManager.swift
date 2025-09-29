@@ -42,6 +42,7 @@ class APNs {
         
         // 使用CryptoKit处理私钥 - 直接使用DER格式
         let privateKey: P256.Signing.PrivateKey
+
         do {
             // PEM格式的私钥通常是DER编码的，直接使用DER格式
             privateKey = try P256.Signing.PrivateKey(derRepresentation: keyData)
@@ -187,6 +188,109 @@ fileprivate extension Data {
     }
 }
 
+class APNS {
+    struct PushPayload: Codable {
+        struct APS: Codable {
+            struct Alert: Codable {
+                var title: String?
+                var subtitle: String?
+                var body: String?
+                var launchImage: String?
+                var titleLocKey: String?
+                var titleLocArgs: [String]?
+                var subtitleLocKey: String?
+                var subtitleLocArgs: [String]?
+                var locKey: String?
+                var locArgs: [String]?
+
+                enum CodingKeys: String, CodingKey {
+                    case title, subtitle, body
+                    case launchImage = "launch-image"
+                    case titleLocKey = "title-loc-key"
+                    case titleLocArgs = "title-loc-args"
+                    case subtitleLocKey = "subtitle-loc-key"
+                    case subtitleLocArgs = "subtitle-loc-args"
+                    case locKey = "loc-key"
+                    case locArgs = "loc-args"
+                }
+            }
+
+            var alert: Alert?
+            var badge: Int?
+            var sound: String?
+            var threadId: String?
+            var category: String?
+            var contentAvailable: Int?
+            var mutableContent: Int?
+            var targetContentId: String?
+            var interruptionLevel: Level = .active
+            var relevanceScore: Double?
+            var filterCriteria: String?
+            var staleDate: Date?
+            var contentState: String?
+            var timestamp: Date?
+            var event: String?
+            var dismissalDate: Date?
+            var attributesType: String?
+            var attributes: [String: String]?
+
+            enum CodingKeys: String, CodingKey {
+                case alert, badge, sound, category, event, attributes
+                case threadId = "thread-id"
+                case contentAvailable = "content-available"
+                case mutableContent = "mutable-content"
+                case targetContentId = "target-content-id"
+                case interruptionLevel = "interruption-level"
+                case relevanceScore = "relevance-score"
+                case filterCriteria = "filter-criteria"
+                case staleDate = "stale-date"
+                case contentState = "content-state"
+                case timestamp
+                case dismissalDate = "dimissal-date"
+                case attributesType = "attributes-type"
+            }
+
+            enum Level: String, Codable{
+                case passive
+                case active
+                case timeSensitive = "time-sensitive"
+                case critical
+            }
+        }
+
+        var aps: APS
+    }
+
+
+    struct APNsHeaders: Codable {
+        var apnsTopic: String
+        var apnsId: String?
+        var apnsCollapseId: String?
+        var apnsPriority: Int = 10
+        var apnsExpiration: Int = Int(Date.now.timeIntervalSince1970)
+        var apnsPushType: String = "alert"
+        var authorization: String = "bearer "
+        var contentType: String = "application/json"
+
+        enum CodingKeys: String, CodingKey {
+            case apnsTopic = "apns-topic"
+            case apnsId = "apns-id"
+            case apnsCollapseId = "apns-collapse-id"
+            case apnsPriority = "apns-priority"
+            case apnsExpiration = "apns-expiration"
+            case apnsPushType = "apns-push-type"
+            case authorization
+            case contentType = "content-type"
+        }
+    }
+
+
+    struct criticalSound: Codable{
+        var critical: Int
+        var name: String
+        var volume: Double
+    }
+}
 
 
 

@@ -97,7 +97,12 @@ struct AssistantPageView:View {
                     
                     Section{
                         Button(action: {
-                            manager.router.append(.assistantSetting(nil))
+                            if manager.page == .message {
+                                manager.messageRouter.append(.assistantSetting(nil))
+                            }else if manager.page == .search{
+                                manager.searchRouter.append(.assistantSetting(nil))
+                            }
+
                             Haptic.impact()
                         }) {
                             Label(String(localized: "设置"), systemImage: "gear.circle")
@@ -156,9 +161,13 @@ struct AssistantPageView:View {
         }
         .toolbar {
             principalToolbarContent
-            if manager.router.count == 0{
+
+            if manager.page == .message && manager.messageRouter.count == 0{
+                backupMenu
+            }else if manager.page == .search && manager.searchRouter.count == 0{
                 backupMenu
             }
+
         }
         .sheet(isPresented: $showMenu) {
             OpenChatHistoryView(show: $showMenu)
@@ -247,7 +256,12 @@ struct AssistantPageView:View {
     private var backupMenu: some ToolbarContent{
         ToolbarItem(placement: .topBarLeading) {
             Button{
-                manager.router = []
+                if manager.page == .message{
+                    manager.messageRouter = []
+                }else if manager.page == .search{
+                    manager.searchRouter = []
+                }
+
             }label: {
                 HStack(spacing: 10){
 
@@ -260,7 +274,12 @@ struct AssistantPageView:View {
     // 发送消息
     private  func sendMessage(_ text: String) {
         guard assistantAccouns.first(where: {$0.current}) != nil else {
-            manager.router.append(.assistantSetting(nil))
+            if manager.page == .message{
+                manager.messageRouter.append(.assistantSetting(nil))
+            }else if manager.page == .search{
+                manager.searchRouter.append(.assistantSetting(nil))
+            }
+
             return
         }
         

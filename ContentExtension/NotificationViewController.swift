@@ -48,7 +48,7 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
         let userInfo = notification.request.content.userInfo
 
         // 兼容bark
-        if let autoCopy:String = userInfo.raw(.autoCopy), autoCopy == "1" {
+        if let autoCopy:Bool = userInfo.raw(.autoCopy), autoCopy {
             if let copy: String = userInfo.raw(.copy) {
                 UIPasteboard.general.string = copy
             } else {

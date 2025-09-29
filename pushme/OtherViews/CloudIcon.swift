@@ -10,6 +10,7 @@ import Defaults
 import CloudKit
 import UniformTypeIdentifiers
 import PhotosUI
+import Foundation
 
 struct CloudIcon: View {
     @Environment(\.dismiss) var dismiss

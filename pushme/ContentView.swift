@@ -78,9 +78,10 @@ struct ContentView: View {
                 TabView(selection: $manager.page) {
 
                     Tab(value: .message) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.messageRouter){
                             // MARK: 信息页面
-                            MessagePage().router(manager)
+                            MessagePage()
+                                .router(manager)
 
                         }
                     } label: {
@@ -93,7 +94,7 @@ struct ContentView: View {
 
 
                     Tab(value: .setting) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.settingsRouter){
                             // MARK: 设置页面
                             SettingsPage().router(manager)
 
@@ -106,7 +107,7 @@ struct ContentView: View {
 
 
                     Tab(value: .search, role: .search) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.searchRouter){
                             // MARK: 设置页面
                             SearchMessageView(searchText: $manager.searchText)
                                 .router(manager)
@@ -121,7 +122,7 @@ struct ContentView: View {
             }else{
                 TabView(selection: $manager.page) {
 
-                    NavigationStack(path: $manager.router){
+                    NavigationStack(path: $manager.messageRouter){
                         // MARK: 信息页面
                         MessagePage().router(manager)
 
@@ -137,7 +138,7 @@ struct ContentView: View {
 
 
 
-                    NavigationStack(path: $manager.router){
+                    NavigationStack(path: $manager.settingsRouter){
                         // MARK: 设置页面
                         SettingsPage().router(manager)
 
@@ -166,7 +167,7 @@ struct ContentView: View {
                 .environmentObject(manager)
         } detail: {
             
-            NavigationStack(path: $manager.router){
+            NavigationStack(path: $manager.messageRouter){
                 MessagePage()
                     .router(manager)
             }
@@ -185,7 +186,7 @@ struct ContentView: View {
                     await  DatabaseManager.shared.add(item)
                 }
 #if DEBUG
-               _ =  await DatabaseManager.CreateStresstest(max: 30000)
+               _ =  await DatabaseManager.CreateStresstest(max: 1000000)
 #endif
             }
             
@@ -205,7 +206,8 @@ struct ContentView: View {
                         debugPrint(code)
                         let success = await manager.appendServer(server: PushServerModel(url: code))
                         if success{
-                            manager.router = [.server]
+                            manager.page = .setting
+                            manager.settingsRouter = [.server]
                         }
                         return success
                     }
@@ -228,7 +230,9 @@ struct ContentView: View {
         Group{
             switch manager.sheetPage {
             case .appIcon:
-                NavigationStack{ AppIconView() }.presentationDetents([.height(300)])
+                NavigationStack{
+                    AppIconView()
+                }.presentationDetents([.height(300)])
             case .cloudIcon:
                 CloudIcon() .presentationDetents([.medium, .large])
             case .paywall:
@@ -243,7 +247,8 @@ struct ContentView: View {
                     if code.hasHttp(){
                         let success = await manager.appendServer(server: PushServerModel(url: code))
                         if success{
-                            manager.router = [.server]
+                            manager.page = .setting
+                            manager.settingsRouter = [.server]
                         }
                         return success
                     }
@@ -277,7 +282,7 @@ extension View{
                         
                     case .sound:
                         SoundView()
-                        
+
                     case .assistant:
                         AssistantPageView()
                         
@@ -307,6 +312,9 @@ extension View{
 
                     case .dataSetting:
                         DataSettingView()
+                        
+                    case .serverInfo(let server):
+                        ServerMonitoringView(server: server)
 
                     }
                 }

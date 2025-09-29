@@ -552,7 +552,7 @@ struct PushToTalkView: View {
 
                 Spacer(minLength: 0)
                 Button{
-                    AppManager.shared.router = []
+                    AppManager.shared.messageRouter = []
                     Haptic.impact()
                 }label: {
                     Image(systemName: "arrow.backward")
@@ -906,7 +906,7 @@ struct PushToTalkView: View {
     
     func selectServerHandler(){
         guard let current = servers.filter({$0.voice}).first else {
-            AppManager.shared.router = []
+            AppManager.shared.messageRouter = []
             return
         }
         

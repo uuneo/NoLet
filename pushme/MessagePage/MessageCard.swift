@@ -248,8 +248,14 @@ struct MessageCard: View {
                 Button{
                     Haptic.impact()
                     DispatchQueue.main.async{
+
                         AppManager.shared.askMessageId = message.id
-                        AppManager.shared.router.append(.assistant)
+
+                        if AppManager.shared.page == .message{
+                            AppManager.shared.messageRouter.append(.assistant)
+                        }else if AppManager.shared.page == .search{
+                            AppManager.shared.searchRouter.append(.assistant)
+                        }
                     }
                 }label:{
                     Label("智能助手", systemImage: "atom")

@@ -139,7 +139,12 @@ struct SoundView: View {
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(.tint, .primary)
                     .VButton(onRelease: { _ in
-                        manager.router.append(.tts)
+                        if manager.page == .message{
+                            manager.messageRouter.append(.tts)
+                        }else if manager.page == .setting{
+                            manager.settingsRouter.append(.tts)
+                        }
+
                         return true
                     })
                     .accessibilityLabel("语音朗读设置")

@@ -62,11 +62,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let manager = AppManager.shared
         
         manager.page = .message
-        switch shortcutItem.type{
-        case QuickAction.assistant.rawValue:
-            manager.router = [.assistant]
-        default:
-            break
+        if shortcutItem.type == QuickAction.assistant.rawValue{
+            manager.messageRouter = [.assistant]
         }
         
         completionHandler(true)

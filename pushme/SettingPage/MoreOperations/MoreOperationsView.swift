@@ -170,7 +170,8 @@ struct MoreOperationsView: View {
 
                     }
                 } action:{
-                    manager.router.append(.widget(title: nil, data: "app"))
+                    manager.settingsRouter
+                        .append(.widget(title: nil, data: "app"))
                     return true
                 }
             }footer:{

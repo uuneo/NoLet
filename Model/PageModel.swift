@@ -50,7 +50,11 @@ enum RouterPage: Hashable, Equatable {
     case pushtalk
     case about
     case dataSetting
+    case serverInfo(server: PushServerModel?)
 }
+
+
+
 
 
 enum TabPage: String, Sendable, CaseIterable{

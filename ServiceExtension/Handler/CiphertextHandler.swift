@@ -20,7 +20,7 @@ class CiphertextHandler:NotificationContentHandler{
 
 		// 解密推送信息
 		do {
-            let ciphertNumber:Int = userInfo.raw(.cipherNumber) ?? 1
+            let ciphertNumber:Int = userInfo.raw(.cipherNumber) ?? 0
 
             let ivData: String? = userInfo.raw(.iv)
             let map = try self.decrypt(ciphertext: ciphertext,
@@ -97,7 +97,7 @@ class CiphertextHandler:NotificationContentHandler{
 	
     
 	// MARK: 解密
-    func decrypt(ciphertext: String, iv: String? = nil, number:Int = 1) throws -> [AnyHashable: Any] {
+    func decrypt(ciphertext: String, iv: String? = nil, number:Int = 0) throws -> [AnyHashable: Any] {
         var cryptoConfig = Defaults[.cryptoConfigs].config(number)
 		
 		if let iv = iv { cryptoConfig.iv = iv }

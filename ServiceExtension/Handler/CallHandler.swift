@@ -18,10 +18,9 @@ class CallHandler: NotificationContentHandler {
     
     func handler(identifier: String, content bestAttemptContent: UNMutableNotificationContent) async throws -> UNMutableNotificationContent {
         // 如果不是来电通知，直接返回
-        guard let call:Int = bestAttemptContent.userInfo.raw(.call), call == 1 else {
+        guard let call:Bool = bestAttemptContent.userInfo.raw(.call), call else {
             return bestAttemptContent
         }
-        
         
 
         // 提取铃声名与类型

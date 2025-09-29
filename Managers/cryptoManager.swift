@@ -100,13 +100,11 @@ struct CryptoModelConfig: Identifiable, Equatable, Codable{
     
 }
 ///  pb://crypto?text=eIxk2XSXdVeC3zsMwmlJevVaXGncCTiUHg5lLiK0S2sG3QLuGMU
-
 extension [CryptoModelConfig]{
-    func config(_ number: Int = 1) -> CryptoModelConfig {
-        guard self.count > 1, number > 0, number < self.count else {
-            return self.first ?? .data
-        }
-        return self[number]
+    func config(_ number: Int = 0) -> CryptoModelConfig {
+        /// number = 0 count > 0 , number = 1 count > 1, number = 3 count > 3
+        self.count > number ? self[number] : self.first ?? .data
+
     }
 }
 

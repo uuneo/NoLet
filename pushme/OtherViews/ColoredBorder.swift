@@ -5,7 +5,7 @@
 //  Created by lynn on 2025/5/2.
 //
 import SwiftUI
-
+import Foundation
 
 struct ColoredBorder: View {
     var topLeft:Double

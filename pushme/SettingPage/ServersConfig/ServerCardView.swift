@@ -14,7 +14,7 @@ import Defaults
 struct ServerCardView:View {
     @EnvironmentObject private var manager: AppManager
     @State private var textAnimation:Bool = false
-//    @State private var showDevice:Bool = false
+
 	var item: PushServerModel
 	var isCloud:Bool = false
     var complete:() -> Void
@@ -27,27 +27,10 @@ struct ServerCardView:View {
         }
     }
 
+
 	var body: some View {
         VStack{
-            
-//            if showDevice{
-//                HStack{
-//                    Image(systemName: "qrcode")
-//                        .imageScale(.small)
-//                        .foregroundStyle(.gray)
-//                    Text(item.device)
-//                        .lineLimit(1)
-//                        .minimumScaleFactor(0.5)
-//                        .foregroundStyle(.accent)
-//                    Spacer()
-//                }
-//                .font(.caption2)
-//                .padding(5)
-//                .background(.ultraThinMaterial)
-//                .clipShape(RoundedRectangle(cornerRadius: 5))
-//                .padding(.leading, 10)
-//            }
-//            
+
             
             HStack(spacing: 10){
                 
@@ -71,44 +54,10 @@ struct ServerCardView:View {
                             .padding(.horizontal,5)
                     }
                 }
-//                .if(true){ view in
-//
-//                    Group{
-//                        if #available(iOS 26.0, *){
-//                            view
-//                                .onTapGesture {
-//                                    if !showDevice{
-//                                        withAnimation(.easeInOut) {
-//                                            self.showDevice = true
-//                                        }
-//                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
-//                                            withAnimation(.easeInOut) {
-//                                                self.showDevice = false
-//                                            }
-//                                        }
-//                                        Haptic.impact()
-//                                    }
-//                                }
-//                        }else{
-//                            view
-//                                .VButton( onRelease: { _ in
-//                                    if !showDevice{
-//                                        withAnimation(.easeInOut) {
-//                                            self.showDevice = true
-//                                        }
-//                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
-//                                            withAnimation(.easeInOut) {
-//                                                self.showDevice = false
-//                                            }
-//                                        }
-//                                        return true
-//                                    }
-//                                    return false
-//                                })
-//                        }
-//                    }
-//
-//                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    manager.settingsRouter.append(.serverInfo(server: item))
+                }
 
 
                 

@@ -126,19 +126,6 @@ class BaseConfig {
         return "\(deviceName) (\(deviceModel)-\(systemName)-\(systemVersion))"
     }
     
-    static func isVoip() -> Int{
-        let version = ProcessInfo.processInfo.operatingSystemVersion
-        if version.majorVersion >= 17{
-            if version.majorVersion > 17{
-                return 1
-            }
-            if version.majorVersion == 17 && version.minorVersion >= 4{
-                return 1
-            }
-        }
-        return 0
-        
-    }
     
     static func documentUrl(_ fileName: String, fileType: UTType = .image) -> URL?{
         do{

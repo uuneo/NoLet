@@ -61,7 +61,7 @@ struct SettingsPage: View {
                     Label( "消息", systemImage: "ellipsis.message")
                 } action: {
                     Task{@MainActor in
-                        manager.router = []
+                        manager.settingsRouter = []
                     }
                     return true
                 }
@@ -86,7 +86,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.router = [.server]
+                        manager.settingsRouter = [.server]
                     }
 
                     return true
@@ -130,7 +130,7 @@ struct SettingsPage: View {
                         .foregroundStyle(.gray)
                 } action: {
                     Task{@MainActor in
-                        manager.router.append(.sound)
+                        manager.settingsRouter.append(.sound)
                     }
                     return true
                     
@@ -148,7 +148,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.router.append(.crypto)
+                        manager.settingsRouter.append(.crypto)
                     }
                     return true
                 }
@@ -166,7 +166,7 @@ struct SettingsPage: View {
                     }
                 } action:{
                     Task{@MainActor in
-                        manager.router = [.dataSetting]
+                        manager.settingsRouter = [.dataSetting]
                     }
                     return true
                 }
@@ -182,7 +182,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.router = [.more]
+                        manager.settingsRouter = [.more]
                     }
                     return true
 
@@ -205,7 +205,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.router = [.about]
+                        manager.settingsRouter = [.about]
                     }
                     return true
                 }

@@ -29,8 +29,16 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     @Published var searchText:String = ""
     
     
-    @Published var router:[RouterPage] = []
-    
+    @Published var messageRouter:[RouterPage] = []
+    @Published var settingsRouter:[RouterPage] = []
+    @Published var searchRouter:[RouterPage] = []
+
+    func clearRouter(){
+        self.messageRouter = []
+        self.settingsRouter = []
+        self.searchRouter = []
+    }
+
     @Published var isWarmStart:Bool = false
     
     @Published var selectMessage:Message? = nil
@@ -45,6 +53,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     @Published var speaking:Bool = false
     
     @Published var customServerURL:String = ""
+
 
     
     var fullShow:Binding<Bool>{
@@ -190,7 +199,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             if let config = CryptoModelConfig(inputText: text){
                 DispatchQueue.main.async{
                     self.page = .setting
-                    self.router = [.crypto]
+                    self.settingsRouter = [.crypto]
                     self.sheetPage = .crypto(config)
                 }
             }
@@ -201,7 +210,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 if success{
                     DispatchQueue.main.async {
                         self.page = .setting
-                        self.router = [.server]
+                        self.settingsRouter = [.server]
                     }
                 }
             }
@@ -211,14 +220,15 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 if success{
                     DispatchQueue.main.async {
                         self.page = .setting
-                        self.router = [.server]
+                        self.settingsRouter = [.server]
                     }
                 }
             }
         case .assistant(let text):
             if let account = AssistantAccount(base64: text){
                 DispatchQueue.main.async {
-                    self.router.append(.assistantSetting(account))
+                    self.page = .message
+                    self.messageRouter = [.assistant, .assistantSetting(account)]
                 }
             }
         case .page(page: let page,title: let title, data: let data):
@@ -226,7 +236,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             case .widget:
                 DispatchQueue.main.async {
                     self.page = .setting
-                    self.router = [.more, .widget(title: title, data: data)]
+                    self.settingsRouter = [.more, .widget(title: title, data: data)]
                 }
             case .icon:
                 self.page = .setting

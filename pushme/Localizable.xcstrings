@@ -319,7 +319,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "キー番号%@"
           }
         },
@@ -949,6 +949,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "基础路径"
+          }
+        }
+      }
+    },
+    "CPU 使用情况" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU Usage"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU使用状況"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU 사용량"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU 使用情况"
           }
         }
       }
@@ -3301,6 +3329,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "其他字段"
+          }
+        }
+      }
+    },
+    "内存使用情况" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory Usage"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メモリ使用状況"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메모리 사용량"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内存使用情况"
           }
         }
       }
@@ -6385,6 +6441,34 @@
         }
       }
     },
+    "已使用" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용됨"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已使用"
+          }
+        }
+      }
+    },
     "已加载全部数据" : {
       "localizations" : {
         "en" : {
@@ -6773,6 +6857,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "快速预览"
+          }
+        }
+      }
+    },
+    "总内存" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total Memory"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "総メモリ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 메모리"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总内存"
           }
         }
       }
@@ -8765,6 +8877,34 @@
         }
       }
     },
+    "服务器监控" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server monitoring"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバー監視"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 모니터링"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器监控"
+          }
+        }
+      }
+    },
     "服务器设置" : {
       "localizations" : {
         "en" : {
@@ -8789,6 +8929,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "服务器设置"
+          }
+        }
+      }
+    },
+    "服务器连接失败" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server connection failed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバー接続失敗"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 연결 실패"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器连接失败"
           }
         }
       }
@@ -8985,6 +9153,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未读"
+          }
+        }
+      }
+    },
+    "未选择服务器" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No server selected"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバーが選択されていません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버를 선택하지 않았습니다"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择服务器"
           }
         }
       }
@@ -9993,6 +10189,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "泰语"
+          }
+        }
+      }
+    },
+    "活动连接" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active connection"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティブ接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활성 연결"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "活动连接"
           }
         }
       }
@@ -11553,7 +11777,7 @@
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "시스템 키, 작업할 수 없음"
           }
         },
@@ -14042,7 +14266,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated", 
+            "state" : "translated",
             "value" : "画像を選択"
           }
         },
