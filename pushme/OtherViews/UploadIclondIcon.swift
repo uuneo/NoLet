@@ -112,9 +112,9 @@ struct UploadIclondIcon:View {
                 .onChange(of: tags) { newValue in
                     self.pushIcon.description = self.tsgsTem
                 }
-            
-            
-            AngularButton(title: btnTitle,  disable: pictureLoading || !status, loading: loadingTitle){
+
+
+            Button{
                 if pushIcon.previewImage == nil{
                     self.tips =  String(localized: "没有图片")
                 }else {
@@ -126,8 +126,35 @@ struct UploadIclondIcon:View {
                         await saveItems()
                     }
                 }
-            }.padding()
-            
+            }label: {
+                HStack{
+                    Spacer()
+                    Label(
+                        loadingTitle.isEmpty ? btnTitle : loadingTitle,
+                        systemImage: "externaldrive.badge.icloud"
+                    )
+                        .foregroundStyle(.white, Color.primary)
+                        .fontWeight(.bold)
+                        .padding(.vertical, 5)
+
+                    Spacer()
+                }
+
+            }
+            .diff{view in
+                Group{
+                    if #available(iOS 26.0, *) {
+                        view
+                            .buttonStyle(.glassProminent)
+                    }else{
+                        view
+                            .buttonStyle(BorderedProminentButtonStyle())
+                    }
+                }
+
+            }.disabled(pictureLoading || !status)
+                .padding(.horizontal)
+
             
         }.simultaneousGesture(
             DragGesture()

@@ -35,9 +35,13 @@ public class DatabaseManager {
     func checkDriveData(complete: @escaping (Bool) -> Void) {
         Task.detached(priority: .userInitiated) {
             do{
-                
-                try self.dbPool.vacuum()
-                
+
+                for _ in 0...2{
+                    _ = try await self.dbPool.writeWithoutTransaction { db in
+                        try db.checkpoint(.full)
+                    }
+                    try await  self.dbPool.vacuum()
+                }
                 complete(true)
                 
             }catch{
@@ -280,8 +284,8 @@ extension DatabaseManager{
         do {
             try await self.dbPool.write { db in
                 var request = Message.all()
-                
-                // 构建查询条件
+
+                    // 构建查询条件
                 if allRead, let date = date {
                     request = request
                         .filter(Column("read") == true)
@@ -293,9 +297,12 @@ extension DatabaseManager{
                 } else {
                     return // 没有任何条件，不执行删除
                 }
-                
+
                 try request.deleteAll(db)
             }
+
+            self.checkDriveData(complete: {_ in})
+
         } catch {
             Log.error("删除消息失败: \(error)")
         }

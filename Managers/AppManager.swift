@@ -394,8 +394,34 @@ extension AppManager{
         
         return .otherUrl(address)
     }
-    
-    
+
+    func printDirectoryContents(at path: String, indent: String = "") {
+        let fileManager = FileManager.default
+        var isDir: ObjCBool = false
+
+        guard fileManager.fileExists(atPath: path, isDirectory: &isDir) else {
+            print("\(indent)❌ Path not found: \(path)")
+            return
+        }
+
+        if isDir.boolValue {
+            print("\(indent)📂 \(URL(fileURLWithPath: path).lastPathComponent)")
+
+            if let contents = try? fileManager.contentsOfDirectory(atPath: path) {
+                for item in contents {
+                    let itemPath = (path as NSString).appendingPathComponent(item)
+                    printDirectoryContents(at: itemPath, indent: indent + "    ")
+                }
+            }
+        } else {
+            if let attrs = try? fileManager.attributesOfItem(atPath: path),
+               let fileSize = attrs[.size] as? UInt64 {
+                let sizeMB = Double(fileSize) / (1024.0 * 1024.0)
+                print("\(indent)📄 \(URL(fileURLWithPath: path).lastPathComponent) (\(String(format: "%.2f", sizeMB)) MB)")
+            }
+        }
+    }
+
     
 }
 

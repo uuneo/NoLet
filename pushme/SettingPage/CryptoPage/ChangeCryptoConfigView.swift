@@ -8,11 +8,15 @@ import SwiftUI
 import Defaults
 
 struct ChangeCryptoConfigView: View {
-    
-    var item: CryptoModelConfig
-    
-    @State var cryptoConfig = CryptoModelConfig(algorithm: .AES256, mode: .GCM, key: "", iv: "")
-    
+
+
+    @State private var cryptoConfig:CryptoModelConfig
+
+
+    init(item: CryptoModelConfig){
+        self._cryptoConfig = State(wrappedValue: item)
+    }
+
     var expectKeyLength:Int {  cryptoConfig.algorithm.rawValue }
 
     @Environment(\.dismiss) var dismiss
@@ -24,7 +28,7 @@ struct ChangeCryptoConfigView: View {
     @State private var success:Bool = false
     @Default(.cryptoConfigs) var cryptoConfigs
     var title:String{
-        return cryptoConfigs.contains(item) ? String(localized: "修改配置") : String(localized: "新增配置")
+        return cryptoConfigs.contains(cryptoConfig) ? String(localized: "修改配置") : String(localized: "新增配置")
     }
     
     
@@ -37,7 +41,7 @@ struct ChangeCryptoConfigView: View {
                     TextEditor(text: $sharkText)
                         .overlay{
                             if !success {
-                                RoundedRectangle(cornerRadius: 10)
+                                Capsule()
                                     .stroke(Color.gray,  lineWidth: 2)
                             }
                         }
@@ -71,9 +75,11 @@ struct ChangeCryptoConfigView: View {
                             if let config = CryptoModelConfig(inputText: result){
                                 cryptoConfig = config
                                 self.success = true
+
                             }else{
                                 self.success = false
                                 self.sharkText = ""
+                                Toast.error(title: "数据不正确")
                             }
                         }
                     
@@ -183,25 +189,51 @@ struct ChangeCryptoConfigView: View {
                 }
                 
                 Section{
-                    AngularButton(title: "保存",  loading: ""){
+
+                    Button{
                         if cryptoConfig.iv.count != 16  || cryptoConfig.key.count != expectKeyLength{
                             Toast.error(title: "参数长度不正确")
                             return
-                            
+
                         }
-                        
+
                         if let index = Defaults[.cryptoConfigs].firstIndex(where: {$0 == cryptoConfig}){
                             Defaults[.cryptoConfigs][index] = cryptoConfig
                         }else{
+                            var cryptoConfig = cryptoConfig
+                            cryptoConfig.id = UUID().uuidString
                             Defaults[.cryptoConfigs].append(cryptoConfig)
                         }
-                        
+
                         self.dismiss()
+                    }label: {
+                        HStack{
+                            Spacer()
+                            Label("保存", systemImage: "externaldrive.badge.checkmark")
+                                .foregroundStyle(.white, Color.primary)
+                                .fontWeight(.bold)
+                                .padding(.vertical, 5)
+
+                            Spacer()
+                        }
+
                     }
-                    .listRowBackground(Color.clear)
+                    .diff{view in
+                        Group{
+                            if #available(iOS 26.0, *) {
+                                view
+                                    .buttonStyle(.glassProminent)
+                            }else{
+                                view
+                                    .buttonStyle(BorderedProminentButtonStyle())
+                            }
+                        }
+
+                    }.listRowBackground(Color.clear)
                 }
             }
             .navigationTitle( title )
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 
                 ToolbarItemGroup(placement: .keyboard) {
@@ -228,11 +260,9 @@ struct ChangeCryptoConfigView: View {
                 
                 
             }
-            .onAppear{
-                self.cryptoConfig = item
-            }
+
         }
-        
+
     }
     
 }

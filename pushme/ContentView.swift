@@ -65,9 +65,13 @@ struct ContentView: View {
         }
         .sheet(isPresented: manager.sheetShow){ ContentSheetViewPage().customPresentationCornerRadius(20) }
         .fullScreenCover(isPresented: manager.fullShow){ ContentFullViewPage() }
-        
-        
-        
+#if DEBUG
+        .onAppear{
+
+            manager.printDirectoryContents(at: CONTAINER!.path())
+        }
+#endif
+
     }
     
     @ViewBuilder
@@ -185,9 +189,6 @@ struct ContentView: View {
                 for item in DatabaseManager.examples(){
                     await  DatabaseManager.shared.add(item)
                 }
-#if DEBUG
-               _ =  await DatabaseManager.CreateStresstest(max: 1000000)
-#endif
             }
             
         }
@@ -257,6 +258,7 @@ struct ContentView: View {
                 }
             case .crypto(let item):
                 ChangeCryptoConfigView(item: item)
+                   
             default:
                 EmptyView().onAppear{ manager.sheetPage = .none }
             }

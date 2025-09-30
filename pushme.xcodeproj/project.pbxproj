@@ -387,7 +387,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Localizable.xcstrings,
-				OtherViews/AngularButton.swift,
 				OtherViews/ColoredBorder.swift,
 				OtherViews/UploadIclondIcon.swift,
 			);

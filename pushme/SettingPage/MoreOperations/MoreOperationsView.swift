@@ -86,9 +86,12 @@ struct MoreOperationsView: View {
 
             Section{
                 Toggle(isOn: $showMessageAvatar) {
-                    Label("显示图标", systemImage: showMessageAvatar ? "camera.macro.circle" : "camera.macro.slash.circle")
+                    Label("显示图标", systemImage: "camera.macro.circle")
                         .symbolRenderingMode(.palette)
-                        .foregroundStyle( .tint, Color.primary)
+                        .foregroundStyle(
+                            showMessageAvatar ? Color.accentColor : Color.red,
+                            Color.primary
+                        )
                         .symbolEffect(.replace)
 
                 }
@@ -167,7 +170,6 @@ struct MoreOperationsView: View {
                         Image(systemName: "window.shade.closed")
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(.tint, Color.primary)
-
                     }
                 } action:{
                     manager.settingsRouter

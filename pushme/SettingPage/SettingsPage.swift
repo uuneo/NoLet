@@ -123,7 +123,6 @@ struct SettingsPage: View {
                         Image(systemName: "sensor.tag.radiowaves.forward")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.accent, Color.primary)
-                            .symbolEffect(.bounce,delay: 3)
                     }
                 } trailing: {
                     Text(sound)
@@ -143,7 +142,6 @@ struct SettingsPage: View {
                         Image(systemName: "key.viewfinder")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.green, Color.primary)
-                            .symbolEffect(.pulse, delay: 5)
                             .scaleEffect(0.9)
                     }
                 } action: {
@@ -162,7 +160,6 @@ struct SettingsPage: View {
                         Image(systemName: "archivebox.circle")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.accent, Color.primary)
-                            .symbolEffect(.pulse, delay: 2)
                     }
                 } action:{
                     Task{@MainActor in
@@ -178,7 +175,6 @@ struct SettingsPage: View {
                         Image(systemName: "dial.high")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.accent, Color.primary)
-                            .symbolEffect(.rotate, delay: 2)
                     }
                 } action: {
                     Task{@MainActor in
@@ -222,7 +218,7 @@ struct SettingsPage: View {
                             
                                 .symbolRenderingMode(.palette)
                                 .customForegroundStyle(.accent, Color.primary)
-                                .symbolEffect(delay: 0)
+
                         }
                     } action: {
                         Task{@MainActor in
@@ -249,7 +245,6 @@ struct SettingsPage: View {
                     Image(systemName: "qrcode.viewfinder")
                         .symbolRenderingMode(.palette)
                         .customForegroundStyle(.accent, Color.primary)
-                        .symbolEffect(delay: 5)
 
                 }
 

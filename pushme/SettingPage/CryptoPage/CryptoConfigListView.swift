@@ -18,15 +18,14 @@ struct CryptoConfigListView: View {
         List{
            
             Section{
-                ForEach(cryptoConfigs,id: \.id){ item in
-                    cryptoConfigCard( item: item,
-                                      index: (cryptoConfigs.firstIndex(where: {$0.id == item.id}) ?? 0) )
+                ForEach(cryptoConfigs.indices, id: \.self){ index in
+
+                    cryptoConfigCard( item: cryptoConfigs[index], index: index )
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .padding(.horizontal, 15)
                         .padding(.vertical, 10)
-                    
                         
                 }
             }header:{
@@ -39,8 +38,7 @@ struct CryptoConfigListView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Button{
-                    let data = CryptoModelConfig.creteNewModel()
-                    Defaults[.cryptoConfigs].append(data)
+                    manager.sheetPage = .crypto(CryptoModelConfig.creteNewModel())
                     Haptic.impact()
                 }label: {
                     Label("新增配置", systemImage: "plus.circle")
@@ -55,7 +53,7 @@ struct CryptoConfigListView: View {
     
     @ViewBuilder
     func cryptoConfigCard(item: CryptoModelConfig, index: Int) -> some View{
-        
+
 
             HStack(spacing: 20){
                 VStack{
@@ -118,7 +116,7 @@ struct CryptoConfigListView: View {
                         }
                         Section{
                             Button{
-                                let data = cryptoExampleHandler(config: item)
+                                let data = cryptoExampleHandler(config: item, index: index)
                                 Clipboard.set(data)
                                 Toast.copy(title: "复制成功")
                             }label:{
@@ -189,7 +187,7 @@ struct CryptoConfigListView: View {
                     AppManager.shared.sheetPage = .crypto(item)
                 }
                 .accessibilityAction(named: "复制") {
-                    let data = cryptoExampleHandler(config: item)
+                    let data = cryptoExampleHandler(config: item, index: index)
                     Clipboard.set(data)
                     Toast.copy(title: "复制成功")
                 }
@@ -208,8 +206,8 @@ struct CryptoConfigListView: View {
 
     }
     
-    func cryptoExampleHandler(config: CryptoModelConfig) -> String {
-    
+    func cryptoExampleHandler(config: CryptoModelConfig, index: Int) -> String {
+
         let servers = Defaults[.servers]
         
         let cipher = "AES.new(key, AES.MODE_\(config.mode.rawValue)\(config.mode == .ECB ?  "" : ", iv" ))"
@@ -223,7 +221,7 @@ struct CryptoConfigListView: View {
         let nonce = config.mode == .GCM ? "iv[:12]" : "iv"
         
         return """
- # Documentation: \(BaseConfig.appSource)\(String(localized: "/#/encryption"))
+ # Documentation: \(BaseConfig.docServer)\(String(localized: "/#/encryption"))
  # python demo: \(String(localized: "使用AES加密数据，并发送到服务器"))
  # pip3 install pycryptodome
  
@@ -258,7 +256,7 @@ struct CryptoConfigListView: View {
  
  deviceKey = '\(servers[0].key)'
  
- res = requests.get(f"\(servers[0].url)/{deviceKey}/test", params = {"ciphertext": encrypted_base64})
+ res = requests.get(f"\(servers[0].url)/{deviceKey}/test", params = {"ciphertext": encrypted_base64, "cipherNumber":\(index)})
  
  print(res.text)
  """

@@ -42,6 +42,35 @@ struct MessagePage: View {
 
         .environmentObject(messageManager)
         .toolbar {
+
+#if DEBUG
+            ToolbarItem(placement: .topBarTrailing) {
+
+                Menu{
+                    ForEach([10000, 30000, 50000, 100000], id: \.self) { item in
+                        Button{
+                            Task{
+                                _ =  await DatabaseManager.CreateStresstest(max: item)
+                            }
+
+                        }label:{
+
+                            Label {
+                                Text(verbatim: "\(item)")
+                            } icon: {
+                                Image(systemName: "plus.message.fill")
+                            }
+
+                        }
+                    }
+
+                }label: {
+                    Image(systemName: "plus.bubble")
+                }
+            }
+
+#endif
+
             if messageManager.groupMessages.count > 0 {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -140,6 +169,7 @@ struct MessagePage: View {
                 if let mode = selectAction {
                     Task.detached(priority: .userInitiated) {
                         await DatabaseManager.shared.delete(date: mode.date)
+                        
                     }
                 }
             }
