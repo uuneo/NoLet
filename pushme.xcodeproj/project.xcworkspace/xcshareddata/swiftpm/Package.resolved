@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sunvc/QRScanner.git",
       "state" : {
-        "revision" : "72b97e41de89e6fa3fb1fe41f3ef31f14a65e000",
-        "version" : "1.0.0"
+        "revision" : "50216ef054abc988c4e66b6e1792ba210123552e",
+        "version" : "1.1.2"
       }
     },
     {

@@ -71,7 +71,6 @@ struct MessagePage: View {
 
 #endif
 
-            if messageManager.groupMessages.count > 0 {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         ForEach(MessageAction.allCases, id: \.self) { item in
@@ -99,7 +98,7 @@ struct MessagePage: View {
                             .foregroundStyle(.green, Color.primary)
                     }
                 }
-            }
+
 
             ToolbarItem(placement: .topBarLeading) {
                 Menu {

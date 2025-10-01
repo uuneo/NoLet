@@ -19,6 +19,7 @@ class BaseConfig {
     static let appSymbol = "NoLet"
     static let groupName = "group.pushback"
     static let icloudName = "iCloud.pushback"
+    static let databaseName = "pushback.sqlite"
 
     static let signKey = "com.uuneo.pushback.xxxxxxxxxxxxxxxxxxxxxx"
 #if DEBUG

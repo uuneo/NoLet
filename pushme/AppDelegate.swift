@@ -42,8 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
 
-        debugPrint(token)
-
         Defaults[.deviceToken] = token
         Task.detached(priority: .userInitiated) {
             _ = await CloudManager.shared.queryUser(token: token)

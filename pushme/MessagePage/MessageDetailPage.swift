@@ -66,7 +66,7 @@ struct MessageDetailPage: View {
                     .animation(.easeInOut, value: messages)
                     .environmentObject(messageManager)
                     .onChange(of: messageManager.updateSign) {  newValue in
-                        loadData(proxy: proxy, limit: max(messages.count, 50))
+                        loadData(proxy: proxy, limit: max(messages.count, 150))
                     }
 
                 }
@@ -78,7 +78,7 @@ struct MessageDetailPage: View {
         .searchable(text: $searchText)
 
         .refreshable {
-            loadData( limit: min(messages.count, 200))
+            loadData( limit: min(messages.count, 30))
         }
         .toolbar{
 
@@ -144,7 +144,7 @@ struct MessageDetailPage: View {
     }
     
     
-    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  50, item:Message? = nil){
+    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  30, item:Message? = nil){
         
         
         Task.detached(priority: .userInitiated) {

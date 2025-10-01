@@ -428,9 +428,8 @@ struct MessageCard: View {
         }
             .listRowBackground(Color.clear)
             .listSectionSeparator(.hidden)
-            .environmentObject(AppManager.shared)
             .listRowInsets(EdgeInsets())
-            .environmentObject(MessagesManager.shared)
+
     }.listStyle(.grouped)
     
     

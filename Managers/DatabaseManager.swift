@@ -16,26 +16,22 @@ public class DatabaseManager {
     public let localPath:URL
     
     private init() throws {
-        let local = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.pushback")
-        guard let local = local else {
+
+        guard let local = CONTAINER else {
             throw NSError(domain: "App", code: 1, userInfo: [NSLocalizedDescriptionKey: "创建容器失败"])
         }
-        let path = local.appendingPathComponent("pushback.sqlite", conformingTo: .database)
+        self.localPath = local.appendingPathComponent( BaseConfig.databaseName, conformingTo: .database)
 
-        self.localPath = path
         // DatabasePool 只在这里创建一次
-        self.dbQueue = try DatabaseQueue(path: path.path)
-
+        self.dbQueue = try DatabaseQueue(path: self.localPath.path)
 
         try Message.createInit(dbQueue: dbQueue)
         try ChatGroup.createInit(dbQueue: dbQueue)
         try ChatMessage.createInit(dbQueue: dbQueue)
         try ChatPrompt.createInit(dbQueue: dbQueue)
         try PttMessageModel.createInit(dbQueue: dbQueue)
-    }
-    
-    func checkDriveData() throws {
-        try self.dbQueue.vacuum()
+
+        try? self.dbQueue.vacuum()
     }
 
 }
@@ -288,7 +284,7 @@ extension DatabaseManager{
                 try request.deleteAll(db)
             }
 
-           try self.checkDriveData()
+            try await self.dbQueue.vacuum()
 
         } catch {
             Log.error("删除消息失败: \(error)")
@@ -362,16 +358,17 @@ extension DatabaseManager{
         let body = Self.randomText(length: 4000)
         return ((try? await  Self.shared.dbQueue.write { db in
             for k in 0...number{
-                let message =  Message(id: UUID().uuidString,
-                                       group: "\(k % 10)",
-                                       createDate: .now,
-                                       title: "\(k) Test",
-                                       body: "Text Data \(body)",
-                                       level: 1,
-                                       ttl: 1,
-                                       read: false)
-                try message.insert(db)
-
+               try autoreleasepool {
+                    let message =  Message(id: UUID().uuidString,
+                                           group: "\(k % 10)",
+                                           createDate: .now,
+                                           title: "\(k) Test",
+                                           body: "Text Data \(body)",
+                                           level: 1,
+                                           ttl: 1,
+                                           read: false)
+                    try message.insert(db)
+                }
             }
             return true
         }) != nil)

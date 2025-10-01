@@ -17,7 +17,6 @@ class MessagesManager: ObservableObject{
     @Published var allCount: Int = 1000000
     @Published var updateSign:Int = 0
     @Published var groupMessages: [Message] = []
-    @Published var singleMessages: [Message] = []
     @Published var showGroupLoading:Bool = false
     
     private init() { startObservingUnreadCount() }
@@ -55,14 +54,15 @@ class MessagesManager: ObservableObject{
     }
     
     func updateGroup() async {
+
         let results = await DB.queryGroup()
         let count  = DB.count()
         let unCount = DB.unreadCount()
-        await MainActor.run {
-            self.groupMessages = results
-            self.updateSign += 1
-            self.allCount = count
-            self.unreadCount = unCount
+        await MainActor.run { [weak self] in
+            self?.groupMessages = results
+            self?.updateSign += 1
+            self?.allCount = count
+            self?.unreadCount = unCount
         }
     }
 

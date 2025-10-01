@@ -278,7 +278,7 @@ struct DataSettingView: View {
                             Defaults[.imageSaves] = []
                         }
 
-                        try? DatabaseManager.shared.checkDriveData()
+                        try? DatabaseManager.shared.dbQueue.vacuum()
 
                         Toast.success(title: "清理成功")
 

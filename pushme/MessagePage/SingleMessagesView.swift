@@ -29,15 +29,15 @@ struct SingleMessagesView: View {
     @State private var scrollItem:String = ""
 
     @State private var selectMessage: Message? = nil
-
+    @State private var messages:[Message] = []
 
     var body: some View {
         
         ScrollViewReader { proxy in
             List{
                
-                    ForEach(messageManager.singleMessages, id: \.id) { message in
-                        
+                    ForEach(messages, id: \.id) { message in
+
                         MessageCard(message: message, searchText: "",showAllTTL: showAllTTL,showAvatar:showMessageAvatar){
                             withAnimation(.easeInOut) {
                                 manager.selectMessage = message
@@ -45,7 +45,7 @@ struct SingleMessagesView: View {
                         }delete:{
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
                                 withAnimation(.default){
-                                    messageManager.singleMessages.removeAll(where: {$0.id == message.id})
+                                    messages.removeAll(where: {$0.id == message.id})
                                 }
                             }
 
@@ -59,8 +59,8 @@ struct SingleMessagesView: View {
                         .listRowBackground(Color.clear)
                         .listSectionSeparator(.hidden)
                         .onAppear{
-                            if messageManager.singleMessages.count < messageManager.allCount &&
-                                messageManager.singleMessages.last == message{
+                            if messages.count < messageManager.allCount &&
+                                messages.last == message{
                                 self.loadData(proxy: proxy, item: message)
                             }
                         }
@@ -71,12 +71,12 @@ struct SingleMessagesView: View {
                 
             }
             .listStyle(.grouped)
-            .animation(.easeInOut, value: messageManager.singleMessages)
+            .animation(.easeInOut, value: messages)
             .refreshable {
-                self.loadData(proxy: proxy , limit: min(messageManager.singleMessages.count, 200))
+                self.loadData(proxy: proxy , limit: min(messages.count, 150))
             }
             .onChange(of: messageManager.updateSign) {  newValue in
-                loadData(proxy: proxy, limit: max(messageManager.singleMessages.count, 50))
+                loadData(proxy: proxy, limit: max(messages.count, 30))
             }
         }
         .diff{ view in
@@ -84,7 +84,7 @@ struct SingleMessagesView: View {
                 if #available(iOS 26.0, *){
                     view
                         .toolbar {
-                            if !(messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount){
+                            if !(messages.count == 0 || messages.count == messageManager.allCount){
                                 ToolbarItem(placement: .subtitle) {
                                     allMessageCount
                                 }
@@ -98,13 +98,13 @@ struct SingleMessagesView: View {
                                 allMessageCount
                                     .padding(.horizontal, 10)
                                     .background26(.ultraThinMaterial, radius: 5)
-                            }.opacity((messageManager.singleMessages.count == 0 || messageManager.singleMessages.count == messageManager.allCount) ? 0 : 1)
+                            }.opacity((messages.count == 0 || messages.count == messageManager.allCount) ? 0 : 1)
                         }
                 }
             }
         }
-
         .task {
+
             self.loadData()
             Task.detached(priority: .background) {
                 
@@ -124,10 +124,11 @@ struct SingleMessagesView: View {
             
         }
 
+
     }
 
     private var allMessageCount: some View{
-        Text(verbatim: "\(messageManager.singleMessages.count) / \(max(messageManager.allCount, messageManager.singleMessages.count))")
+        Text(verbatim: "\(messages.count) / \(max(messageManager.allCount, messages.count))")
             .font(.caption)
             .foregroundStyle(.gray)
     }
@@ -144,19 +145,21 @@ struct SingleMessagesView: View {
         }
     }
     
-    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  50, item:Message? = nil){
+    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  30, item:Message? = nil){
+        guard !self.showLoading else { return }
         self.showLoading = true
+
        Task.detached(priority: .userInitiated) {
-            
+
            let results = await DatabaseManager.shared.query( limit: limit, item?.createDate)
             
              DispatchQueue.main.async {
  
                 if item == nil {
                     
-                    messageManager.singleMessages = results
+                    self.messages = results
                 }else{
-                    messageManager.singleMessages += results
+                    self.messages += results
                 }
                 if let selectId = manager.selectId{
                     proxy?.scrollTo(selectId, anchor: .center)

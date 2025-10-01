@@ -64,7 +64,7 @@ struct SearchMessageView:View {
                     view
                         .searchable(text: $manager.searchText)
                         .navigationTitle("搜索数据")
-                        .safeAreaInset(edge: .bottom) {
+                        .safeAreaInset(edge: .top) {
                             HStack{
                                 Spacer()
                                 Text(verbatim: "\(messages.count) / \(max(allCount, messages.count))")
@@ -105,7 +105,7 @@ struct SearchMessageView:View {
 
 	}
     
-    func loadData(limit:Int = 50, item:Message? = nil){
+    func loadData(limit:Int = 30, item:Message? = nil){
         
         searchTask?.cancel()
         
