@@ -89,7 +89,6 @@ struct SingleMessagesView: View {
                                     allMessageCount
                                 }
                             }
-
                         }
                 }else{
                     view
@@ -109,7 +108,7 @@ struct SingleMessagesView: View {
             self.loadData()
             Task.detached(priority: .background) {
                 
-                try? await DatabaseManager.shared.dbPool.write { db in
+                try? await DatabaseManager.shared.dbQueue.write { db in
                     // 批量更新 read 字段为 true
                     try Message
                         .filter(Message.Columns.read == false)

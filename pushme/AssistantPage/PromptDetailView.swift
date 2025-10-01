@@ -156,7 +156,7 @@ struct PromptDetailView: View {
         Task.detached(priority: .userInitiated) {
             
             do {
-                try await  DatabaseManager.shared.dbPool.write { db in
+                try await  DatabaseManager.shared.dbQueue.write { db in
                     try chatPrompt.insert(db)
                 }
                 await MainActor.run {
@@ -174,7 +174,7 @@ struct PromptDetailView: View {
         let content = self.content
         Task.detached(priority: .userInitiated) {
             do {
-                try await  DatabaseManager.shared.dbPool.write { db in
+                try await  DatabaseManager.shared.dbQueue.write { db in
                     if var item = try ChatPrompt.fetchOne(db, key: prompt?.id){
                         item.title = title
                         item.content = content

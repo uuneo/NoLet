@@ -41,7 +41,7 @@ struct DataSettingView: View {
                     self.showexportLoading = true
                     cancelTask = Task.detached(priority: .background) {
                         do{
-                            let results = try await  DatabaseManager.shared.dbPool.read { db in
+                            let results = try await  DatabaseManager.shared.dbQueue.read { db in
                                 try Message.fetchAll(db)
                             }
                             DispatchQueue.main.async {
@@ -276,22 +276,15 @@ struct DataSettingView: View {
                             manager.clearContentsOfDirectory(at: fileUrl)
                             manager.clearContentsOfDirectory(at: voiceUrl)
                             Defaults[.imageSaves] = []
-
-                            Toast.success(title: "清理成功")
                         }
 
+                        try? DatabaseManager.shared.checkDriveData()
 
-                        DatabaseManager.shared.checkDriveData { success in
-                            if success{
-                                Toast.success(title: "数据库整理成功")
-                            }else{
-                                Toast.error(title: "数据库整理失败")
-                            }
+                        Toast.success(title: "清理成功")
 
-                            DispatchQueue.main.async{
-                                self.showDriveCheckLoading = false
-                                calculateSize()
-                            }
+                        DispatchQueue.main.async{
+                            self.showDriveCheckLoading = false
+                            calculateSize()
                         }
 
 
@@ -301,6 +294,17 @@ struct DataSettingView: View {
                 }
 
         }
+#if DEBUG
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button{
+                    manager.settingsRouter.append(.files)
+                }label:{
+                    Label("磁盘概览", systemImage: "folder.badge.person.crop")
+                }
+            }
+        }
+#endif
     }
 
 
@@ -339,7 +343,7 @@ struct DataSettingView: View {
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .secondsSince1970
                 let messages = try decoder.decode([Message].self, from: data)
-                try?  DatabaseManager.shared.dbPool.write { db in
+                try?  DatabaseManager.shared.dbQueue.write { db in
                     for message in messages {
                         try message.insert(db)
                     }

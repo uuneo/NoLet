@@ -62,7 +62,7 @@ struct OpenChatHistoryView: View {
                     CustomAlertWithTextField( $showChangeGroupName, text: chatgroup.name) { text in
                         Task.detached(priority: .background) {
                             do {
-                                try await DatabaseManager.shared.dbPool.write { db in
+                                try await DatabaseManager.shared.dbQueue.write { db in
                                     if var group = try ChatGroup
                                         .filter(ChatGroup.Columns.id == chatgroup.id)
                                         .fetchOne(db)
@@ -98,7 +98,7 @@ struct OpenChatHistoryView: View {
                 ToolbarItem{
                     Menu{
                         Button(role: .destructive){
-                            _ =  try? DatabaseManager.shared.dbPool.write { db in
+                            _ =  try? DatabaseManager.shared.dbQueue.write { db in
                                 try ChatGroup.deleteAll(db)
                             }
                             Haptic.impact()
@@ -165,7 +165,7 @@ struct OpenChatHistoryView: View {
                 .swipeActions(edge: .trailing, allowsFullSwipe: true){
                     Button{
                         Task.detached(priority: .background) {
-                            try? await DatabaseManager.shared.dbPool.write { db in
+                            try? await DatabaseManager.shared.dbQueue.write { db in
                                 // 查找 ChatGroup
                                 let groups = try ChatGroup.fetchCount(db)
                                 if groups == 1 || openChatManager.shared.chatgroup == chatgroup{
@@ -266,7 +266,7 @@ struct OpenChatHistoryView: View {
     private func loadGroups(){
         Task.detached(priority: .background) {
             do{
-                let groups = try  await DatabaseManager.shared.dbPool.read { db in
+                let groups = try  await DatabaseManager.shared.dbQueue.read { db in
                     try ChatGroup.order(ChatGroup.Columns.timestamp.desc).fetchAll(db)
                 }
                 await MainActor.run {
@@ -280,7 +280,7 @@ struct OpenChatHistoryView: View {
     
     
     private func getleftIconName(group:String)-> String{
-        let count = try? DatabaseManager.shared.dbPool.read { db in
+        let count = try? DatabaseManager.shared.dbQueue.read { db in
             try ChatMessage
                 .filter(ChatMessage.Columns.message == group)
                 .fetchCount(db)

@@ -210,7 +210,7 @@ struct MessageRow: View {
     
     private func loadCount(){
         Task.detached(priority: .background) {
-            let count = try await DatabaseManager.shared.dbPool.read { db in
+            let count = try await DatabaseManager.shared.dbQueue.read { db in
                 try Message
                     .filter(Message.Columns.group == message.group)
                     .filter(Message.Columns.read == false)

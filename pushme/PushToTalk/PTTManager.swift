@@ -79,7 +79,7 @@ final class PushTalkManager: PTTManager{
         }
         
         observationCancellable = observation.start(
-            in: database.dbPool,
+            in: database.dbQueue,
             scheduling: .async(onQueue: .global()),
             onError: { error in
                 Log.error("Failed to observe unread count:", error)
@@ -277,7 +277,7 @@ final class PushTalkManager: PTTManager{
         
         do{
             try data.write(to: filePath)
-            let voice = try self.database.dbPool.write { db in
+            let voice = try self.database.dbQueue.write { db in
                 let voice = PttMessageModel(channel: channel.hex(), from: id, file: filePath.lastPathComponent, status: .sending)
                 try voice.save(db)
                 return voice
@@ -304,7 +304,7 @@ final class PushTalkManager: PTTManager{
         do{
             try data.write(to: filePath)
             
-            let voice = try await self.database.dbPool.write { db in
+            let voice = try await self.database.dbQueue.write { db in
                 let voice = PttMessageModel(channel: channel.hex(), from: id, file: filePath.lastPathComponent, status: .unread)
                 try voice.save(db)
                 return voice

@@ -46,8 +46,8 @@ struct PttMessageModel: Codable, FetchableRecord, PersistableRecord, Identifiabl
 
 
 extension PttMessageModel{
-    static func createInit(dbPool: DatabasePool) throws {
-        try dbPool.write { db in
+    static func createInit(dbQueue: DatabaseQueue) throws {
+        try dbQueue.write { db in
             try db.create(table: "PttMessageModel", ifNotExists: true) { t in
                 t.column("id", .text).primaryKey()
                 t.column("timestamp", .datetime).notNull()

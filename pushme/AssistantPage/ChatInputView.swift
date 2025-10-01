@@ -203,7 +203,7 @@ struct ChatInputView<Content: View>: View  {
                     QuoteView(message: quote)
                         .onAppear{
                             Task.detached(priority: .background) {
-                                try? await  DatabaseManager.shared.dbPool.write { db in
+                                try? await  DatabaseManager.shared.dbQueue.write { db in
                                      DispatchQueue.main.async{
                                         openChatManager.shared.chatgroup = nil
                                     }
@@ -236,14 +236,14 @@ struct ChatInputView<Content: View>: View  {
                         .onDisappear{
                             Task.detached(priority: .background) {
                                 if let group = openChatManager.shared.chatgroup{
-                                    let messages = try await DatabaseManager.shared.dbPool.read { db in
+                                    let messages = try await DatabaseManager.shared.dbQueue.read { db in
                                         try  ChatMessage
                                             .filter(ChatMessage.Columns.chat == group.id)
                                             .fetchAll(db)
                                     }
                                     
                                     if messages.count == 0{
-                                        _ = try await DatabaseManager.shared.dbPool.write { db in
+                                        _ = try await DatabaseManager.shared.dbQueue.write { db in
                                             try group.delete(db)
                                         }
                                         DispatchQueue.main.async{

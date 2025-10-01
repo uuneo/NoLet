@@ -139,14 +139,14 @@ extension WidgetData{
         // 本周
         let startOfWeek = calendar.startOfWeek(for: now)
         
-        let weekMessages = try? DatabaseManager.shared.dbPool.read ({ db in
+        let weekMessages = try? DatabaseManager.shared.dbQueue.read ({ db in
             try Message.filter(Column("createDate") > startOfWeek).fetchCount(db)
         })
 //        let weekMessages = total.filter({$0.createDate > startOfWeek})
         
         // 本月
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
-        let monthMessages = try? DatabaseManager.shared.dbPool.read ({ db in
+        let monthMessages = try? DatabaseManager.shared.dbQueue.read ({ db in
             try Message.filter(Column("createDate") > startOfMonth).fetchCount(db)
         })
    

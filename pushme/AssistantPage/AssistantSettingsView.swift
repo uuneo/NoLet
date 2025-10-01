@@ -181,7 +181,7 @@ struct AssistantSettingsView: View {
                 Button("取消", role: .cancel) { }
                 Button("删除", role: .destructive) {
                     Task.detached(priority: .userInitiated) {
-                        try? await DatabaseManager.shared.dbPool.write { db in
+                        try? await DatabaseManager.shared.dbQueue.write { db in
                             try ChatMessage.deleteAll(db)
                             try ChatGroup.deleteAll(db)
                         }

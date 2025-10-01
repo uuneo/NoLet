@@ -53,7 +53,7 @@ final class openChatManager: ObservableObject {
         }
         
         observationCancellable = observation.start(
-            in: DB.dbPool,
+            in: DB.dbQueue,
             scheduling: .async(onQueue: .global()),
             onError: { error in
                 Log.error("Failed to observe unread count:", error)
@@ -73,7 +73,7 @@ final class openChatManager: ObservableObject {
     func updateGroupName( groupId: String, newName: String) {
         Task.detached(priority: .userInitiated) {
             do {
-                try await self.DB.dbPool.write { db in
+                try await self.DB.dbQueue.write { db in
                     if var group = try ChatGroup.filter(Column("id") == groupId).fetchOne(db) {
                         group.name = newName
                         try group.update(db)
@@ -93,7 +93,7 @@ final class openChatManager: ObservableObject {
     func loadData(){
         if let id = chatgroup?.id{
             Task.detached(priority: .background) {
-                let results = try await  DatabaseManager.shared.dbPool.read { db in
+                let results = try await  DatabaseManager.shared.dbQueue.read { db in
                     let results  =  try ChatMessage
                         .filter(ChatMessage.Columns.chat == id)
                         .order(ChatMessage.Columns.timestamp)
@@ -160,7 +160,7 @@ extension openChatManager{
         var params:[ChatQuery.ChatCompletionMessageParam] = []
         
         ///  增加system的前置参数
-        if let promt = try? DB.dbPool.read({ db in
+        if let promt = try? DB.dbQueue.read({ db in
             try ChatPrompt.filter(ChatPrompt.Columns.id == chatPrompt?.id).fetchOne(db)
         }){
             params.append(.system(.init(content: .textContent(promt.content), name: promt.title)))
@@ -176,7 +176,7 @@ extension openChatManager{
         
         
         let limit = Defaults[.historyMessageCount]
-        if  let messageRaw = try? DB.dbPool.read({ db in
+        if  let messageRaw = try? DB.dbQueue.read({ db in
             try ChatMessage
                 .filter(ChatMessage.Columns.chat == chatgroup?.id)
                 .order(Column("timestamp").desc)
@@ -237,7 +237,7 @@ extension openChatManager{
     func clearunuse(){
         Task.detached(priority: .background) {
             do {
-                try self.DB.dbPool.write { db in
+                try self.DB.dbQueue.write { db in
                     
                     // 1. 查找无关联 ChatMessage 的 ChatGroup
                     let allGroups = try ChatGroup.fetchAll(db)

@@ -45,8 +45,8 @@ struct Message: Codable, FetchableRecord, PersistableRecord, Identifiable, Hasha
 }
 
 extension Message{
-    static func createInit(dbPool: DatabasePool) throws {
-        try dbPool.write { db in
+    static func createInit(dbQueue: DatabaseQueue) throws {
+        try dbQueue.write { db in
             try db.create(table: "message", ifNotExists: true) { t in
                 t.primaryKey("id", .text)
                 t.column("group", .text).notNull()
@@ -177,8 +177,8 @@ struct ChatGroup: Codable, FetchableRecord, PersistableRecord, Identifiable, Has
         static let host = Column(CodingKeys.host)
     }
     
-    static func createInit(dbPool: DatabasePool) throws {
-        try dbPool.write { db in
+    static func createInit(dbQueue: DatabaseQueue) throws {
+        try dbQueue.write { db in
             try db.create(table: "chatGroup", ifNotExists: true) { t in
                 t.primaryKey("id", .text)
                 t.column("timestamp", .date).notNull()
@@ -211,8 +211,8 @@ struct ChatMessage: Codable, FetchableRecord, PersistableRecord, Identifiable, H
         static let message = Column(CodingKeys.message)
     }
     
-    static func createInit(dbPool: DatabasePool) throws {
-        try dbPool.write { db in
+    static func createInit(dbQueue: DatabaseQueue) throws {
+        try dbQueue.write { db in
             try db.create(table: "chatMessage", ifNotExists: true) { t in
                 t.primaryKey("id", .text)
                 t.column("timestamp", .date).notNull()
@@ -253,8 +253,8 @@ struct ChatPrompt: Codable, FetchableRecord, PersistableRecord, Identifiable, Ha
         static let inside = Column(CodingKeys.inside)
     }
     
-    static func createInit(dbPool: DatabasePool) throws {
-        try dbPool.write { db in
+    static func createInit(dbQueue: DatabaseQueue) throws {
+        try dbQueue.write { db in
             try db.create(table: "chatPrompt", ifNotExists: true) { t in
                 t.primaryKey("id", .text)
                 t.column("timestamp", .text).notNull()

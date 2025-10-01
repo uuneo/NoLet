@@ -305,7 +305,7 @@ struct AssistantPageView:View {
                     let name = String(text.trimmingSpaceAndNewLines.prefix(10))
                     let group = ChatGroup(id: id, timestamp: .now, name: name, host: "")
                     do{
-                        try  DatabaseManager.shared.dbPool.write { db in
+                        try  DatabaseManager.shared.dbQueue.write { db in
                             try group.insert(db)
                             DispatchQueue.main.async{
                                 chatManager.chatgroup = group
@@ -372,7 +372,7 @@ struct AssistantPageView:View {
                         
                         
                         
-                        try await DatabaseManager.shared.dbPool.write { db in
+                        try await DatabaseManager.shared.dbQueue.write { db in
                             
                             try responseMessage.insert(db)
                         }

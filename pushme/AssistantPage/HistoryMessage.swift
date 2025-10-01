@@ -66,7 +66,7 @@ struct HistoryMessage:View {
         Task.detached(priority: .userInitiated) {
             
             let results = await self.query(group: group, limit: limit, item?.timestamp)
-            let count = try await DatabaseManager.shared.dbPool.read { db in
+            let count = try await DatabaseManager.shared.dbQueue.read { db in
                 try ChatMessage.fetchCount(db)
             }
              DispatchQueue.main.async {
@@ -82,7 +82,7 @@ struct HistoryMessage:View {
     
     func query(group: String? = nil, limit lim: Int = 50, _ date: Date? = nil) async -> [ChatMessage] {
         do {
-            return try await  DatabaseManager.shared.dbPool.read { db in
+            return try await  DatabaseManager.shared.dbQueue.read { db in
                 var request = ChatMessage.order(ChatMessage.Columns.timestamp.desc)
                 
                 if let group = group {

@@ -59,7 +59,7 @@ struct PromptChooseView: View {
     private func loadData(){
         Task.detached(priority: .background) {
             do{
-                let results =  try await  DatabaseManager.shared.dbPool.read{db in
+                let results =  try await  DatabaseManager.shared.dbQueue.read{db in
                     try ChatPrompt.fetchAll(db)
                 }
                 await MainActor.run{
@@ -203,7 +203,7 @@ private struct PromptSection: View {
                 if let prompt = promptToDelete{
                     Task.detached(priority: .userInitiated) {
                         do {
-                            _ = try await  DatabaseManager.shared.dbPool.write { db in
+                            _ = try await  DatabaseManager.shared.dbQueue.write { db in
                                 try ChatPrompt
                                     .filter(Column("id") == prompt.id)
                                     .deleteAll(db)
@@ -365,7 +365,7 @@ struct AddPromptView: View {
                         )
                         Task.detached(priority: .userInitiated) {
                             do {
-                                try await  DatabaseManager.shared.dbPool.write { db in
+                                try await  DatabaseManager.shared.dbQueue.write { db in
                                     try chatprompt.insert(db)
                                 }
                                 await MainActor.run {

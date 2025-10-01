@@ -12,7 +12,7 @@ public class DatabaseManager {
     public static let shared = try! DatabaseManager()
 
     
-    public let dbPool: DatabasePool
+    public let dbQueue: DatabaseQueue
     public let localPath:URL
     
     private init() throws {
@@ -21,34 +21,21 @@ public class DatabaseManager {
             throw NSError(domain: "App", code: 1, userInfo: [NSLocalizedDescriptionKey: "创建容器失败"])
         }
         let path = local.appendingPathComponent("pushback.sqlite", conformingTo: .database)
+
         self.localPath = path
         // DatabasePool 只在这里创建一次
-        self.dbPool = try DatabasePool(path: path.path)
-        
-        try Message.createInit(dbPool: dbPool)
-        try ChatGroup.createInit(dbPool: dbPool)
-        try ChatMessage.createInit(dbPool: dbPool)
-        try ChatPrompt.createInit(dbPool: dbPool)
-        try PttMessageModel.createInit(dbPool: dbPool)
+        self.dbQueue = try DatabaseQueue(path: path.path)
+
+
+        try Message.createInit(dbQueue: dbQueue)
+        try ChatGroup.createInit(dbQueue: dbQueue)
+        try ChatMessage.createInit(dbQueue: dbQueue)
+        try ChatPrompt.createInit(dbQueue: dbQueue)
+        try PttMessageModel.createInit(dbQueue: dbQueue)
     }
     
-    func checkDriveData(complete: @escaping (Bool) -> Void) {
-        Task.detached(priority: .userInitiated) {
-            do{
-
-                for _ in 0...2{
-                    _ = try await self.dbPool.writeWithoutTransaction { db in
-                        try db.checkpoint(.full)
-                    }
-                    try await  self.dbPool.vacuum()
-                }
-                complete(true)
-                
-            }catch{
-                Log.error(error.localizedDescription)
-                complete(false)
-            }
-        }
+    func checkDriveData() throws {
+        try self.dbQueue.vacuum()
     }
 
 }
@@ -80,7 +67,7 @@ extension DatabaseManager{
     
     func unreadCount(group: String? = nil) -> Int {
         do{
-            return try  dbPool.read { db in
+            return try  dbQueue.read { db in
                 var request = Message.filter(Column("read") == false)
                 
                 if let group = group {
@@ -98,7 +85,7 @@ extension DatabaseManager{
     
     func count(group: String? = nil) -> Int {
         do{
-            let count = try  dbPool.read { db in
+            let count = try  dbQueue.read { db in
                 if let group = group{
                     return  try Message.filter(Message.Columns.group == group).fetchCount(db)
                 }else {
@@ -115,7 +102,7 @@ extension DatabaseManager{
     
     func add(_ message: Message) async  {
         do {
-            try await  dbPool.write { db in
+            try await  dbQueue.write { db in
                 try message.insert(db, onConflict: .replace)
             }
         } catch {
@@ -125,7 +112,7 @@ extension DatabaseManager{
     
     func query(id: String) -> Message? {
         do {
-            return try  dbPool.read { db in
+            return try  dbQueue.read { db in
                 try Message.fetchOne(db, key: id)
             }
         } catch {
@@ -135,7 +122,7 @@ extension DatabaseManager{
     }
     func query(id: String) async -> Message? {
         do {
-            return try await  dbPool.read { db in
+            return try await  dbQueue.read { db in
                 try Message.fetchOne(db, key: id)
             }
         } catch {
@@ -153,7 +140,7 @@ extension DatabaseManager{
             .filter { !$0.isEmpty }
 
         do {
-            return try await dbPool.read { db in
+            return try await dbQueue.read { db in
                 var request = Message.all()
 
                 // 2. 多关键词叠加 AND 条件
@@ -199,7 +186,7 @@ extension DatabaseManager{
     
     func queryGroup() async -> [Message]{
         do {
-            return try await dbPool.read { db in
+            return try await dbQueue.read { db in
                 try self.fetchGroupedMessages(from: db)
             }
         } catch {
@@ -210,7 +197,7 @@ extension DatabaseManager{
     
     func queryGroup() -> [Message] {
         do {
-            return try dbPool.read { db in
+            return try dbQueue.read { db in
                 try self.fetchGroupedMessages(from: db)
             }
         } catch {
@@ -247,7 +234,7 @@ extension DatabaseManager{
     
     func query(group: String? = nil, limit lim: Int = 50, _ date: Date? = nil) async -> [Message] {
         do {
-            return try await  dbPool.read { db in
+            return try await  dbQueue.read { db in
                 var request = Message.order(Column("createDate").desc)
                 
                 if let group = group {
@@ -268,7 +255,7 @@ extension DatabaseManager{
     
     func markAllRead(group: String? = nil) async {
         do{
-            try await self.dbPool.write { db in
+            try await self.dbQueue.write { db in
                 var request = Message.filter(Column("read") == false)
                 if let group = group {
                     request = request.filter(Column("group") == group)
@@ -282,7 +269,7 @@ extension DatabaseManager{
     
     func delete(allRead: Bool = false, date: Date? = nil) async {
         do {
-            try await self.dbPool.write { db in
+            try await self.dbQueue.write { db in
                 var request = Message.all()
 
                     // 构建查询条件
@@ -301,7 +288,7 @@ extension DatabaseManager{
                 try request.deleteAll(db)
             }
 
-            self.checkDriveData(complete: {_ in})
+           try self.checkDriveData()
 
         } catch {
             Log.error("删除消息失败: \(error)")
@@ -310,7 +297,7 @@ extension DatabaseManager{
     func delete(_ message: Message, in group: Bool = false) async -> Int {
         do {
             if group{
-                return try await dbPool.write { db in
+                return try await dbQueue.write { db in
                     try Message
                         .filter(Message.Columns.group == message.group)
                         .deleteAll(db)
@@ -318,7 +305,7 @@ extension DatabaseManager{
                     return try Message.filter(Message.Columns.group == message.group).fetchCount(db)
                 }
             }
-            return try await dbPool.write { db in
+            return try await dbQueue.write { db in
                 try message.delete(db)
                 return try Message.filter(Message.Columns.group == message.group).fetchCount(db)
             }
@@ -330,7 +317,7 @@ extension DatabaseManager{
     
     func delete(_ messageId: String) -> String?{
         do{
-            return  try dbPool.write { db in
+            return  try dbQueue.write { db in
                 if  let message = try Message.filter(Message.Columns.id == messageId).fetchOne(db){
                     try message.delete(db)
                     return message.group
@@ -348,7 +335,7 @@ extension DatabaseManager{
     func deleteExpired() async {
         
         do{
-            try await dbPool.write { db in
+            try await dbQueue.write { db in
                 let now = Date()
                 let cutoffDateExpr = now.addingTimeInterval(-1) // 当前时间
                 
@@ -372,14 +359,14 @@ extension DatabaseManager{
     
     
     static func CreateStresstest(max number:Int = 10000)  async -> Bool {
-
-        return ((try? await  Self.shared.dbPool.write { db in
+        let body = Self.randomText(length: 4000)
+        return ((try? await  Self.shared.dbQueue.write { db in
             for k in 0...number{
                 let message =  Message(id: UUID().uuidString,
                                        group: "\(k % 10)",
                                        createDate: .now,
                                        title: "\(k) Test",
-                                       body: "Text Data \(k)",
+                                       body: "Text Data \(body)",
                                        level: 1,
                                        ttl: 1,
                                        read: false)
@@ -388,6 +375,11 @@ extension DatabaseManager{
             }
             return true
         }) != nil)
+    }
+
+    static func randomText(length: Int) -> String {
+        let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return String((0..<length).compactMap { _ in characters.randomElement() })
     }
 
     static func ensureMarkdownLineBreaks(_ text: String) -> String {

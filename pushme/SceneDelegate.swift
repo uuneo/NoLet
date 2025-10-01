@@ -126,7 +126,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
            
             if Defaults[.lang] != currentLang{
                 Task.detached(priority: .background) {
-                    try await DatabaseManager.shared.dbPool.write { db in
+                    try await DatabaseManager.shared.dbQueue.write { db in
                         // 删除 inside == true 的项
                         try ChatPrompt.filter(ChatPrompt.Columns.inside == true).deleteAll(db)
                         

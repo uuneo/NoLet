@@ -32,7 +32,7 @@ class MessagesManager: ObservableObject{
         }
         
         observationCancellable = observation.start(
-            in: DB.dbPool,
+            in: DB.dbQueue,
             scheduling: .async(onQueue: .global()),
             onError: { error in
                 Log.error("Failed to observe unread count:", error)

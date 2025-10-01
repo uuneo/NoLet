@@ -63,11 +63,10 @@ struct ContentView: View {
             }
             
         }
-        .sheet(isPresented: manager.sheetShow){ ContentSheetViewPage().customPresentationCornerRadius(20) }
+        .sheet(isPresented: manager.sheetShow){ ContentSheetViewPage() }
         .fullScreenCover(isPresented: manager.fullShow){ ContentFullViewPage() }
 #if DEBUG
         .onAppear{
-
             manager.printDirectoryContents(at: CONTAINER!.path())
         }
 #endif
@@ -317,6 +316,9 @@ extension View{
                         
                     case .serverInfo(let server):
                         ServerMonitoringView(server: server)
+
+                    case .files:
+                        NoletFileList()
 
                     }
                 }
