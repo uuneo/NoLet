@@ -18,7 +18,7 @@ class MediaHandler:NotificationContentHandler{
 		
         if let imageUrl:String =  userInfo.raw(.image){
             
-            guard let localPath = await ImageManager.downloadImage(imageUrl,mode: .image, expiration: .days(Defaults[.imageSaveDays].days)) else { return bestAttemptContent }
+            guard let localPath = await ImageManager.downloadImage(imageUrl, expiration: .days(Defaults[.imageSaveDays].days)) else { return bestAttemptContent }
 
             /// 自动保存图片到相册 前提 打开了自动存储，并且缓存内没有的图片
             /// 每个图片只保存一遍

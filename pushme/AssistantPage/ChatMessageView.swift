@@ -126,7 +126,7 @@ extension View{
                 Section {
                     Button {
                         Task(priority: .high) {
-                            guard let player = await AudioManager.shared.Speak(PBMarkdown.plain(text)) else { return }
+                            guard let player = await AudioManager.shared.speak(PBMarkdown.plain(text)) else { return }
                             player.play()
                         }
                     }label: {

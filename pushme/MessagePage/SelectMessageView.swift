@@ -292,7 +292,7 @@ struct SelectMessageView:View {
                                 text = message.voiceText
                             }
                             guard !text.isEmpty else { return }
-                            guard let player = await AudioManager.shared.Speak(text) else {
+                            guard let player = await AudioManager.shared.speak(text) else {
                                 return
                             }
                             AudioManager.setCategory(true, .playback, mode: .default)

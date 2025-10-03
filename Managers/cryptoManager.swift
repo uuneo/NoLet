@@ -14,7 +14,7 @@ import Defaults
 
 extension Defaults.Keys {
     
-    static let cryptoConfigs = Key<[CryptoModelConfig]>("CryptoSettingFieldsList", [CryptoModelConfig.data], iCloud: true)
+    static let cryptoConfigs = Key<[CryptoModelConfig]>(.CryptoSettingFieldsList, [], iCloud: true)
     
 }
 extension CryptoModelConfig: Defaults.Serializable{}
@@ -72,13 +72,11 @@ struct CryptoModelConfig: Identifiable, Equatable, Codable{
     var mode: CryptoMode
     var key: String
     var iv: String
-    var system: Bool = false
     
     static let data = CryptoModelConfig(algorithm: .AES256,
                                         mode: .GCM,
                                         key: Domap.KEY,
-                                        iv: Domap.IV,
-                                        system: true)
+                                        iv: Domap.IV)
     
     static func generateRandomString(_ length: Int = 16) -> String {
         Domap.generateRandomString(length)

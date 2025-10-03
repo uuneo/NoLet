@@ -191,8 +191,8 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
         }
     }
 
-     func HandlerOpenUrl(url:URL){
-       
+    func HandlerOpenUrl(url:URL) -> Bool{
+
         switch self.outParamsHandler(address: url.absoluteString) {
         case .crypto(let text):
             Log.debug(text)
@@ -200,11 +200,17 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 DispatchQueue.main.async{
                     self.page = .setting
                     self.settingsRouter = [.crypto]
-                    self.sheetPage = .crypto(config)
+                    if !Defaults[.cryptoConfigs].contains(where: {$0 == config}){
+                        Defaults[.cryptoConfigs].append(config)
+                        Toast.info(title: "添加成功")
+                    }else{
+                        Toast.info(title: "配置已存在")
+                    }
+
                 }
             }
-            
-        case .server(let url):
+            return true
+        case .server(let url), .base(let url):
             Task.detached(priority: .userInitiated) {
                 let success = await self.appendServer(server: PushServerModel(url: url))
                 if success{
@@ -214,6 +220,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                     }
                 }
             }
+            return true
         case .serverKey(let url, let key):
             Task.detached(priority: .userInitiated) {
                 let success = await self.restore(address: url, deviceKey: key)
@@ -224,6 +231,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                     }
                 }
             }
+            return true
         case .assistant(let text):
             if let account = AssistantAccount(base64: text){
                 DispatchQueue.main.async {
@@ -231,6 +239,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                     self.messageRouter = [.assistant, .assistantSetting(account)]
                 }
             }
+            return true
         case .page(page: let page,title: let title, data: let data):
             switch page{
             case .widget:
@@ -242,9 +251,10 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 self.page = .setting
                 self.sheetPage = .cloudIcon
             }
+            return true
         default:
-            break
-            
+            return false
+
         }
     }
     
@@ -362,7 +372,11 @@ extension AppManager{
         guard let url = URL(string: address), let scheme = url.scheme?.lowercased() else {
             return .text(address)
         }
-        
+
+        if scheme.hasHttp(){
+            return .base(address)
+        }
+
         
         if PBScheme.schemes.contains(scheme),let host = url.host(),let host = PBScheme.HostType(rawValue: host), let components = URLComponents(url: url, resolvingAgainstBaseURL: false){
             let params = components.getParams()
@@ -420,6 +434,26 @@ extension AppManager{
                 print("\(indent)📄 \(URL(fileURLWithPath: path).lastPathComponent) (\(String(format: "%.2f", sizeMB)) MB)")
             }
         }
+    }
+
+    static func createDatabaseFileTem() -> URL?{
+        guard let path = BaseConfig.configPath else{ return nil }
+        do{
+            let data = try Data(contentsOf: path)
+            if let cryptData = CryptoManager(.data).encrypt(inputData: data){
+
+                let pathTem = FileManager.default.temporaryDirectory.appendingPathComponent(
+                    path.lastPathComponent,
+                    conformingTo: .data
+                )
+                try cryptData.write(to: pathTem)
+                return pathTem
+            }
+        }catch{
+            Log.error("配置文件加密失败")
+        }
+
+        return nil
     }
 
     

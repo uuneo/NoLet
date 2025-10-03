@@ -9,7 +9,7 @@ import Defaults
 
 
 extension Defaults.Keys {
-    static let exampleCustom = Key<PushParams>("exampleCustom", PushParams.defaultData())
+    static let exampleCustom = Key<PushParams>(.exampleCustom, PushParams.defaultData())
 }
 
 struct PushParams: Codable, Defaults.Serializable {

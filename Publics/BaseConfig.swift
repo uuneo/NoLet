@@ -28,7 +28,7 @@ class BaseConfig {
     static let defaultServer = "https://wzs.app"
 #endif
 
-    static let docServer = "https://wiki.wzs.app/"
+    static let docServer = "https://wiki.wzs.app"
     static let logoImage = docServer + "/_media/egglogo.png"
     static let ogImage = docServer + "/_media/og.png"
     static let delpoydoc = docServer + String(localized: "/#/deploy")
@@ -48,17 +48,24 @@ class BaseConfig {
         ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
         ?? Self.appSymbol
     }
-    
-    
+
+    static var configPath: URL?{
+        CONTAINER?.appendingPathComponent("Library/Preferences", isDirectory: true)
+            .appendingPathComponent( BaseConfig.groupName + ".plist", conformingTo: .propertyList )
+    }
+
+    static var databasePath: URL?{
+        CONTAINER?.appendingPathComponent(BaseConfig.databaseName)
+    }
+
     static var testData:String{
         "{\"title\": \"\(String(localized: "这是一个加密示例"))\",\"body\": \"\(String(localized: "这是加密的正文部分"))\", \"sound\": \"typewriter\"}"
     }
-    
+
     
     enum FolderType: String, CaseIterable{
         case voice
         case ptt
-        case icon
         case image
         case sounds = "Library/Sounds"
         
@@ -146,3 +153,6 @@ class BaseConfig {
 }
 
 
+enum NoletError: Error{
+    case basic(_ msg: String)
+}

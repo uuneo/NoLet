@@ -28,7 +28,7 @@ struct ChatInputView<Content: View>: View  {
            
             HStack() {
                 PromptLabelView(prompt: chatManager.chatPrompt)
-            }.padding( 5)
+            }.padding(5)
             
             
             
@@ -39,19 +39,15 @@ struct ChatInputView<Content: View>: View  {
                 
             }
             .padding(.horizontal)
-            .padding(.top, 5)
             .animation(.default, value: text)
             
             
             
         }
-        .background26(.background)
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30))
         .onTapGesture {
             self.isFocusedInput = !manager.isLoading
             Haptic.impact()
         }
-        .shadow(color: .gray.opacity(0.3), radius: 2, x: 0, y: -5)
     }
     
     // MARK: - Subviews
@@ -61,23 +57,17 @@ struct ChatInputView<Content: View>: View  {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
                 .focused($isFocusedInput)
-                .frame(minHeight: 40)
-                .font(.subheadline)
+                .frame(minHeight: 50)
                 .onChange(of: isFocusedInput){value in
                     
                     chatManager.isFocusedInput = value
                 }
                
             PromptButtonView()
+                
         }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.systemGray6))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-        )
+        .background26(Color(.systemGray6), radius: 17)
+
         
     }
     
@@ -91,13 +81,9 @@ struct ChatInputView<Content: View>: View  {
                 Image(systemName: "xmark.circle.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 35, height: 35)
-                    .foregroundColor(.blue)
-                    .opacity(0.7)
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2)
-                    .symbolEffect(.rotate)
+                    .frame(width: 38, height: 38)
+                    .background26(Color.white, radius: 20)
+                    .tint(.red)
             }
             .transition(.scale)
         }else{
@@ -118,12 +104,8 @@ struct ChatInputView<Content: View>: View  {
                     Image(systemName: "arrow.up.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(.blue)
-                        .opacity(0.7)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2)
+                        .frame(width: 38, height: 38)
+                        .background26(Color.white, radius: 20)
                 }
                 .transition(.scale)
             } else {
@@ -134,17 +116,11 @@ struct ChatInputView<Content: View>: View  {
                     rightBtn()
                     
                 } label: {
-                    Image(systemName: "plus.circle.fill")
+                    Image(systemName: "ellipsis.circle")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(.blue)
-                        .opacity(0.7)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2)
-                        .padding(.trailing, 8)
-                        .transition(.scale)
+                        .frame(width: 38, height: 38)
+                        .background26(Color.white, radius: 20)
                         .menuStyle(.button)
                 }
                 .transition(.scale)

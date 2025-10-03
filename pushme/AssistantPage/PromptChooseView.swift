@@ -315,9 +315,10 @@ struct PromptButtonView: View {
         Button {
             showPromptChooseView = true
         } label: {
-            Image(systemName: "text.bubble")
-                .foregroundColor(.blue)
-                .padding(.trailing, 8)
+            Image(systemName: "puzzlepiece.extension")
+                .tint(.gray)
+                .font(.title2)
+                .padding(EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 12))
         }
         .sheet(isPresented: $showPromptChooseView) {
             PromptChooseView()

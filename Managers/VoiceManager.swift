@@ -799,11 +799,11 @@ class VoiceManager {
 
 // MARK: - MODELS
 extension Defaults.Keys {
-    static let ttsConfig = Key<VoiceManager.TTSConfig>("SpeakTTSConfig", VoiceManager.TTSConfig.default)
-    static let voiceList = Key<[VoiceManager.MicrosoftVoice]>("SpeakVoiceList", [])
-    static let endpoint = Key<[String: String]?>("SpeakEndpoint", nil)
-    static let endpointExpiry = Key<Date?>("SpeakEndpointExpiry", nil)
-    static let voicesCacheExpiry = Key<Date?>("SpeakVoicesCacheExpiry", nil)
+    static let ttsConfig = Key<VoiceManager.TTSConfig>(.SpeakTTSConfig, VoiceManager.TTSConfig.default)
+    static let voiceList = Key<[VoiceManager.MicrosoftVoice]>(.SpeakVoiceList, [])
+    static let endpoint = Key<[String: String]?>(.SpeakEndpoint, nil)
+    static let endpointExpiry = Key<Date?>(.SpeakEndpointExpiry, nil)
+    static let voicesCacheExpiry = Key<Date?>(.SpeakVoicesCacheExpiry, nil)
 }
 extension VoiceManager.TTSConfig: Defaults.Serializable{ }
 extension VoiceManager.SSMLConfig: Defaults.Serializable{}

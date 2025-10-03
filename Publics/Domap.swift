@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import CryptoKit
 
 
 public enum Domap{
@@ -23,9 +23,9 @@ public enum Domap{
     
     
     public static func obfuscator(m: String, k: String, iv: String) -> String? {
-        
-       return k + "," + m + "," + iv
-        
+
+        return [k , m , iv].joined(separator: ",")
+
     }
     
     public static func deobfuscator(result: String) -> (String, String, String)? {
@@ -39,4 +39,5 @@ public enum Domap{
     
    
 }
+
 

@@ -304,22 +304,8 @@ extension AssistantAccount{
 }
 
 
-
-//enum CategoryParams: String, Codable, CaseIterable{
-//    case myNotificationCategory
-//    case markdown
-//    
-//    var name:String{
-//        switch self {
-//        case .myNotificationCategory:
-//            return String(localized: "普通内容")
-//        case .markdown:
-//            return String(localized: "Markdown")
-//        }
-//    }
-//}
-
 enum OutDataType{
+    case base(String)
     case text(String)
     case crypto(String)
     case server(String)

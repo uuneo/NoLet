@@ -202,14 +202,8 @@ struct ContentView: View {
                 ChangeKeyView()
             case .scan:
                 ScanView{ code in
-                    if code.hasHttp(){
-                        debugPrint(code)
-                        let success = await manager.appendServer(server: PushServerModel(url: code))
-                        if success{
-                            manager.page = .setting
-                            manager.settingsRouter = [.server]
-                        }
-                        return success
+                    if let url = URL(string: code){
+                        return  AppManager.shared.HandlerOpenUrl(url: url)
                     }
                     return false
                     

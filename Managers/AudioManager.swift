@@ -118,13 +118,25 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     }
     
     /// 通用文件保存方法
-    func saveSound(url sourceUrl: URL, name lastPath: String? = nil) {
+    func saveSound(
+        url sourceUrl: URL,
+        name lastPath: String? = nil,
+        maxNameLength:Int = 13
+     ) {
         // 获取 App Group 的共享铃声目录路径
         guard let groupDirectoryUrl = BaseConfig.getDir(.sounds) else { return }
-        
+
+
+        var fileName: String{
+            String(
+                (lastPath ?? sourceUrl.lastPathComponent).suffix(maxNameLength)
+            )
+        }
+
+
         // 构造目标路径：使用传入的自定义文件名（lastPath），否则使用源文件名
-        let groupDestinationUrl = groupDirectoryUrl.appendingPathComponent(lastPath ?? sourceUrl.lastPathComponent)
-        
+        let groupDestinationUrl = groupDirectoryUrl.appendingPathComponent(fileName)
+
         // 如果目标文件已存在，先删除旧文件
         if manager.fileExists(atPath: groupDestinationUrl.path) {
             try? manager.removeItem(at: groupDestinationUrl)
@@ -254,8 +266,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         
     }
     
-    func Speak(_ text: String, noCache:Bool = false) async -> AVAudioPlayer? {
-        
+    func speak(_ text: String, noCache:Bool = false) async -> AVAudioPlayer? {
+
         do{
             self.speakPlayer = nil
             let start = DispatchTime.now()

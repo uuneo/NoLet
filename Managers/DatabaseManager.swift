@@ -20,18 +20,20 @@ public class DatabaseManager {
         guard let local = CONTAINER else {
             throw NSError(domain: "App", code: 1, userInfo: [NSLocalizedDescriptionKey: "创建容器失败"])
         }
+        Database.logError = { (resultCode, message) in
+            Log.error(message, resultCode)
+        }
         self.localPath = local.appendingPathComponent( BaseConfig.databaseName, conformingTo: .database)
 
         // DatabasePool 只在这里创建一次
         self.dbQueue = try DatabaseQueue(path: self.localPath.path)
+
 
         try Message.createInit(dbQueue: dbQueue)
         try ChatGroup.createInit(dbQueue: dbQueue)
         try ChatMessage.createInit(dbQueue: dbQueue)
         try ChatPrompt.createInit(dbQueue: dbQueue)
         try PttMessageModel.createInit(dbQueue: dbQueue)
-
-        try? self.dbQueue.vacuum()
     }
 
 }
@@ -354,8 +356,8 @@ extension DatabaseManager{
    
     
     
-    static func CreateStresstest(max number:Int = 10000)  async -> Bool {
-        let body = Self.randomText(length: 4000)
+    static func CreateStresstest(max number:Int = 10000, textLength:Int = 2000)  async -> Bool {
+        let body = Self.randomText(length: textLength)
         return ((try? await  Self.shared.dbQueue.write { db in
             for k in 0...number{
                try autoreleasepool {

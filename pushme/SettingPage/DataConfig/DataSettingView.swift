@@ -7,7 +7,11 @@
 
 import SwiftUI
 import Defaults
+import UniformTypeIdentifiers
 
+extension UTType{
+    static let sqlite = UTType(filenameExtension: "sqlite")!
+}
 
 struct DataSettingView: View {
     @EnvironmentObject private var manager:AppManager
@@ -28,38 +32,78 @@ struct DataSettingView: View {
 
     @State private var showDeleteAlert:Bool = false
     @State private var resetAppShow:Bool = false
+    @State private var restartAppShow:Bool = false
 
     @State private var totalSize:UInt64 = 0
     @State private var cacheSize:UInt64 = 0
 
     @State private var cancelTask: Task<Void, Never>?
+
+    @State private var configPath:URL? = nil
+
     var body: some View {
         List{
             Section {
-                Button{
-                    guard !showexportLoading else { return }
-                    self.showexportLoading = true
-                    cancelTask = Task.detached(priority: .background) {
-                        do{
-                            let results = try await  DatabaseManager.shared.dbQueue.read { db in
-                                try Message.fetchAll(db)
+
+                Menu{
+                    if messageManager.allCount > 0{
+                        Section{
+                            Button{
+                                guard !showexportLoading else { return }
+                                self.showexportLoading = true
+                                cancelTask = Task.detached(priority: .background) {
+                                    do{
+                                        let results = try await DatabaseManager.shared.dbQueue.read { db in
+                                            try Message.fetchAll(db)
+                                        }
+
+                                        DispatchQueue.main.async {
+                                            self.messages = results
+                                            self.showexportLoading = false
+                                            self.showexport = true
+                                        }
+                                    }catch{
+                                        Log.error(error.localizedDescription)
+                                        DispatchQueue.main.async{
+                                            self.showexportLoading = false
+                                        }
+                                    }
+                                }
+                            }label: {
+                                Label("消息列表", systemImage: "list.bullet.clipboard")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(.tint, Color.primary)
+
                             }
-                            DispatchQueue.main.async {
-                                self.messages = results
-                                self.showexportLoading = false
-                                self.showexport = true
+                        }
+                    }
+
+                    
+                    if let configPath{
+                        Section{
+                            ShareLink( item: configPath) {
+                                Label("配置文件", systemImage: "doc.badge.gearshape")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(.tint, Color.primary)
+
                             }
-                        }catch{
-                            Log.error(error.localizedDescription)
-                            DispatchQueue.main.async{
-                                self.showexportLoading = false
+
+                        }
+                    }
+
+                    if let database = BaseConfig.databasePath{
+                        Section{
+                            ShareLink( item: database) {
+                                Label("数据库文件", systemImage: "internaldrive")
+                                    .symbolRenderingMode(.palette)
+                                    .foregroundStyle(.tint, Color.primary)
                             }
                         }
                     }
 
                 }label: {
                     HStack{
-                        Label("导出", systemImage: "arrow.up.circle")
+                        Label("导出", systemImage: "square.and.arrow.up")
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(.tint, Color.primary)
                             .symbolEffect(.wiggle, delay: 3)
@@ -75,6 +119,7 @@ struct DataSettingView: View {
                             .foregroundStyle(Color.green)
                     }
                 }
+
                 .fileExporter(isPresented: $showexport, document: TextFileMessage(content: messages), contentType: .trnExportType, defaultFilename: "pushback_\(Date().formatString(format:"yyyy_MM_dd_HH_mm"))") { result in
                     switch result {
                     case .success(let success):
@@ -90,6 +135,9 @@ struct DataSettingView: View {
                     self.showexport = false
 
                 }
+
+
+
                 Button{
                     self.showImport.toggle()
                 }label: {
@@ -101,7 +149,12 @@ struct DataSettingView: View {
                         Spacer()
                     }
                 }
-                .fileImporter(isPresented: $showImport, allowedContentTypes: [.trnExportType], allowsMultipleSelection: false, onCompletion: { result in
+                .fileImporter(
+                    isPresented: $showImport,
+                    allowedContentTypes: [ .trnExportType, .sqlite, .propertyList ],
+                    allowsMultipleSelection: false,
+                    onCompletion: { result in
+                        
                     switch result {
                     case .success(let files):
                         let msg = importMessage(files)
@@ -250,6 +303,16 @@ struct DataSettingView: View {
 
         }
         .navigationTitle("数据管理")
+        .if(restartAppShow){ view in
+            view
+                .alert(isPresented: $restartAppShow) {
+
+                    Alert(title: Text("导入成功"),
+                          message:  Text("重启才能生效,即将退出程序！"),
+                          dismissButton:
+                            .destructive(Text("确定"), action: { exit(0) })
+                    )}
+        }
         .if(resetAppShow){ view in
             view
                 .alert(isPresented: $resetAppShow) {
@@ -267,7 +330,7 @@ struct DataSettingView: View {
                                                       action: {
                         self.showDriveCheckLoading = true
                         if let cache = ImageManager.defaultCache(),
-                           let imageCache = ImageManager.defaultCache(mode: .image),
+                           let imageCache = ImageManager.defaultCache(),
                            let fileUrl = BaseConfig.getDir(.sounds),
                            let voiceUrl = BaseConfig.getDir(.voice)
                         {
@@ -294,7 +357,6 @@ struct DataSettingView: View {
                 }
 
         }
-#if DEBUG
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button{
@@ -304,7 +366,9 @@ struct DataSettingView: View {
                 }
             }
         }
-#endif
+        .task{
+            self.configPath = AppManager.createDatabaseFileTem()
+        }
     }
 
 
@@ -335,17 +399,37 @@ struct DataSettingView: View {
 
     fileprivate func importMessage(_ fileUrls: [URL]) -> String {
         guard let url = fileUrls.first else { return ""}
+
         do{
+
             if url.startAccessingSecurityScopedResource(){
 
-                let data = try Data(contentsOf: url)
-                    // TODO:
-                let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .secondsSince1970
-                let messages = try decoder.decode([Message].self, from: data)
-                try?  DatabaseManager.shared.dbQueue.write { db in
-                    for message in messages {
-                        try message.insert(db)
+                switch url.pathExtension{
+                case "plist":
+                    let raw = try Data(contentsOf: url)
+                    if let data = CryptoManager(.data).decrypt(inputData: raw),  let path = BaseConfig.configPath{
+                        try data.write(to: path)
+                    }else{
+                        throw NoletError.basic("解密失败")
+                    }
+                    self.restartAppShow.toggle()
+                case "sqlite":
+                    let raw = try Data(contentsOf: url)
+                    if let path = BaseConfig.databasePath{
+                        try raw.write(to: path)
+                    }else{
+                        throw NoletError.basic("导入失败")
+                    }
+
+                    self.restartAppShow.toggle()
+
+                default:
+                    let raw = try Data(contentsOf: url)
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .secondsSince1970
+                    let messages = try decoder.decode([Message].self, from: raw)
+                    try DatabaseManager.shared.dbQueue.write { db in
+                        try messages.forEach({ try $0.insert(db)})
                     }
                 }
 

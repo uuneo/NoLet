@@ -129,21 +129,11 @@ struct AssistantPageView:View {
                 },
                 onSend: sendMessage
             )
-            .padding(.bottom)
-            .simultaneousGesture(
-                DragGesture()
-                    .onEnded({ value in
-                        Log.debug(value.translation, value.startLocation)
-                        if -value.translation.height > 200{
-                            Haptic.impact(.heavy)
-                            self.showMenu.toggle()
-                        }else if value.translation.height > 100 {
-                            self.hideKeyboard()
-                        }
-                        
-                    })
-            )
-            
+            .padding(.bottom, 10)
+            .onDrag(towards: .bottom, ofAmount: 100..., perform: {
+                self.hideKeyboard()
+            })
+
         }
         .popView(isPresented: $showChangeGroupName){
             showChangeGroupName = false

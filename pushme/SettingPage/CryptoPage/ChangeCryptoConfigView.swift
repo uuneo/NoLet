@@ -197,9 +197,7 @@ struct ChangeCryptoConfigView: View {
 
                         }
 
-                        if let index = Defaults[.cryptoConfigs].firstIndex(where: {$0 == cryptoConfig}){
-                            Defaults[.cryptoConfigs][index] = cryptoConfig
-                        }else{
+                        if !Defaults[.cryptoConfigs].contains(where:{$0 == cryptoConfig}){
                             var cryptoConfig = cryptoConfig
                             cryptoConfig.id = UUID().uuidString
                             Defaults[.cryptoConfigs].append(cryptoConfig)

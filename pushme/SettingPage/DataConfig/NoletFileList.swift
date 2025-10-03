@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import QuickLookThumbnailing
 
 // MARK: - 文件项数据模型
 struct FileItem: Identifiable, Hashable {
@@ -74,27 +75,7 @@ struct FileItem: Identifiable, Hashable {
     
     // 文件图标
     var icon: String {
-        if isDirectory {
-            return "folder.fill"
-        } else {
-            let ext = url.pathExtension.lowercased()
-            switch ext {
-            case "txt", "md", "rtf":
-                return "doc.text.fill"
-            case "jpg", "jpeg", "png", "gif", "bmp", "tiff":
-                return "photo.fill"
-            case "mp4", "mov", "avi", "mkv":
-                return "video.fill"
-            case "mp3", "wav", "aac", "m4a":
-                return "music.note"
-            case "pdf":
-                return "doc.richtext.fill"
-            case "zip", "rar", "7z":
-                return "archivebox.fill"
-            default:
-                return "doc.fill"
-            }
-        }
+        isDirectory ? "folder.fill" : "doc.fill"
     }
 }
 
@@ -152,6 +133,7 @@ class FileTreeManager: ObservableObject {
     // 删除文件或文件夹
     func deleteItem(_ item: FileItem) {
         do {
+
             try FileManager.default.removeItem(at: item.url)
             // 重新加载根目录项
             Task {
@@ -176,7 +158,6 @@ struct FileItemView: View {
             DisclosureGroup {
                 ForEach(item.children ?? []) { child in
                     FileItemView(item: child, fileManager: fileManager)
-                        .padding(.leading, 16)
                 }
             } label: {
                 FileRowContent(item: item, fileManager: fileManager)
@@ -193,60 +174,141 @@ struct FileRowContent: View {
     let item: FileItem
     let fileManager: FileTreeManager
     @State private var showDeleteAlert = false
-    
+
+    @State private var imageIcon: Image? = nil
+
+    @State private var sharedFile: URL? = nil
+
     var body: some View {
         HStack(spacing: 12) {
-            // 文件图标
-            Image(systemName: item.icon)
-                .foregroundColor(item.isDirectory ? .blue : .primary)
-                .frame(width: 20, height: 20)
-            
-            // 文件信息
+                // 文件图标
+
+            if item.isDirectory{
+                Image(systemName: item.icon)
+                    .foregroundColor(.blue)
+                    .font(.title2)
+            }else{
+                if let imageIcon{
+                    imageIcon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
+                }
+            }
+
+                // 文件信息
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.name)
                     .font(.system(size: 15, weight: .medium))
                     .lineLimit(1)
-                
+                    .truncationMode(.middle)
+
                 HStack {
                     Text(item.formattedSize)
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
-                    
+
                     Text(DateFormatter.fileDate.string(from: item.modificationDate))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .contextMenu {
+            if let uiImage = imageIcon, let sharedFile{
+                ShareLink(
+                    item: sharedFile,
+                    preview:  SharePreview(
+                        item.url.lastPathComponent,
+                        image: uiImage
+                    )
+                ) {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                }
+                Divider()
+            }
+
+
             Button(role: .destructive) {
                 showDeleteAlert = true
             } label: {
                 Label("删除", systemImage: "trash")
             }
         }
+
         .alert("确认删除", isPresented: $showDeleteAlert) {
             Button("取消", role: .cancel) { }
             Button("删除", role: .destructive) {
-                fileManager.deleteItem(item)
+                let excludedExtensions: Set<String> = ["plist", "sqlite"]
+
+                if !excludedExtensions.contains(item.url.pathExtension) {
+                    fileManager.deleteItem(item)
+                }else{
+                    Toast.info(title: "系统保留文件!")
+                }
+
             }
         } message: {
             Text("确定要删除 \"\(item.name)\" 吗？此操作无法撤销。")
         }
-        
+        .task {
+            self.imageIcon = await thumbnail(
+                url: item.url,
+                defaultIcon: item.icon
+            )
+
+            if item.url.pathExtension == "plist"{
+                self.sharedFile = AppManager.createDatabaseFileTem()
+            }else{
+                self.sharedFile = item.url
+            }
+        }
     }
+
+    func thumbnail(url: URL, size:CGFloat = 100, defaultIcon: String) async  -> Image{
+
+        do{
+            Log.info(url.absoluteString)
+            if url.path.contains("ImageCache"), let data = try? Data(contentsOf: url), let uiImage = UIImage(data: data){
+                return Image(uiImage: uiImage)
+
+            }else if url.pathExtension == "sqlite" {
+                return Image("sqlite")
+            }
+
+            let request = QLThumbnailGenerator.Request(
+                fileAt: url,
+                size: CGSize(width: size, height: size),
+                scale: UIScreen.main.scale,
+                representationTypes: .all
+            )
+            let data = try await QLThumbnailGenerator.shared.generateBestRepresentation(for: request)
+            return Image(uiImage: data.uiImage)
+
+        }catch{
+            return Image("nolet")
+        }
+
+
+
+    }
+
+
+    
 }
+
+
 
 // MARK: - 主文件列表视图
 struct NoletFileList: View {
     @StateObject private var fileManager = FileTreeManager()
-    
+
     var body: some View {
 
         VStack(spacing: 0) {
@@ -262,7 +324,7 @@ struct NoletFileList: View {
                 VStack {
                     Spacer()
                     Image(systemName: "folder")
-                        .font(.system(size: 48))
+                        .font(.largeTitle)
                         .foregroundColor(.secondary)
                     Text("没有找到文件")
                         .font(.headline)
@@ -272,26 +334,17 @@ struct NoletFileList: View {
                 }
             } else {
                     // 文件列表
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(fileManager.rootItems) { item in
-                            FileItemView(item: item, fileManager: fileManager)
-                        }
+                List {
+                    ForEach(fileManager.rootItems) { item in
+                        FileItemView(item: item, fileManager: fileManager)
                     }
-                    .padding(.horizontal)
                 }
+                .listStyle(.grouped)
             }
         }
         .navigationTitle("文件管理")
         .navigationBarTitleDisplayMode(.large)
         .searchable(text: .constant(""), prompt: Text("搜索"))
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("刷新") {
-                    fileManager.loadRootItems()
-                }
-            }
-        }
         .alert("错误", isPresented: .constant(fileManager.errorMessage != nil)) {
             Button("确定") {
                 fileManager.errorMessage = nil
@@ -303,6 +356,7 @@ struct NoletFileList: View {
         }
     }
 }
+
 
 // MARK: - 扩展
 extension DateFormatter {

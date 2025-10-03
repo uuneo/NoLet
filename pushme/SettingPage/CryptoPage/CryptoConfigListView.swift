@@ -88,52 +88,46 @@ struct CryptoConfigListView: View {
 
                 Spacer(minLength: 0)
                 
-                if !item.system{
-                    Menu{
-                        
-                        Section{
-                            Button{
-                                AppManager.shared.sheetPage = .crypto(item)
-                            }label:{
-                                Label("编辑", systemImage: "highlighter")
-                            }.tint(.green)
-                        }
-                        
-                        
-                        if let config = item.obfuscator(){
-                            Section{
-                                Button{
-                                    let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
-                                    DispatchQueue.main.async{
-                                        AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
-                                    }
-                                }label:{
-                                    Label("分享", systemImage: "qrcode")
-                                }
-                                .tint(.orange)
-                            }
-                            
-                        }
-                        Section{
-                            Button{
-                                let data = cryptoExampleHandler(config: item, index: index)
-                                Clipboard.set(data)
-                                Toast.copy(title: "复制成功")
-                            }label:{
-                                Label("复制Python示例", systemImage: "doc.on.doc")
-                            }.tint(.green)
-                        }
-                       
-                    }label: {
-                        Image(systemName: "menucard")
-                            .imageScale(.large)
-                            .padding(.vertical, 10)
-                            .contentShape(Rectangle())
+                Menu{
+
+                    Section{
+                        Button{
+                            AppManager.shared.sheetPage = .crypto(item)
+                        }label:{
+                            Label("编辑", systemImage: "highlighter")
+                        }.tint(.green)
                     }
-                }else{
-                    Image(systemName: "person.badge.key")
+
+
+                    if let config = item.obfuscator(){
+                        Section{
+                            Button{
+                                let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
+                                DispatchQueue.main.async{
+                                    AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
+                                }
+                            }label:{
+                                Label("分享", systemImage: "qrcode")
+                            }
+                            .tint(.orange)
+                        }
+
+                    }
+                    Section{
+                        Button{
+                            let data = cryptoExampleHandler(config: item, index: index)
+                            Clipboard.set(data)
+                            Toast.copy(title: "复制成功")
+                        }label:{
+                            Label("复制Python示例", systemImage: "doc.on.doc")
+                        }.tint(.green)
+                    }
+
+                }label: {
+                    Image(systemName: "menucard")
                         .imageScale(.large)
                         .padding(.vertical, 10)
+                        .contentShape(Rectangle())
                 }
 
 
@@ -141,65 +135,43 @@ struct CryptoConfigListView: View {
             }
             .padding(10)
             .background26(.message, radius: 15)
-            .if(!item.system, transform: { view in
-                view
-                    .swipeActions(edge: .leading, allowsFullSwipe: true){
-                        Button{
-                            AppManager.shared.sheetPage = .crypto(item)
-                        }label:{
-                            Label("编辑", systemImage: "highlighter")
-                        }.tint(.green)
-                    }
-                    .swipeActions{
-                        Button(role: .destructive){
-                            if self.cryptoConfigs.count == 1{
-                                self.cryptoConfigs = []
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-                                    self.cryptoConfigs = [ CryptoModelConfig.data]
-                                }
-                            }else{
-                                self.cryptoConfigs.removeAll(where: {$0.id == item.id})
-                            }
+            .swipeActions(edge: .leading, allowsFullSwipe: true){
+                Button{
+                    AppManager.shared.sheetPage = .crypto(item)
+                }label:{
+                    Label("编辑", systemImage: "highlighter")
+                }.tint(.green)
+            }
+            .swipeActions{
+                Button(role: .destructive){
+                    self.cryptoConfigs.removeAll(where: {$0.id == item.id})
 
-                        }label:{
-                            Label("删除", systemImage: "trash")
-                        }.tint(.red)
-                    }
-            })
+                }label:{
+                    Label("删除", systemImage: "trash")
+                }.tint(.red)
+            }
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .ignore)
-            .if( !item.system ){ view in
-                view
-                    .accessibilityLabel(
-                        String(
-                            localized: "\(String(format: "%02d", index))号密钥"
-                        ) + item.algorithm.name + item.mode.rawValue
-                    )
-                    .accessibilityAction(named: "分享配置") {
-                    if let config = item.obfuscator(){
-                        let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
-                        DispatchQueue.main.async{
-                            AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
-                        }
+            .accessibilityLabel(
+                String(
+                    localized: "\(String(format: "%02d", index))号密钥"
+                ) + item.algorithm.name + item.mode.rawValue
+            )
+            .accessibilityAction(named: "分享配置") {
+                if let config = item.obfuscator(){
+                    let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
+                    DispatchQueue.main.async{
+                        AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
                     }
                 }
-                .accessibilityAction(named: "编辑") {
-                    AppManager.shared.sheetPage = .crypto(item)
-                }
-                .accessibilityAction(named: "复制") {
-                    let data = cryptoExampleHandler(config: item, index: index)
-                    Clipboard.set(data)
-                    Toast.copy(title: "复制成功")
-                }
-
             }
-            .if( item.system ){ view in
-                view
-                    .accessibilityLabel(
-                        String(
-                            localized: "系统密钥,不能进行操作"
-                        )
-                    )
+            .accessibilityAction(named: "编辑") {
+                AppManager.shared.sheetPage = .crypto(item)
+            }
+            .accessibilityAction(named: "复制") {
+                let data = cryptoExampleHandler(config: item, index: index)
+                Clipboard.set(data)
+                Toast.copy(title: "复制成功")
             }
 
 

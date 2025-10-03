@@ -198,7 +198,7 @@ struct WebImageView: View {
     }
     func loadImage(url:URL?) async {
         if let url = url{
-            if  let imageUrl = await ImageManager.downloadImage(url.absoluteString, mode: .image),
+            if  let imageUrl = await ImageManager.downloadImage(url.absoluteString),
             let uiImage = UIImage(contentsOfFile: imageUrl)
             {
                 self.image = uiImage
