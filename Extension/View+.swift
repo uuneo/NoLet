@@ -520,5 +520,17 @@ extension View {
     public func onDrag(towards edge: Edge, ofAmount amount: any RangeExpression<CGFloat>, perform action: @escaping () -> Void) -> some View {
         modifier(CustomDragGesture(direction: edge, amount: amount, action: action))
     }
+
+
+    public func button26<S>(_ style: S) -> some View where S : PrimitiveButtonStyle{
+        Group{
+            if #available(iOS 26.0, *) {
+                self.buttonStyle(.glassProminent)
+            }else{
+                self.buttonStyle(style)
+            }
+        }
+    }
 }
+
 

@@ -30,9 +30,9 @@ struct AnimatedButton: View {
     init(state:Binding<buttonState>, normal: Config? = nil, success: Config? = nil, fail: Config? = nil, loadings: [Config]? = nil, shape: AnyShape = .init(.capsule), onTap: @escaping (Self) async  -> Void) {
         self._state = state
         self.config = normal ?? .init(title: "普通按钮", foregroundColor: .red, background: .white)
-        self.success = success ?? .init(title: "操作成功", foregroundColor: .black, background: .green)
-        self.fail = fail ?? .init(title: "操作失败", foregroundColor: .white, background: .red)
-        self.loadings = loadings ?? [.init(title: "正在执行...", foregroundColor: .white, background: .red)]
+        self.success = success ?? .init(title: "成功", foregroundColor: .black, background: .green)
+        self.fail = fail ?? .init(title: "失败", foregroundColor: .white, background: .red)
+        self.loadings = loadings ?? [.init(title: "请等待...", foregroundColor: .white, background: .red)]
         self.shape = shape
         self.onTap = onTap
     }
@@ -157,8 +157,7 @@ fileprivate struct ScaleButtonStyle: ButtonStyle {
         if #available(iOS 17.0, *) {
             configuration.label
                 .animation(.linear(duration: 0.2)) {
-                    $0
-                        .scaleEffect(configuration.isPressed ? 0.9 : 1)
+                    $0.scaleEffect(configuration.isPressed ? 0.9 : 1)
                 }
         } else {
             // Fallback on earlier versions

@@ -216,18 +216,8 @@ struct ChangeCryptoConfigView: View {
                         }
 
                     }
-                    .diff{view in
-                        Group{
-                            if #available(iOS 26.0, *) {
-                                view
-                                    .buttonStyle(.glassProminent)
-                            }else{
-                                view
-                                    .buttonStyle(BorderedProminentButtonStyle())
-                            }
-                        }
-
-                    }.listRowBackground(Color.clear)
+                    .button26(BorderedProminentButtonStyle())
+                    .listRowBackground(Color.clear)
                 }
             }
             .navigationTitle( title )

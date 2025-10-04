@@ -270,10 +270,8 @@ struct ChangeKeyCenterView: View {
                 }
                 
                 
-                
                 await view.next(.loading(1))
-                
-                
+
                 
                 let success = await manager.restore(address: keyHost, deviceKey: self.keyName)
                 
@@ -325,10 +323,6 @@ struct ChangeKeyCenterView: View {
                     }
                     return
                 }
-
-
-
-
 
                 await view.next(.loading(1))
                 

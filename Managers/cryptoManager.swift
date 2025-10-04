@@ -13,8 +13,8 @@ import Defaults
 
 
 extension Defaults.Keys {
-    
-    static let cryptoConfigs = Key<[CryptoModelConfig]>(.CryptoSettingFieldsList, [], iCloud: true)
+    /// 去除icloud，防止泄漏
+    static let cryptoConfigs = Key<[CryptoModelConfig]>(.CryptoSettingFieldsList, [])
     
 }
 extension CryptoModelConfig: Defaults.Serializable{}
