@@ -66,13 +66,14 @@ enum CryptoAlgorithm: Int, Codable, CaseIterable,RawRepresentable {
     
 }
 
-struct CryptoModelConfig: Identifiable, Equatable, Codable{
+struct CryptoModelConfig: Identifiable, Equatable, Codable, Hashable{
     var id: String = UUID().uuidString
     var algorithm: CryptoAlgorithm
     var mode: CryptoMode
     var key: String
     var iv: String
-    
+    var system:Bool = false
+
     static let data = CryptoModelConfig(algorithm: .AES256,
                                         mode: .GCM,
                                         key: Domap.KEY,

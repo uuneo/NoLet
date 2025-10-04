@@ -38,7 +38,7 @@ struct CryptoConfigListView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Button{
-                    manager.sheetPage = .crypto(CryptoModelConfig.creteNewModel())
+                    cryptoConfigs.append(CryptoModelConfig.creteNewModel())
                     Haptic.impact()
                 }label: {
                     Label("新增配置", systemImage: "plus.circle")
@@ -60,6 +60,7 @@ struct CryptoConfigListView: View {
                     Text(String(format: "%02d", index))
                         .font(.title)
                         .fontWeight(.bold)
+                        .foregroundStyle(item.system ? .green : .primary)
 
                 }
                 VStack(alignment: .leading, spacing: 5){
@@ -89,6 +90,29 @@ struct CryptoConfigListView: View {
                 Spacer(minLength: 0)
                 
                 Menu{
+
+                    Section{
+                        Button{
+                            let system = item.system
+                            for index in cryptoConfigs.indices{
+                                if cryptoConfigs[index] == item && !system{
+                                    cryptoConfigs[index].system = true
+                                }else{
+                                    cryptoConfigs[index].system = false
+                                }
+                            }
+
+
+                        }label:{
+                            if item.system{
+                                Label("取消签名", systemImage: "xmark")
+                                    .tint(.red)
+                            }else{
+                                Label("设置签名", systemImage: "signature")
+                            }
+
+                        }.tint(.green)
+                    }
 
                     Section{
                         Button{
@@ -135,13 +159,6 @@ struct CryptoConfigListView: View {
             }
             .padding(10)
             .background26(.message, radius: 15)
-            .swipeActions(edge: .leading, allowsFullSwipe: true){
-                Button{
-                    AppManager.shared.sheetPage = .crypto(item)
-                }label:{
-                    Label("编辑", systemImage: "highlighter")
-                }.tint(.green)
-            }
             .swipeActions{
                 Button(role: .destructive){
                     self.cryptoConfigs.removeAll(where: {$0.id == item.id})

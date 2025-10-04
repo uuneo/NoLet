@@ -27,7 +27,7 @@ struct ChangeKeyCenterView: View {
     @State private var circleY:CGFloat = CGFloat.zero
     
     @Default(.servers) var servers
-    
+
     @FocusState private var isPhoneFocused
     @FocusState private var isHostFocused
     
@@ -66,7 +66,8 @@ struct ChangeKeyCenterView: View {
             
             
             HStack{
-                
+
+
                 Spacer()
                 
                 
@@ -105,7 +106,7 @@ struct ChangeKeyCenterView: View {
                 InputHost()
                 
                 InputKey()
-                
+
                 
                 registerButton()
                     .if(!keyName.isEmpty) { _ in

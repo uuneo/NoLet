@@ -93,8 +93,9 @@ class NetworkManager: NSObject {
         // 构造 URLRequest 请求对象
         var request = URLRequest(url: requestUrl)
         request.httpMethod = method.method  // .get 或 .post
-
-        request.setValue( sign(), forHTTPHeaderField:"X-Signature")
+        if let signStr = sign(url: url){
+            request.setValue( signStr, forHTTPHeaderField:"X-Signature")
+        }
         request.setValue(self.customUserAgentDetailed(), forHTTPHeaderField: "User-Agent" )
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(Defaults[.id], forHTTPHeaderField: "Authorization")
@@ -118,17 +119,19 @@ class NetworkManager: NSObject {
        return try await session.data(for: request)
     }
 
-    func sign() -> String{
+    func sign(url: String) -> String?{
+        let config = url.hasPrefix(BaseConfig.defaultServer) ? .data : Defaults[.cryptoConfigs].first(
+            where: {$0.system}) ?? .data
+
         if let data = "\(Int(Date().timeIntervalSince1970))".data(using: .utf8),
-           let data = CryptoManager(.data).encrypt(inputData: data) {
+           let data = CryptoManager(config).encrypt(inputData: data) {
             let result = data.base64EncodedString()
                 .replacingOccurrences(of: "+", with: "-")
                 .replacingOccurrences(of: "/", with: "_")
                 .replacingOccurrences(of: "=", with: "")
-            Log.info("sign:", result)
             return result
         }
-        return ""
+        return nil
     }
 
 
