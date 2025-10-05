@@ -353,6 +353,7 @@
 				com.caf,
 				craft.caf,
 				frog.caf,
+				glass.caf,
 				gold.caf,
 				health.caf,
 				hello.caf,
@@ -360,12 +361,17 @@
 				popcorn.caf,
 				pttconnect.aac,
 				pttnotifyend.aac,
+				pull.aac,
 				qrcode.aac,
+				refresh.aac,
 				run.caf,
 				shake.caf,
+				share.aac,
 				silence.caf,
 				snap.caf,
 				success.caf,
+				tabSelection.aac,
+				tootSent.aac,
 				trill.caf,
 				tritone.caf,
 				typewriter.caf,
@@ -543,6 +549,7 @@
 				com.caf,
 				craft.caf,
 				frog.caf,
+				glass.caf,
 				gold.caf,
 				health.caf,
 				hello.caf,
@@ -550,11 +557,16 @@
 				popcorn.caf,
 				pttconnect.aac,
 				pttnotifyend.aac,
+				pull.aac,
+				refresh.aac,
 				run.caf,
 				shake.caf,
+				share.aac,
 				silence.caf,
 				snap.caf,
 				success.caf,
+				tabSelection.aac,
+				tootSent.aac,
 				trill.caf,
 				tritone.caf,
 				typewriter.caf,
@@ -2113,7 +2125,7 @@
 			repositoryURL = "https://github.com/sunvc/QRScanner.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.2;
+				minimumVersion = 1.2.0;
 			};
 		};
 		B58358A22DEDD6090066B32E /* XCRemoteSwiftPackageReference "swift-cmark" */ = {

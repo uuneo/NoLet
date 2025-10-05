@@ -22,7 +22,7 @@ struct MoreOperationsView: View {
     @Default(.showMessageAvatar) var showMessageAvatar
     @Default(.defaultBrowser) var defaultBrowser
     @Default(.muteSetting) var muteSetting
-
+    @Default(.feedback) var feedback
 
 
 
@@ -60,6 +60,18 @@ struct MoreOperationsView: View {
             }
 
             Section{
+
+                Toggle(isOn: $showMessageAvatar) {
+                    Label("显示图标", systemImage: "camera.macro.circle")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(
+                            showMessageAvatar ? Color.accentColor : Color.red,
+                            Color.primary
+                        )
+                        .symbolEffect(.replace)
+
+                }
+
                 Picker(selection: $badgeMode) {
                     Text( "自动").tag(BadgeAutoMode.auto)
                     Text( "自定义").tag(BadgeAutoMode.custom)
@@ -79,24 +91,11 @@ struct MoreOperationsView: View {
                         UNUserNotificationCenter.current().setBadgeCount( unRead )
                     }
                 }
-            }footer:{
-                Text( "自动模式按照未读数，自定义按照推送badge参数")
-                    .foregroundStyle(.gray)
-            }
-
-            Section{
-                Toggle(isOn: $showMessageAvatar) {
-                    Label("显示图标", systemImage: "camera.macro.circle")
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(
-                            showMessageAvatar ? Color.accentColor : Color.red,
-                            Color.primary
-                        )
-                        .symbolEffect(.replace)
-
-                }
-            }footer:{
+            }header: {
                 Text( "消息卡片未分组时是否显示logo")
+                    .foregroundStyle(.gray)
+            } footer:{
+                Text( "自动模式按照未读数，自定义按照推送badge参数")
                     .foregroundStyle(.gray)
             }
 
@@ -112,19 +111,18 @@ struct MoreOperationsView: View {
                                 PHPhotoLibrary.requestAuthorization{status in
                                     switch status {
                                     case .notDetermined:
-                                        Toast.info(title:"用户尚未做出选择")
+                                        self.autoSaveToAlbum = false
+                                        Toast.info(title:"未选择权限")
 
-                                    case .restricted:
-                                        Toast.info(title: "访问受限（可能是家长控制）")
+                                    case .restricted, .limited:
+                                        Toast.info(title: "有限的访问权限")
 
                                     case .denied:
-                                        Toast.info(title: "用户拒绝了访问权限")
+                                        self.autoSaveToAlbum = false
+                                        Toast.info(title: "拒绝了访问权限")
 
                                     case .authorized:
-                                        Toast.success(title: "用户已授权访问照片库")
-
-                                    case .limited:
-                                        Toast.info(title: "用户授予了有限的访问权限")
+                                        Toast.success(title: "已授权访问照片库")
 
                                     @unknown default:
                                         break
@@ -155,7 +153,10 @@ struct MoreOperationsView: View {
                     }.pickerStyle(SegmentedPickerStyle())
 
                 }
-            }footer:{
+                Toggle(isOn: $feedback) {
+                    Label("触感反馈", systemImage: "iphone.homebutton.radiowaves.left.and.right.circle")
+                }
+            }header:{
                 Text( "链接默认打开方式")
                     .foregroundStyle(.gray)
             }

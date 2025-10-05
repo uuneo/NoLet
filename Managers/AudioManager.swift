@@ -359,4 +359,17 @@ extension AudioManager{
         }
     }
 
+    // MARK: - OTHER
+    static func tips(_ fileName: TipsSound, fileExtension: String = "aac", complete: (() -> Void)? = nil) {
+        guard Defaults[.feedback] else { return }
+        guard let url = Bundle.main.url(forResource: fileName.rawValue, withExtension: fileExtension) else { return }
+        var soundID: SystemSoundID = 0
+        AudioServicesCreateSystemSoundID(url as CFURL, &soundID)
+            // 播放音频，播放完成后执行回调
+        AudioServicesPlaySystemSoundWithCompletion(soundID) {
+            AudioServicesDisposeSystemSoundID(soundID)
+            complete?()
+        }
+    }
+
 }

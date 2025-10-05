@@ -78,7 +78,7 @@ struct ContentView: View {
 
         Group{
             if #available(iOS 26.0, *){
-                TabView(selection: $manager.page) {
+                TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
                     Tab(value: .message) {
                         NavigationStack(path: $manager.messageRouter){
@@ -123,7 +123,7 @@ struct ContentView: View {
 
                 }.tabBarMinimizeBehavior(.onScrollDown)
             }else{
-                TabView(selection: $manager.page) {
+                TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
                     NavigationStack(path: $manager.messageRouter){
                         // MARK: 信息页面
@@ -161,7 +161,13 @@ struct ContentView: View {
             Haptic.impact()
         }
     }
-    
+
+    func updateTab(with newTab: TabPage){
+        Haptic.impact()
+        AudioManager.tips(.tabSelection)
+        manager.page = newTab
+    }
+
     @ViewBuilder
     func IpadHomeView() -> some View{
         
@@ -180,18 +186,16 @@ struct ContentView: View {
     @ViewBuilder
     func firstStartLauchFirstStartView()-> some View{
         PermissionsStartView(){
-            withAnimation {
-                self.firstStart.toggle()
-            }
+            withAnimation { self.firstStart.toggle() }
             
             Task.detached(priority: .userInitiated) {
                 for item in DatabaseManager.examples(){
-                    await  DatabaseManager.shared.add(item)
+                    await DatabaseManager.shared.add(item)
                 }
             }
             
         }
-        .background(.ultraThinMaterial)
+        .background26(.ultraThinMaterial, radius: 5)
     }
     
     @ViewBuilder
@@ -202,14 +206,8 @@ struct ContentView: View {
                 ChangeKeyView()
             case .scan:
                 ScanView{ code in
-                    if let data = AppManager.shared.HandlerOpenUrl(url: code){
-                        manager.fullPage = .none
-                        AppManager.shared.sheetPage =
-                            .quickResponseCode(
-                                text: data,
-                                title: String(localized: "二维码"),
-                                preview: nil
-                            )
+                    if AppManager.shared.HandlerOpenUrl(url: code) != nil{
+                        return true
                     }
                     manager.fullPage = .none
                     return false
@@ -218,7 +216,11 @@ struct ContentView: View {
                 SFSafariView(url: url).ignoresSafeArea()
 
             default:
-                EmptyView().onAppear{  manager.fullPage = .none }
+                EmptyView().onAppear{
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                        manager.fullPage = .none
+                    }
+                }
             }
         }
         .environmentObject(manager)
@@ -238,24 +240,27 @@ struct ContentView: View {
             case .paywall:
                 if #available(iOS 18.0, *) { PayWallHighView() }else{
                     EmptyView()
-                        .onAppear{ manager.sheetPage = .none }
+                        .onAppear{
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                manager.sheetPage = .none
+                            }
+                        }
                 }
             case .quickResponseCode(let text, let title, let preview):
                 QuickResponseCodeview(text:text, title: title, preview:preview)
                     .presentationDetents([.medium])
             case .scan:
                 ScanView{ code in
-                    if let data = AppManager.shared.HandlerOpenUrl(url: code){
-                        if data.hasHttp(){
-                            let success = await manager.appendServer(server: PushServerModel(url: data))
-                            if success{
-                                manager.sheetPage = .none
-                                manager.fullPage = .none
-                                manager.page = .setting
-                                manager.settingsRouter = [.server]
-                                return false
-                            }
-
+                    if let data = AppManager.shared.HandlerOpenUrl(url: code), data.hasHttp(){
+                        let success = await manager.appendServer(server: PushServerModel(url: data))
+                        if success{
+                            manager.sheetPage = .none
+                            manager.fullPage = .none
+                            manager.page = .setting
+                            manager.settingsRouter = [.server]
+                            return false
+                        }else{
+                            Toast.error(title: "添加失败")
                         }
                     }
                     return true

@@ -403,14 +403,6 @@ class PttAudioManager {
     }
 }
 
-enum TipsSound: String {
-    case pttconnect
-    case pttnotifyend
-    case cbegin
-    case bottle
-    case qrcode
-}
-
 enum InterruptedType {
     case begin
     case end

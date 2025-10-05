@@ -43,6 +43,8 @@ extension Defaults.Keys{
     static let allMessagecount = Key<Int>(.allMessagecount, 0, iCloud: true)
     static let widgetURL = Key<String>(.widgetURL, "")
 
+    static let feedback = Key<(Bool)>(.feedback, true)
+
 }
 
 enum NoletKey:String, CaseIterable{
@@ -79,4 +81,5 @@ enum NoletKey:String, CaseIterable{
     case SpeakEndpointExpiry
     case SpeakVoicesCacheExpiry
     case exampleCustom
+    case feedback
 }

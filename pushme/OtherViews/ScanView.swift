@@ -15,10 +15,11 @@ import UIKit
 
 struct ScanView: View {
 	@Environment(\.dismiss) var dismiss
-	@State private var torchIsOn = false
-	@State private var restart = false
+    @State private var isScanning = true
+    @State private var isTorchOn = false
+    @State private var shouldRescan = false
 	@State private var showActive = false
-    
+    @State private var code:String? = nil
     @EnvironmentObject private var manager:AppManager
     
     var response: (String)async-> Bool
@@ -26,37 +27,62 @@ struct ScanView: View {
     
 	var body: some View {
 		ZStack{
-            let config = QRScannerView.Input(focusImage: UIImage(named: "scan"),focusImagePadding: 20, isBlurEffectEnabled: true)
-
-            QRScanner(rescan: $restart, flash: $torchIsOn, isRuning: true, input: config) { code in
-
-                Task{@MainActor in
-                    AudioServicesPlaySystemSound(1052)
-                    self.showActive = await response(code)
-                }
-
-            } onFailure: { error in
-                AudioServicesPlaySystemSound(1053)
-                switch error{
-                case .unauthorized(let status):
-                    if status != .authorized{
-                        Toast.info(title:  "没有相机权限")
+            QRScannerSwiftUIView(
+                isScanning: $isScanning,
+                torchActive: $isTorchOn,
+                shouldRescan: $shouldRescan,
+                onSuccess: { code in
+                    AudioManager.tips(.qrcode)
+                    Task{@MainActor in
+                        try await Task.sleep(for: .seconds(0.5))
+                        self.code = code
+                        self.showActive = await response(code)
                     }
-                default:
-                    Toast.error(title: "扫码失败")
+                },
+                onFailure: { error in
+                    AudioServicesPlaySystemSound(1053)
+                    switch error{
+                    case .unauthorized(let status):
+                        if status != .authorized{
+                            Toast.info(title:  "没有相机权限")
+                        }
+                    default:
+                        Toast.error(title: "扫码失败")
+                    }
+                    self.code = nil
+                    self.showActive = true
+                },
+                onTorchActiveChange: { isOn in
+                    isTorchOn = isOn
                 }
-                self.showActive = true
-            }
+            )
             .actionSheet(isPresented: $showActive) {
-                ActionSheet(title: Text( "扫码提示!"),buttons: [
-                    .default(Text( "重新扫码"), action: {
-                        self.showActive = false
-                        self.restart.toggle()
-                    }),
-                    .cancel({
-                        self.dismiss()
-                    })
-                ])
+                if let code = code {
+                    ActionSheet(title: Text( "扫码提示!"),buttons: [
+                        .default(Text( "重新扫码"), action: {
+                            self.showActive = false
+                            self.shouldRescan.toggle()
+                        }),
+                        .default(Text( "展示二维码"), action: {
+                            self.dismiss()
+                            AppManager.shared.sheetPage = .quickResponseCode(text: code, title: String("二维码"), preview: String("二维码"))
+                        }),
+                        .cancel({
+                            self.dismiss()
+                        })
+                    ])
+                }else{
+                    ActionSheet(title: Text( "扫码失败!"),buttons: [
+                        .default(Text( "重新扫码"), action: {
+                            self.showActive = false
+                            self.shouldRescan.toggle()
+                        }),
+                        .cancel({
+                            self.dismiss()
+                        })
+                    ])
+                }
+                
             }
 
 
@@ -64,31 +90,31 @@ struct ScanView: View {
                 HStack{
                     
                     Spacer()
-                    Image(systemName: "xmark")
-                        .font(.body.bold())
-                        .foregroundColor(.secondary)
-                        .padding(8)
-                        .background(.ultraThinMaterial, in: Circle())
-                        // TODO: - 待修改
-                        .onTapGesture {
-                            self.dismiss()
-                            Haptic.impact()
-                        }
-
+                    Button{
+                        self.dismiss()
+                        Haptic.impact()
+                    }label: {
+                        Image(systemName: "xmark")
+                            .font(.title3.bold())
+                            .foregroundColor(.secondary)
+                            .padding()
+                            .background26(.ultraThinMaterial, radius: 10)
+                            .clipShape(Circle())
+                    }
 				}
 				.padding()
 				.padding(.top,50)
 				Spacer()
                 
                 VStack{
-                    Image(systemName: torchIsOn ? "bolt" : "bolt.slash")
-                        .scaleEffect(3)
+                    Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                        .font(.system(size: 50))
                         .symbolRenderingMode(.palette)
-                        .foregroundStyle(Color.accent,.ultraThinMaterial)
                         .symbolEffect(.replace)
                         .padding()
+                        .contentShape(Rectangle())
                         .VButton(onRelease: { _ in
-                            self.torchIsOn.toggle()
+                            self.isTorchOn.toggle()
                             return true
                         })
                     
