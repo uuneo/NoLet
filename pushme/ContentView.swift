@@ -52,7 +52,7 @@ struct ContentView: View {
                         .subscriptionStatusTask(for: "21582431") {
                             if let result = $0.value {
                                 let premiumUser = result.filter({ $0.state == .subscribed })
-                                Log.info("User Subscribed = \(!premiumUser.isEmpty)")
+                                Log.log("User Subscribed = \(!premiumUser.isEmpty)")
                                 manager.PremiumUser = !premiumUser.isEmpty
                             }
                         }
@@ -65,11 +65,6 @@ struct ContentView: View {
         }
         .sheet(isPresented: manager.sheetShow){ ContentSheetViewPage() }
         .fullScreenCover(isPresented: manager.fullShow){ ContentFullViewPage() }
-#if DEBUG
-        .onAppear{
-            manager.printDirectoryContents(at: CONTAINER!.path())
-        }
-#endif
 
     }
     
@@ -81,10 +76,13 @@ struct ContentView: View {
                 TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
                     Tab(value: .message) {
-                        NavigationStack(path: $manager.messageRouter){
+                        NavigationStack(path: $manager.router){
                             // MARK: 信息页面
                             MessagePage()
-                                .router(manager)
+                                .if(manager.page == .message){ view in
+                                    view.router(manager)
+                                }
+                               
 
                         }
                     } label: {
@@ -97,9 +95,12 @@ struct ContentView: View {
 
 
                     Tab(value: .setting) {
-                        NavigationStack(path: $manager.settingsRouter){
+                        NavigationStack(path: $manager.router){
                             // MARK: 设置页面
-                            SettingsPage().router(manager)
+                            SettingsPage()
+                                .if(manager.page == .setting){ view in
+                                    view.router(manager)
+                                }
 
                         }
                     } label: {
@@ -110,10 +111,12 @@ struct ContentView: View {
 
 
                     Tab(value: .search, role: .search) {
-                        NavigationStack(path: $manager.searchRouter){
+                        NavigationStack(path: $manager.router){
                             // MARK: 设置页面
                             SearchMessageView(searchText: $manager.searchText)
-                                .router(manager)
+                                .if(manager.page == .search){ view in
+                                    view.router(manager)
+                                }
                         }
                     } label: {
                         Image(systemName: "magnifyingglass")
@@ -125,9 +128,13 @@ struct ContentView: View {
             }else{
                 TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
-                    NavigationStack(path: $manager.messageRouter){
+                    NavigationStack(path: $manager.router){
                         // MARK: 信息页面
-                        MessagePage().router(manager)
+                        MessagePage()
+                            .if(manager.page == .message){ view in
+                                view
+                                    .router(manager)
+                            }
 
                     }
                     .tabItem {
@@ -141,10 +148,13 @@ struct ContentView: View {
 
 
 
-                    NavigationStack(path: $manager.settingsRouter){
+                    NavigationStack(path: $manager.router){
                         // MARK: 设置页面
-                        SettingsPage().router(manager)
-
+                        SettingsPage()
+                            .if(manager.page == .setting){ view in
+                                view.router(manager)
+                            }
+                        
                     }
                     .tabItem {
                         Label( "设置", systemImage: "gear.badge.questionmark")
@@ -156,9 +166,6 @@ struct ContentView: View {
 
                 }
             }
-        }
-        .onChange(of: manager.page) { _ in
-            Haptic.impact()
         }
     }
 
@@ -176,7 +183,7 @@ struct ContentView: View {
                 .environmentObject(manager)
         } detail: {
             
-            NavigationStack(path: $manager.messageRouter){
+            NavigationStack(path: $manager.router){
                 MessagePage()
                     .router(manager)
             }
@@ -206,11 +213,9 @@ struct ContentView: View {
                 ChangeKeyView()
             case .scan:
                 ScanView{ code in
-                    if AppManager.shared.HandlerOpenUrl(url: code) != nil{
-                        return true
+                    if AppManager.shared.HandlerOpenUrl(url: code) == nil{
+                        manager.fullPage = .none
                     }
-                    manager.fullPage = .none
-                    return false
                 }
             case .web(let url):
                 SFSafariView(url: url).ignoresSafeArea()
@@ -250,20 +255,24 @@ struct ContentView: View {
                 QuickResponseCodeview(text:text, title: title, preview:preview)
                     .presentationDetents([.medium])
             case .scan:
+                
                 ScanView{ code in
-                    if let data = AppManager.shared.HandlerOpenUrl(url: code), data.hasHttp(){
-                        let success = await manager.appendServer(server: PushServerModel(url: data))
-                        if success{
-                            manager.sheetPage = .none
-                            manager.fullPage = .none
-                            manager.page = .setting
-                            manager.settingsRouter = [.server]
-                            return false
-                        }else{
-                            Toast.error(title: "添加失败")
+                    if let data = AppManager.shared.HandlerOpenUrl(url: code){
+                        if data.hasHttp(){
+                            let success = await manager.appendServer(server: PushServerModel(url: code))
+                            if success{
+                                manager.sheetPage = .none
+                                manager.fullPage = .none
+                                manager.page = .setting
+                                manager.router = [.server]
+                            }else{
+                                Toast.error(title: "添加失败")
+                            }
                         }
+                    }else{
+                        manager.sheetPage = .none
                     }
-                    return true
+                    
                 }
             case .crypto(let item):
                 ChangeCryptoConfigView(item: item)
@@ -329,6 +338,7 @@ extension View{
 
                     case .files:
                         NoletFileList()
+                           
 
                     }
                 }

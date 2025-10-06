@@ -44,17 +44,7 @@ struct SoundView: View {
                             }
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
-
-                    }
-                    .if(true){view in
-                        Group{
-                            if #available(iOS 26.0, *){
-                                view
-                                    .buttonStyle(.glass)
-                            }else{
-                                view
-                            }
-                        }
+                            .background26(.ultraThinMaterial,radius: 20)
                     }
                     .disabled(uploadLoading)
                     ///  UTType.types(tag: "caf", tagClass: UTTagClass.filenameExtension,conformingTo: nil)
@@ -85,7 +75,7 @@ struct SoundView: View {
                             }
                             
                         case .failure(let err):
-                            Log.debug(err)
+                            Log.log(err)
                             self.uploadLoading = false
                             Toast.shared.present(title: err.localizedDescription, symbol: .error)
                         }
@@ -135,16 +125,11 @@ struct SoundView: View {
         .toolbar{
             ToolbarItem(placement: .topBarTrailing) {
                
-                Image(systemName: "speaker.wave.2.bubble.left")
+                Image(systemName: "speaker.zzz")
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(.tint, .primary)
                     .VButton(onRelease: { _ in
-                        if manager.page == .message{
-                            manager.messageRouter.append(.tts)
-                        }else if manager.page == .setting{
-                            manager.settingsRouter.append(.tts)
-                        }
-
+                        manager.router.append(.tts)
                         return true
                     })
                     .accessibilityLabel("语音朗读设置")

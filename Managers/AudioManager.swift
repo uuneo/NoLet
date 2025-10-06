@@ -295,7 +295,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
             
             let end = DispatchTime.now()
             let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-            Log.info("运行时间：",Double(nanoTime) / 1_000_000_000)
+            Log.log("运行时间：",Double(nanoTime) / 1_000_000_000)
             return self.speakPlayer
         }catch{
             await MainActor.run {

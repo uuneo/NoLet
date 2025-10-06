@@ -56,7 +56,7 @@ struct FileItem: Identifiable, Hashable {
                     return item1.name.localizedCaseInsensitiveCompare(item2.name) == .orderedAscending
                 }
         } catch {
-            print("加载子项失败: \(error.localizedDescription)")
+            Log.error("加载子项失败: \(error.localizedDescription)")
             return []
         }
     }
@@ -274,7 +274,7 @@ struct FileRowContent: View {
     func thumbnail(url: URL, size:CGFloat = 100, defaultIcon: String) async  -> Image{
 
         do{
-            Log.info(url.absoluteString)
+            Log.log(url.absoluteString)
             if url.path.contains("ImageCache"), let data = try? Data(contentsOf: url), let uiImage = UIImage(data: data){
                 return Image(uiImage: uiImage)
 

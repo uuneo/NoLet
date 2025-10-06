@@ -23,17 +23,31 @@ struct MoreOperationsView: View {
     @Default(.defaultBrowser) var defaultBrowser
     @Default(.muteSetting) var muteSetting
     @Default(.feedback) var feedback
-
+    @Default(.limitScanningArea) var limitScanningArea
 
 
     var body: some View {
         List{
-
-            Section {
-
-
-
-
+            
+            
+            Section{
+                ListButton {
+                    Label {
+                        Text( "语音配置")
+                            .foregroundStyle(.textBlack)
+                    } icon: {
+                        Image(systemName: "speaker.zzz")
+                            .symbolRenderingMode(.palette)
+                            .customForegroundStyle(.accent, Color.primary)
+                    }
+                    
+                } action:{
+                    Task{@MainActor in
+                        manager.router.append(.tts)
+                    }
+                    return true
+                }
+                
                 ListButton(leading: {
                     Label {
                         Text("删除静音分组")
@@ -53,23 +67,48 @@ struct MoreOperationsView: View {
                     Defaults[.muteSetting] = [:]
                     return true
                 }
-
-            }header:{
-                Text("分组设置")
-                    .textCase(.none)
+            }header: {
+                Text("声音设置")
             }
 
+           
             Section{
 
                 Toggle(isOn: $showMessageAvatar) {
-                    Label("显示图标", systemImage: "camera.macro.circle")
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(
-                            showMessageAvatar ? Color.accentColor : Color.red,
-                            Color.primary
-                        )
-                        .symbolEffect(.replace)
+                    Label {
+                        Text("显示图标")
+                    } icon: {
+                        Image(systemName: "camera.macro.circle")
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(
+                                showMessageAvatar ? Color.accentColor : Color.red,
+                                Color.primary
+                            )
+                            .symbolEffect(.replace)
+                    }
 
+                }
+                
+                Picker(selection: Binding(get: {
+                    defaultBrowser
+                }, set: { value in
+                    Haptic.impact()
+                    defaultBrowser = value
+                })) {
+                    ForEach(DefaultBrowserModel.allCases, id: \.self) { item in
+                        Text(item.title)
+                            .tag(item)
+                    }
+                }label:{
+                    Label {
+                        Text("默认浏览器")
+                    } icon: {
+                        Image(systemName: "safari")
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(.tint, Color.primary)
+                            .scaleEffect(0.9)
+                    }
+                    
                 }
 
                 Picker(selection: $badgeMode) {
@@ -91,6 +130,9 @@ struct MoreOperationsView: View {
                         UNUserNotificationCenter.current().setBadgeCount( unRead )
                     }
                 }
+                
+               
+
             }header: {
                 Text( "消息卡片未分组时是否显示logo")
                     .foregroundStyle(.gray)
@@ -101,6 +143,14 @@ struct MoreOperationsView: View {
 
 
             Section{
+             
+                Toggle(isOn: $feedback) {
+                    Label("触感反馈", systemImage: "iphone.homebutton.radiowaves.left.and.right.circle")
+                }
+                
+                Toggle(isOn: $limitScanningArea) {
+                    Label("扫码区域限制", systemImage: "qrcode.viewfinder")
+                }
                 Toggle(isOn: $autoSaveToAlbum) {
                     Label("自动保存到相册", systemImage: "a.circle")
                         .symbolRenderingMode(.palette)
@@ -138,30 +188,9 @@ struct MoreOperationsView: View {
                     .foregroundStyle(.gray)
             }
 
-
-
-
             Section{
-                HStack{
-                    Picker(selection: $defaultBrowser) {
-                        ForEach(DefaultBrowserModel.allCases, id: \.self) { item in
-                            Text(item.title)
-                                .tag(item)
-                        }
-                    }label:{
-                        Text("默认浏览器")
-                    }.pickerStyle(SegmentedPickerStyle())
-
-                }
-                Toggle(isOn: $feedback) {
-                    Label("触感反馈", systemImage: "iphone.homebutton.radiowaves.left.and.right.circle")
-                }
-            }header:{
-                Text( "链接默认打开方式")
-                    .foregroundStyle(.gray)
-            }
-
-            Section{
+                
+               
 
                 ListButton {
                     Label {
@@ -173,19 +202,11 @@ struct MoreOperationsView: View {
                             .foregroundStyle(.tint, Color.primary)
                     }
                 } action:{
-                    manager.settingsRouter
+                    manager.router
                         .append(.widget(title: nil, data: "app"))
                     return true
                 }
-            }footer:{
-                Text( "详细配置查看文档")
-                    .foregroundStyle(.gray)
-            }
-
-
-
-
-            Section{
+                
                 ListButton {
                     Label {
                         Text( "系统设置")
@@ -203,11 +224,8 @@ struct MoreOperationsView: View {
                     }
                     return true
                 }
-
-
+                
             }
-
-
 
         }
         .navigationTitle("更多设置")

@@ -658,8 +658,6 @@ extension JSON: Swift.RawRepresentable {
     }
 }
 
-// MARK: - Printable, DebugPrintable
-
 extension JSON: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
 
     public var description: String {

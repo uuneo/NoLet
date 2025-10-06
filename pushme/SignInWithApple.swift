@@ -22,7 +22,7 @@ struct SignInWithApple: View {
             case .success(let authResults):
                 handleAuthorization(authResults)
             case .failure(let error):
-                debugPrint(error.localizedDescription)
+                Log.error(error.localizedDescription)
                 Toast.error(title: "Authorization failed")
             }
         }
@@ -40,7 +40,7 @@ struct SignInWithApple: View {
             
             Task.detached(priority: .userInitiated){
                 if let user = await CloudManager.shared.queryUser(user, email: email){
-                    debugPrint(user)
+                    Log.error(user)
                 }
             }
         }

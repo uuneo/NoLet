@@ -180,7 +180,7 @@ class CloudManager {
             }
         }
 
-        Log.debug("查询到 \(uniqueRecords.count) 条记录")
+        Log.log("查询到 \(uniqueRecords.count) 条记录")
         
         return uniqueRecords
     }
@@ -192,7 +192,7 @@ class CloudManager {
         
         guard success else { return .authority(message)}
         
-        Log.debug(model.name,model.description)
+        Log.log(model.name,model.description)
         
         if model.name.isEmpty  {
             return .paramsSpace(String(localized: "参数不全"))
@@ -260,7 +260,7 @@ class CloudManager {
             let recordRes = try await database.save(user)
             return recordRes
         }catch{
-            debugPrint(error.localizedDescription)
+            Log.error(error.localizedDescription)
             return nil
         }
     }

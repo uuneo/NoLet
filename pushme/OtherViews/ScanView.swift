@@ -10,6 +10,7 @@ import SwiftUI
 import AVFoundation
 import QRScanner
 import UIKit
+import Defaults
 
 
 
@@ -18,16 +19,26 @@ struct ScanView: View {
     @State private var isScanning = true
     @State private var isTorchOn = false
     @State private var shouldRescan = false
-	@State private var showActive = false
+
     @State private var code:String? = nil
     @EnvironmentObject private var manager:AppManager
+    @Default(.limitScanningArea) var limitScanningArea
+    var response: (String)async-> Void
     
-    var response: (String)async-> Bool
+    var config: QRScannerSwiftUIView.Configuration{
+        .init(focusImage: nil,
+              focusImagePadding: nil,
+              animationDuration: nil,
+              scanningAreaLimit: limitScanningArea,
+              metadataObjectTypes: [.qr, .aztec, .microQR, .dataMatrix])
+    }
+    
 
     
-	var body: some View {
-		ZStack{
+    var body: some View {
+        ZStack{
             QRScannerSwiftUIView(
+                configuration: config,
                 isScanning: $isScanning,
                 torchActive: $isTorchOn,
                 shouldRescan: $shouldRescan,
@@ -36,7 +47,7 @@ struct ScanView: View {
                     Task{@MainActor in
                         try await Task.sleep(for: .seconds(0.5))
                         self.code = code
-                        self.showActive = await response(code)
+                        await response(code)
                     }
                 },
                 onFailure: { error in
@@ -50,41 +61,12 @@ struct ScanView: View {
                         Toast.error(title: "扫码失败")
                     }
                     self.code = nil
-                    self.showActive = true
                 },
                 onTorchActiveChange: { isOn in
                     isTorchOn = isOn
                 }
             )
-            .actionSheet(isPresented: $showActive) {
-                if let code = code {
-                    ActionSheet(title: Text( "扫码提示!"),buttons: [
-                        .default(Text( "重新扫码"), action: {
-                            self.showActive = false
-                            self.shouldRescan.toggle()
-                        }),
-                        .default(Text( "展示二维码"), action: {
-                            self.dismiss()
-                            AppManager.shared.sheetPage = .quickResponseCode(text: code, title: String("二维码"), preview: String("二维码"))
-                        }),
-                        .cancel({
-                            self.dismiss()
-                        })
-                    ])
-                }else{
-                    ActionSheet(title: Text( "扫码失败!"),buttons: [
-                        .default(Text( "重新扫码"), action: {
-                            self.showActive = false
-                            self.shouldRescan.toggle()
-                        }),
-                        .cancel({
-                            self.dismiss()
-                        })
-                    ])
-                }
-                
-            }
-
+         
 
             VStack{
                 HStack{
@@ -106,22 +88,87 @@ struct ScanView: View {
 				.padding(.top,50)
 				Spacer()
                 
-                VStack{
-                    Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
-                        .font(.system(size: 50))
-                        .symbolRenderingMode(.palette)
-                        .symbolEffect(.replace)
-                        .padding()
-                        .contentShape(Rectangle())
-                        .VButton(onRelease: { _ in
-                            self.isTorchOn.toggle()
-                            return true
-                        })
-                    
-                }
-                .padding(.bottom, 80)
-				
-
+                Group{
+                    if let code = code{
+                        VStack{
+                            Menu{
+                                Section{
+                                    Button(role: .destructive) {
+                                        self.shouldRescan.toggle()
+                                        self.code = nil
+                                    } label: {
+                                        Label("重新扫码", systemImage: "qrcode.viewfinder")
+                                    }
+                                }
+                                
+                                
+                                if let url = URL(string: code), code.contains("://"){
+                                    Section{
+                                        Button{
+                                            self.dismiss()
+                                            AppManager.openUrl(url: url)
+                                        }label: {
+                                            Label("打开地址", systemImage: "link.circle")
+                                        }
+                                    }
+                                }
+                                
+                                Section{
+                                    Button{
+                                        self.dismiss()
+                                        AppManager.shared.sheetPage = .quickResponseCode(text: code, title: String("二维码"), preview: String("二维码"))
+                                    }label: {
+                                        Label("生成二维码", systemImage: "qrcode")
+                                    }
+                                }
+                                
+                                
+                                
+                               
+                                
+                            }label: {
+                                Text(verbatim: code)
+                                    .tint(.accent)
+                                    .lineLimit(1)
+                                    .frame(maxWidth: UIScreen.main.bounds.width * 0.8)
+                                    .padding()
+                                    .background26(.ultraThinMaterial, radius: 10)
+                            }
+                            
+                        }
+                    }else{
+                        VStack{
+                            Image(systemName: isTorchOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                                .font(.system(size: 35))
+                                .symbolRenderingMode(.palette)
+                                .symbolEffect(.replace)
+                                .padding()
+                                .contentShape(Rectangle())
+                                .if(true){ view in
+                                    Group{
+                                        if isTorchOn{
+                                            view
+                                                .foregroundStyle(Color.black)
+                                                .background( Circle().fill(.white))
+                                        }else{
+                                            view
+                                                .foregroundStyle(Color.white)
+                                                .background26(.ultraThickMaterial, radius: 0)
+                                        }
+                                    }
+                                }
+                                .clipShape(Circle())
+                                .VButton(onRelease: { _ in
+                                    self.isTorchOn.toggle()
+                                    return true
+                                })
+                            
+                        }
+                       
+                    }
+                } .padding(.bottom,80)
+                
+               
 
 			}
 
@@ -143,9 +190,6 @@ struct ScanView: View {
         )
 	}
 
-    func showMenu(){
-        self.showActive = true
-    }
 
 }
 
@@ -153,7 +197,7 @@ struct ScanView: View {
 
 
 #Preview {
-    ScanView(){_ in true}
+    ScanView(){_ in }
 }
 
 

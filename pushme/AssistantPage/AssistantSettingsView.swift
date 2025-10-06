@@ -120,6 +120,16 @@ struct AssistantSettingsView: View {
                                 Label("默认", systemImage: "cursorarrow.click.2")
                             }.tint(.green)
                         }
+                        .swipeActions(edge: .leading, allowsFullSwipe: false){
+                            if let code = account.toBase64(){
+                                Button{
+                                    let code = "pb://assistant?text=\(code)"
+                                    AppManager.shared.sheetPage = .quickResponseCode(text: code, title: String(localized: "智能配置"),preview: nil)
+                                }label:{
+                                    Label("分享", systemImage: "square.and.arrow.up")
+                                }.tint(.orange)
+                            }
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 if let index = assistantAccouns.firstIndex(where: {$0.id == account.id}){

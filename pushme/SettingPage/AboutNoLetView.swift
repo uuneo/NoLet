@@ -191,47 +191,48 @@ struct AboutNoLetView: View {
                 Text("应用信息")
                     .textCase(.none)
             }
-        }
-        .overlay(alignment: .bottom) {
-            VStack{
-                HStack(spacing: 7){
-                    Spacer(minLength: 10)
+            
+            Section{
+                VStack{
+                    HStack(spacing: 7){
+                        Spacer(minLength: 10)
 
-                    Button{
-                        manager.fullPage = .web(BaseConfig.privacyURL)
-                        Haptic.impact()
-                    }label: {
-                        Text("隐私政策")
+                        Button{
+                            manager.fullPage = .web(BaseConfig.privacyURL)
+                            Haptic.impact()
+                        }label: {
+                            Text("隐私政策")
 
 
+                        }
+                        Circle()
+                            .frame(width: 3,height: 3)
+
+                        Button{
+                            manager.fullPage = .web(BaseConfig.userAgreement)
+                            Haptic.impact()
+                        }label: {
+                            Text("用户协议")
+
+                        }
+
+                        Spacer(minLength: 10)
                     }
-                    Circle()
-                        .frame(width: 3,height: 3)
-
-                    Button{
-                        manager.fullPage = .web(BaseConfig.userAgreement)
-                        Haptic.impact()
-                    }label: {
-                        Text("用户协议")
-
+                    .font(.caption)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .padding(.bottom)
+                    HStack{
+                        Spacer()
+                        Text(verbatim: "© 2024 uuneo. All rights reserved.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .padding(.bottom, 8)
+                        Spacer()
                     }
-
-                    Spacer(minLength: 10)
                 }
-                .font(.caption)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .padding(.bottom)
-                HStack{
-                    Spacer()
-                    Text(verbatim: "© 2024 uuneo. All rights reserved.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 8)
-                    Spacer()
-                }
-            }
-
+            }.listRowBackground(Color.clear)
+                
         }
         .toolbar{
             if #available(iOS 26.0, *){

@@ -115,7 +115,7 @@ struct WidgetChartView:View {
         }
         .onChange(of: scenePhase) { value in
             if value == .background{
-                manager.settingsRouter.removeLast()
+                manager.router.removeLast()
             }
         }
     

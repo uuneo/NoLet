@@ -56,8 +56,7 @@ class NetworkManager: NSObject {
             let result = try JSONDecoder().decode(T.self, from: data.0)
             return result
         }catch{
-            Log.debug(String(data: data.0, encoding: .utf8) ?? "")
-            
+            Log.error(String(data: data.0, encoding: .utf8))
             throw error
         }
         
@@ -113,7 +112,7 @@ class NetworkManager: NSObject {
         request.timeoutInterval = timeout
         
         // 打印请求信息（用于调试）
-        Log.debug(request)
+        Log.log(request.debugDescription)
         
 
        return try await session.data(for: request)
@@ -238,7 +237,7 @@ extension NetworkManager {
         request.timeoutInterval = 60
         
         // 打印请求信息（用于调试）
-        Log.debug(request)
+        Log.log(request)
         
         // 发送请求并等待响应
         let data = try await session.data(for: request)

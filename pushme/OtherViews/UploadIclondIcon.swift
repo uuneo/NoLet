@@ -207,7 +207,7 @@ struct UploadIclondIcon:View {
             self.pictureLoading = true
         }
         let err = await CloudManager.shared.savePushIconModel(self.pushIcon)
-        Log.debug(err.tips)
+        Log.log(err.tips)
         
         switch err {
         case .success(_):

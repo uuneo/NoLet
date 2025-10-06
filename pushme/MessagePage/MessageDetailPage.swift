@@ -78,7 +78,7 @@ struct MessageDetailPage: View {
         .searchable(text: $searchText)
 
         .refreshable {
-            loadData( limit: min(messages.count, 30))
+            loadData( limit: min(messages.count, 50))
         }
         .toolbar{
 
@@ -144,7 +144,7 @@ struct MessageDetailPage: View {
     }
     
     
-    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  30, item:Message? = nil){
+    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int = 50, item:Message? = nil){
         
         
         Task.detached(priority: .userInitiated) {

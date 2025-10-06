@@ -60,7 +60,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         manager.page = .message
         if shortcutItem.type == QuickAction.assistant.rawValue{
-            manager.messageRouter = [.assistant]
+            manager.router = [.assistant]
         }
         
         completionHandler(true)
@@ -72,7 +72,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let manager = AppManager.shared
         if !manager.isWarmStart{
-            Log.debug("❄️ 冷启动")
+            Log.log("❄️ 冷启动")
             manager.isWarmStart = true
             openChatManager.shared.clearunuse()
             

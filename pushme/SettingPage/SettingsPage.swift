@@ -61,7 +61,7 @@ struct SettingsPage: View {
                     Label( "消息", systemImage: "ellipsis.message")
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter = []
+                        manager.router = []
                     }
                     return true
                 }
@@ -86,12 +86,15 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter = [.server]
+                        manager.router = [.server]
                     }
 
                     return true
                     
                 }
+                
+                
+                
                 
                 ListButton {
                     Label {
@@ -117,10 +120,31 @@ struct SettingsPage: View {
                 }
                 
                 ListButton {
+                    
                     Label {
-                        Text( "声音与反馈")
+                        Text( "智能助手")
                     } icon: {
-                        Image(systemName: "sensor.tag.radiowaves.forward")
+                        Image("chatgpt")
+                            .resizable()
+                            .renderingMode(.template)
+                            .scaledToFit()
+                            .frame(width: 26)
+                            .customForegroundStyle(.accent, .primary)
+                    }
+                    
+                   
+                } action:{
+                    Task{@MainActor in
+                        manager.router = [.assistantSetting(nil)]
+                    }
+                    return true
+                }
+                
+                ListButton {
+                    Label {
+                        Text( "声音设置")
+                    } icon: {
+                        Image(systemName: "speaker.wave.2.circle")
                             .symbolRenderingMode(.palette)
                             .customForegroundStyle(.accent, Color.primary)
                     }
@@ -129,7 +153,7 @@ struct SettingsPage: View {
                         .foregroundStyle(.gray)
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter.append(.sound)
+                        manager.router = [.sound]
                     }
                     return true
                     
@@ -146,7 +170,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter.append(.crypto)
+                        manager.router = [.crypto]
                     }
                     return true
                 }
@@ -163,10 +187,12 @@ struct SettingsPage: View {
                     }
                 } action:{
                     Task{@MainActor in
-                        manager.settingsRouter = [.dataSetting]
+                        manager.router = [.dataSetting]
                     }
                     return true
                 }
+                
+               
 
                 ListButton  {
                     Label {
@@ -178,7 +204,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter = [.more]
+                        manager.router = [.more]
                     }
                     return true
 
@@ -201,7 +227,7 @@ struct SettingsPage: View {
                     }
                 } action: {
                     Task{@MainActor in
-                        manager.settingsRouter = [.about]
+                        manager.router = [.about]
                     }
                     return true
                 }

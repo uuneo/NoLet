@@ -8,6 +8,7 @@ import GRDB
 import Foundation
 
 struct Message: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable {
+
     var id: String
     var group: String
     var createDate: Date
@@ -44,25 +45,30 @@ struct Message: Codable, FetchableRecord, PersistableRecord, Identifiable, Hasha
     
 }
 
+
+
 extension Message{
+
     static func createInit(dbQueue: DatabaseQueue) throws {
+        
         try dbQueue.write { db in
             try db.create(table: "message", ifNotExists: true) { t in
-                t.primaryKey("id", .text)
-                t.column("group", .text).notNull()
-                t.column("createDate", .date).notNull()
-                t.column("title", .text)
-                t.column("subtitle", .text)
-                t.column("body", .text)
-                t.column("icon", .text)
-                t.column("url", .text)
-                t.column("image", .text)
-                t.column("from", .text)
-                t.column("host", .text)
-                t.column("level", .integer).notNull()
-                t.column("ttl", .integer).notNull()
-                t.column("read", .boolean).notNull()
-                t.column("other", .text)
+                
+                t.primaryKey(CodingKeys.id.lows, .text)
+                t.column(CodingKeys.group.lows , .text).notNull()
+                t.column(CodingKeys.createDate.lows, .datetime).notNull()
+                t.column(CodingKeys.title.lows, .text)
+                t.column(CodingKeys.subtitle.lows, .text)
+                t.column(CodingKeys.body.lows, .text)
+                t.column(CodingKeys.icon.lows, .text)
+                t.column(CodingKeys.url.lows, .text)
+                t.column(CodingKeys.image.lows, .text)
+                t.column(CodingKeys.from.lows, .text)
+                t.column(CodingKeys.host.lows, .text)
+                t.column(CodingKeys.level.lows, .integer).notNull()
+                t.column(CodingKeys.ttl.lows, .integer).notNull()
+                t.column(CodingKeys.read.lows, .boolean).notNull()
+                t.column(CodingKeys.other.lows, .text)
             }
             try db.execute(sql: """
                 CREATE INDEX IF NOT EXISTS idx_message_group_createdate
@@ -73,7 +79,7 @@ extension Message{
 
     }
     
-    var search:String{  [ group, title, subtitle, body, from, url].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ";") + ";" }
+   var search:String{  [ group, title, subtitle, body, from, url].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ";") + ";" }
     
     
     func isExpired() -> Bool{
@@ -163,7 +169,6 @@ extension Message{
     
 }
 
-
 struct ChatGroup: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable, Equatable {
      var id: String = UUID().uuidString
      var timestamp: Date
@@ -180,19 +185,14 @@ struct ChatGroup: Codable, FetchableRecord, PersistableRecord, Identifiable, Has
     static func createInit(dbQueue: DatabaseQueue) throws {
         try dbQueue.write { db in
             try db.create(table: "chatGroup", ifNotExists: true) { t in
-                t.primaryKey("id", .text)
-                t.column("timestamp", .date).notNull()
-                t.column("name", .text).notNull()
-                t.column("host", .text).notNull()
+                t.primaryKey(CodingKeys.id.lows, .text)
+                t.column(CodingKeys.timestamp.lows, .datetime).notNull()
+                t.column(CodingKeys.name.lows, .text).notNull()
+                t.column(CodingKeys.host.lows, .text).notNull()
             }
         }
-        
-
     }
-    
-    
 }
-
 
 struct ChatMessage: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable {
     var id: String = UUID().uuidString
@@ -214,12 +214,12 @@ struct ChatMessage: Codable, FetchableRecord, PersistableRecord, Identifiable, H
     static func createInit(dbQueue: DatabaseQueue) throws {
         try dbQueue.write { db in
             try db.create(table: "chatMessage", ifNotExists: true) { t in
-                t.primaryKey("id", .text)
-                t.column("timestamp", .date).notNull()
-                t.column("chat", .text).notNull()
-                t.column("request", .text).notNull()
-                t.column("content", .text).notNull()
-                t.column("message", .text)
+                t.primaryKey(CodingKeys.id.lows, .text)
+                t.column(CodingKeys.timestamp.lows, .datetime).notNull()
+                t.column(CodingKeys.chat.lows, .text).notNull()
+                t.column(CodingKeys.request.lows, .text).notNull()
+                t.column(CodingKeys.content.lows, .text).notNull()
+                t.column(CodingKeys.message.lows, .text)
             }
         }
     }
@@ -235,7 +235,6 @@ extension ChatMessage{
         return message
     }
 }
-
 
 struct ChatPrompt: Codable, FetchableRecord, PersistableRecord, Identifiable, Hashable {
     var id: String = UUID().uuidString
@@ -256,11 +255,11 @@ struct ChatPrompt: Codable, FetchableRecord, PersistableRecord, Identifiable, Ha
     static func createInit(dbQueue: DatabaseQueue) throws {
         try dbQueue.write { db in
             try db.create(table: "chatPrompt", ifNotExists: true) { t in
-                t.primaryKey("id", .text)
-                t.column("timestamp", .text).notNull()
-                t.column("title", .text).notNull()
-                t.column("content", .date).notNull()
-                t.column("inside", .boolean)
+                t.primaryKey(CodingKeys.id.lows, .text)
+                t.column(CodingKeys.timestamp.lows, .datetime).notNull()
+                t.column(CodingKeys.title.lows, .text).notNull()
+                t.column(CodingKeys.content.lows, .date).notNull()
+                t.column(CodingKeys.inside.lows, .boolean)
             }
         }
     }
@@ -268,8 +267,6 @@ struct ChatPrompt: Codable, FetchableRecord, PersistableRecord, Identifiable, Ha
     static let prompts = ChatPromptMode.prompts
 
 }
-
-
 
 enum ChatPromptMode: Equatable{
     case summary(String?)
@@ -367,5 +364,12 @@ enum ChatPromptMode: Equatable{
            return lang
         }
         return "English"
+    }
+}
+
+
+fileprivate extension CodingKey{
+    var lows:String{
+        self.stringValue.lowercased()
     }
 }

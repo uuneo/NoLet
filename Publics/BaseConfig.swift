@@ -119,7 +119,7 @@ class BaseConfig {
                 (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == false
             }
         } catch {
-            print("Error: \(error)")
+            Log.error(error.localizedDescription)
             return []
         }
         

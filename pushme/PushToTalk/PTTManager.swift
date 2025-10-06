@@ -96,7 +96,7 @@ final class PushTalkManager: PTTManager{
     
     
     func Join(channel: PTTChannel) {
-        print("进入频道")
+        Log.log("进入频道")
         Task{
             let success = await self.network.JoinOrLeval(channel: channel, api: .join)
             
@@ -114,7 +114,7 @@ final class PushTalkManager: PTTManager{
     }
     
     func Level(channel: PTTChannel) {
-        print("离开频道")
+        Log.log("离开频道")
         Task{
             let success = await self.network.JoinOrLeval(channel: channel, api: .leave)
             await MainActor.run{
@@ -247,7 +247,7 @@ final class PushTalkManager: PTTManager{
                     }
                     
                 }catch{
-                    debugPrint(error.localizedDescription)
+                    Log.error(error.localizedDescription)
                     self.stopPlay()
                 }
                 
@@ -351,7 +351,7 @@ extension PushTalkManager{
                 try await Task.sleep(for: .seconds(1))
                 self.resumePlay()
             }
-            debugPrint("恢复播放")
+            Log.error("恢复播放")
         case .other:
             stop()
         }
@@ -397,7 +397,7 @@ extension PushTalkManager{
             let url = server.url + api.rawValue
             
             do{
-                Log.info("channel:", channel.hex())
+                Log.log("channel:", channel.hex())
                 
                 guard let result:baseResponse<Int> =  try await self.fetch(url: url, method: .POST, params: [
                     "id": server.key, "channel": channel.hex()
@@ -409,7 +409,7 @@ extension PushTalkManager{
                     DispatchQueue.main.async{
                         PushTalkManager.shared.channelUsers = data
                     }
-                    Log.info("频道人数:", data)
+                    Log.log("频道人数:", data)
                 }
                 
                 return result.code == 0
@@ -458,7 +458,7 @@ extension PushTalkManager{
                                                     mimeType: "audio/ogg")
                 
                 let result = try JSONDecoder().decode(String.self, from: response)
-                Log.info(result)
+                Log.log(result)
                 return result == "ok"
             }catch{
                 Log.error(error.localizedDescription)

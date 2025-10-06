@@ -30,13 +30,13 @@ struct GroupMessagesView: View {
                                     view
                                         .contentShape(Rectangle())
                                         .onTapGesture {
-                                            manager.messageRouter = [.messageDetail(message.group)]
+                                            manager.router = [.messageDetail(message.group)]
                                             Haptic.impact()
                                         }
                                 }else{
                                     view
                                         .VButton(onRelease: { value in
-                                            manager.messageRouter = [.messageDetail(message.group)]
+                                            manager.router = [.messageDetail(message.group)]
                                             return true
                                         })
                                 }
@@ -81,7 +81,7 @@ struct GroupMessagesView: View {
                 if let selectGroup = manager.selectGroup{
                     proxyTo(proxy: proxy, selectGroup: selectGroup)
                      DispatchQueue.main.async{
-                        manager.messageRouter.append(.messageDetail(selectGroup))
+                        manager.router.append(.messageDetail(selectGroup))
                     }
                 }
                 
@@ -98,7 +98,7 @@ struct GroupMessagesView: View {
                 proxy.scrollTo(value,anchor: .center)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-                manager.messageRouter = [.messageDetail(value)]
+                manager.router = [.messageDetail(value)]
             }
             
         }

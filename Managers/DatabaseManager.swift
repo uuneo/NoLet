@@ -20,9 +20,7 @@ public class DatabaseManager {
         guard let local = CONTAINER else {
             throw NSError(domain: "App", code: 1, userInfo: [NSLocalizedDescriptionKey: "创建容器失败"])
         }
-        Database.logError = { (resultCode, message) in
-            Log.error(message, resultCode)
-        }
+
         self.localPath = local.appendingPathComponent( BaseConfig.databaseName, conformingTo: .database)
 
         // DatabasePool 只在这里创建一次
@@ -128,8 +126,10 @@ extension DatabaseManager{
             return nil
         }
     }
-    func query(search: String, group: String? = nil,
-               limit lim: Int = 50, _ date: Date? = nil) async -> ([Message], Int) {
+    func query(search: String,
+               group: String? = nil,
+               limit lim: Int = 50,
+               _ date: Date? = nil) async -> ([Message], Int) {
         
         // 1. 分词，去掉空字符串
         let keywords = search
@@ -206,6 +206,7 @@ extension DatabaseManager{
     
     
     private func fetchGroupedMessages(from db: Database) throws -> [Message] {
+        
         let rows = try Row.fetchAll(db, sql: """
             SELECT m.*, unread.count AS unreadCount
             FROM (

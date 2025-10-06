@@ -252,9 +252,9 @@ struct MessageCard: View {
                         AppManager.shared.askMessageId = message.id
 
                         if AppManager.shared.page == .message{
-                            AppManager.shared.messageRouter.append(.assistant)
+                            AppManager.shared.router.append(.assistant)
                         }else if AppManager.shared.page == .search{
-                            AppManager.shared.searchRouter.append(.assistant)
+                            AppManager.shared.router.append(.assistant)
                         }
                     }
                 }label:{

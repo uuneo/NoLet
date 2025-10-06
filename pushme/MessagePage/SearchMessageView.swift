@@ -57,7 +57,7 @@ struct SearchMessageView:View {
             view.background(.ultraThinMaterial)
         }
         .if(
-            (manager.messageRouter.count == 0 && manager.page == .message ) ||  manager.page == .search
+            (manager.router.count == 0 && manager.page == .message ) ||  manager.page == .search
         ){ view in
             Group{
                 if #available(iOS 26.0, *){

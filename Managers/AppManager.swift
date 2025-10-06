@@ -29,15 +29,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     @Published var searchText:String = ""
     
     
-    @Published var messageRouter:[RouterPage] = []
-    @Published var settingsRouter:[RouterPage] = []
-    @Published var searchRouter:[RouterPage] = []
-
-    func clearRouter(){
-        self.messageRouter = []
-        self.settingsRouter = []
-        self.searchRouter = []
-    }
+    @Published var router:[RouterPage] = []
 
     @Published var isWarmStart:Bool = false
     
@@ -195,28 +187,27 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
 
         switch self.outParamsHandler(address: url) {
         case .crypto(let text):
-            Log.debug(text)
+            Log.log(text)
             if let config = CryptoModelConfig(inputText: text){
                 DispatchQueue.main.async{
                     self.page = .setting
-                    self.settingsRouter = [.crypto]
+                    self.router = [.crypto]
                     if !Defaults[.cryptoConfigs].contains(where: {$0 == config}){
                         Defaults[.cryptoConfigs].append(config)
                         Toast.info(title: "添加成功")
                     }else{
                         Toast.info(title: "配置已存在")
                     }
-
                 }
             }
-            return nil
+           return nil
         case .server(let url):
             Task.detached(priority: .userInitiated) {
                 let success = await self.appendServer(server: PushServerModel(url: url))
                 if success{
                     DispatchQueue.main.async {
                         self.page = .setting
-                        self.settingsRouter = [.server]
+                        self.router = [.server]
                     }
                 }
             }
@@ -227,7 +218,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 if success{
                     DispatchQueue.main.async {
                         self.page = .setting
-                        self.settingsRouter = [.server]
+                        self.router = [.server]
                     }
                 }
             }
@@ -235,8 +226,8 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
         case .assistant(let text):
             if let account = AssistantAccount(base64: text){
                 DispatchQueue.main.async {
-                    self.page = .message
-                    self.messageRouter = [.assistant, .assistantSetting(account)]
+                    self.page = .setting
+                    self.router = [.assistantSetting(account)]
                 }
             }
             return nil
@@ -245,17 +236,15 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             case .widget:
                 DispatchQueue.main.async {
                     self.page = .setting
-                    self.settingsRouter = [.more, .widget(title: title, data: data)]
+                    self.router = [.more, .widget(title: title, data: data)]
                 }
             case .icon:
                 self.page = .setting
                 self.sheetPage = .cloudIcon
             }
             return nil
-        case .otherUrl(let url):
+        default:
             return url
-        case .text(let str):
-            return str
 
         }
     }
@@ -335,13 +324,13 @@ extension AppManager{
             for fileURL in contents {
                 do{
                     try fileManager.removeItem(at: fileURL)
-                    Log.info("✅ 删除: \(fileURL.lastPathComponent)")
+                    Log.log("✅ 删除: \(fileURL.lastPathComponent)")
                 }catch{
                     Log.error("❌ 清空失败: \(error.localizedDescription)")
                 }
             }
             
-            Log.info("🧹 清空完成：\(url.path)")
+            Log.log("🧹 清空完成：\(url.path)")
         } catch {
             Log.error("❌ 清空失败: \(error.localizedDescription)")
         }
@@ -411,12 +400,12 @@ extension AppManager{
         var isDir: ObjCBool = false
 
         guard fileManager.fileExists(atPath: path, isDirectory: &isDir) else {
-            print("\(indent)❌ Path not found: \(path)")
+            Log.error("\(indent)❌ Path not found: \(path)")
             return
         }
 
         if isDir.boolValue {
-            print("\(indent)📂 \(URL(fileURLWithPath: path).lastPathComponent)")
+            Log.log("\(indent)📂 \(URL(fileURLWithPath: path).lastPathComponent)")
 
             if let contents = try? fileManager.contentsOfDirectory(atPath: path) {
                 for item in contents {
@@ -428,7 +417,7 @@ extension AppManager{
             if let attrs = try? fileManager.attributesOfItem(atPath: path),
                let fileSize = attrs[.size] as? UInt64 {
                 let sizeMB = Double(fileSize) / (1024.0 * 1024.0)
-                print("\(indent)📄 \(URL(fileURLWithPath: path).lastPathComponent) (\(String(format: "%.2f", sizeMB)) MB)")
+                Log.log("\(indent)📄 \(URL(fileURLWithPath: path).lastPathComponent) (\(String(format: "%.2f", sizeMB)) MB)")
             }
         }
     }

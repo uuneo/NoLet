@@ -104,7 +104,7 @@ struct MessagePage: View {
                 Menu {
                     Section {
                         Button {
-                            manager.messageRouter.append(.example)
+                            manager.router.append(.example)
                             Haptic.impact()
                         } label: {
                             Label("使用示例", systemImage: "questionmark.bubble")
@@ -129,7 +129,7 @@ struct MessagePage: View {
                     }
                     Section {
                         Button {
-                            manager.messageRouter = [.assistant]
+                            manager.router = [.assistant]
                             Haptic.impact()
                         } label: {
                             if #available(iOS 18.0, *) {
@@ -147,7 +147,7 @@ struct MessagePage: View {
                     if servers.filter({ $0.voice }).count > 0 {
                         Section {
                             Button {
-                                manager.messageRouter = [.pushtalk]
+                                manager.router = [.pushtalk]
                                 Haptic.impact()
                             } label: {
                                 Label("语音对讲", systemImage: "person.line.dotted.person")

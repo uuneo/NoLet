@@ -1,5 +1,6 @@
 import UniformTypeIdentifiers
 import UIKit
+import os
 
 public class Clipboard {
 
@@ -90,30 +91,20 @@ public enum Haptic {
     }
 }
 
+class Logg{
+    init(){
+        debugPrint(123)
+    }
+}
 
+//var Log = os.Logger()
 
 public enum Log {
     
     /// 日志级别
     enum Level: String {
-        case debug = "DEBUG"
-        case info = "INFO"
-        case error = "ERROR"
-    }
-    
-    /// 日志输出函数类型
-    typealias LogOutput = (String) -> Void
-    
-    /// 默认日志输出函数（打印到控制台）
-    private static var logOutput: LogOutput = { message in
-#if DEBUG
-        debugPrint(message)
-#endif
-    }
-    
-    /// 设置自定义日志输出函数
-    static func setLogOutput(_ output: @escaping LogOutput) {
-        logOutput = output
+        case LOG
+        case ERROR
     }
     
     /// 基础日志方法
@@ -123,24 +114,37 @@ public enum Log {
     ///   - file: 调用日志的文件名（自动捕获）
     ///   - function: 调用日志的函数名（自动捕获）
     ///   - line: 调用日志的行号（自动捕获）
-    static func base(level: Level, file: String = #file, function: String = #function, line: Int = #line, _ message: Any...) {
-        let fileName = (file as NSString).lastPathComponent // 提取文件名
-        let logMessage = "[\(level.rawValue)] \(fileName):\(line) \(function) -> \(message.compactMap { "\($0)" }.joined(separator: ", "))"
-         Self.logOutput(logMessage) // 使用配置的日志输出函数
+    static func base(level: Level, file: String = #file, function: String = #function, line: Int = #line, _ message: Any?...) {
+
+#if DEBUG
+        let currentDate = Date()
+        if level == .ERROR{
+            print( "\n[‼️\(level.rawValue)] - \(currentDate.formatString())" )
+        }else{
+            print( "\n[☘️\(level.rawValue)] - \(currentDate.formatString())" )
+        }
+        
+        print("🗂️ \((file as NSString).lastPathComponent)\(" - \(line) ") 📫 \(function) -> ")
+       
+        for item in message{
+            if String("\(item ?? "")"
+                .trimmingCharacters(in:
+                        .whitespacesAndNewlines)).count > 0{
+                print("- ",item ?? "")
+            }
+        }
+       
+#endif
+        
     }
     
     /// 打印调试日志
-    static func debug(file: String = #file, function: String = #function, line: Int = #line, _ message: Any...) {
-        base(level: .debug, file: file, function: function, line: line, message)
-    }
-    
-    /// 打印信息日志
-    static func info(file: String = #file, function: String = #function, line: Int = #line, _ message: Any...) {
-        base(level: .info, file: file, function: function, line: line, message)
+    static func log(file: String = #file, function: String = #function, line: Int = #line, _ message: Any?...) {
+        base(level: .LOG, file: file, function: function, line: line, message)
     }
     
     /// 打印错误日志
-    static func error(file: String = #file, function: String = #function, line: Int = #line, _ message: Any...) {
-        base(level: .error, file: file, function: function, line: line, message)
+    static func error(file: String = #file, function: String = #function, line: Int = #line, _ message: Any?...) {
+        base(level: .ERROR, file: file, function: function, line: line, message)
     }
 }

@@ -145,6 +145,7 @@
 		B5BDDF4F2E24F0BA00263FEF /* HeaderPageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BDDF4E2E24F0BA00263FEF /* HeaderPageScrollView.swift */; };
 		B5BDDF6D2E24F89300263FEF /* CustomLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BDDF6C2E24F89300263FEF /* CustomLoadingView.swift */; };
 		B5D1B5922E5B3D5800661C28 /* Opus in Frameworks */ = {isa = PBXBuildFile; productRef = B5D1B5912E5B3D5800661C28 /* Opus */; };
+		BA475A5C2E95301F0054E502 /* Date+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B540570E2DF1B3800058DC87 /* Date+.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1315,6 +1316,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA475A5C2E95301F0054E502 /* Date+.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2116,8 +2118,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sunvc/OpenAI.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.3;
+				branch = main;
+				kind = branch;
 			};
 		};
 		B583589C2DEDD5B80066B32E /* XCRemoteSwiftPackageReference "QRScanner" */ = {
@@ -2125,7 +2127,7 @@
 			repositoryURL = "https://github.com/sunvc/QRScanner.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.0;
+				minimumVersion = 0.3.1;
 			};
 		};
 		B58358A22DEDD6090066B32E /* XCRemoteSwiftPackageReference "swift-cmark" */ = {

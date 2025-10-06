@@ -157,8 +157,9 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
 	var createDate:Date = .now
 	var updateDate:Date = .now
     var voice: Bool = false
+    var system: Bool = false
     
-    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now, voice: Bool = false) {
+    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now, voice: Bool = false, system: Bool = false) {
         self.id = id
         self.device = device ?? BaseConfig.deviceInfoString()
         self.url = url
@@ -167,6 +168,7 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
         self.createDate = createDate
         self.updateDate = updateDate
         self.voice = voice
+        self.system = system
     }
 
 	var name:String{

@@ -123,7 +123,7 @@ struct DataSettingView: View {
                 .fileExporter(isPresented: $showexport, document: TextFileMessage(content: messages), contentType: .trnExportType, defaultFilename: "pushback_\(Date().formatString(format:"yyyy_MM_dd_HH_mm"))") { result in
                     switch result {
                     case .success(let success):
-                        Log.debug(success)
+                        Log.log(success)
                     case .failure(let failure):
                         Log.error(failure)
                     }
@@ -360,7 +360,7 @@ struct DataSettingView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button{
-                    manager.settingsRouter.append(.files)
+                    manager.router.append(.files)
                 }label:{
                     Label("磁盘概览", systemImage: "folder.badge.person.crop")
                 }
@@ -438,7 +438,7 @@ struct DataSettingView: View {
             return String(localized: "导入成功")
 
         }catch{
-            Log.debug(error)
+            Log.log(error)
             return error.localizedDescription
         }
     }

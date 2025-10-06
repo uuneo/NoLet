@@ -15,7 +15,7 @@ extension Calendar {
 // MARK: -  Date+.swift
 
 extension Date {
-    func formatString(format: String = "yyyy-MM-dd HH:mm:ss") -> String {
+   public func formatString(format: String = "yyyy-MM-dd HH:mm:ss") -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
         return dateFormatter.string(from: self)

@@ -398,7 +398,7 @@ extension ExampleView{
             PushExampleModel(header:
                                 HStack{
                                     Button{
-                                        manager.messageRouter.append(.sound)
+                                        manager.router.append(.sound)
                                     }label:{
                                         Text("铃声列表")
                                             .font(.callout)
@@ -464,7 +464,7 @@ extension ExampleView{
                                 HStack{
                                     Text( "需要在")
                                     Button{
-                                        manager.messageRouter.append(.crypto)
+                                        manager.router.append(.crypto)
                                     }label:{
                                         Text("算法配置")
                                             .font(.callout)

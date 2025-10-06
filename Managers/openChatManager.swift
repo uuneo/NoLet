@@ -59,7 +59,7 @@ final class openChatManager: ObservableObject {
                 Log.error("Failed to observe unread count:", error)
             },
             onChange: { [weak self] newUnreadCount in
-                Log.info("监听 SqlLite \(newUnreadCount)")
+                Log.log("监听 SqlLite \(newUnreadCount)")
                 
                 DispatchQueue.main.async {
                     self?.groupsCount = newUnreadCount.0
@@ -116,7 +116,7 @@ extension openChatManager{
         
         do{
             if account.host.isEmpty || account.key.isEmpty || account.basePath.isEmpty || account.model.isEmpty{
-                Log.debug(account)
+                Log.log(account)
                 return false
             }
             

@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sunvc/OpenAI.git",
       "state" : {
-        "revision" : "80045fcda7ba727a327eb0a525e983fd7a796c70",
-        "version" : "0.0.3"
+        "branch" : "main",
+        "revision" : "c8b02fc5e3ec1df6925158b52c64959408f86b84"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sunvc/QRScanner.git",
       "state" : {
-        "revision" : "c983378bbe65bf971e720d54ea9c603e8be19384",
-        "version" : "1.2.0"
+        "revision" : "312a691b8162e62797e4eae46437aae0ba60fb40",
+        "version" : "0.3.1"
       }
     },
     {

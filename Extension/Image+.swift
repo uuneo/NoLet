@@ -47,7 +47,9 @@ extension UIImage {
                 })
                 return true
             }catch{
-                debugPrint(error.localizedDescription)
+                Log.error(
+                    error.localizedDescription
+                )
                 return false
             }
         }
@@ -67,7 +69,7 @@ extension UIImage {
             })
             return true
         }catch{
-            debugPrint(error.localizedDescription)
+            Log.error(error.localizedDescription)
             return false
         }
     
@@ -109,7 +111,7 @@ extension UIImage {
             })
             return PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
         }catch{
-            debugPrint(error.localizedDescription)
+            Log.error(error.localizedDescription)
             return nil
         }
         

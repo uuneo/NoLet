@@ -56,7 +56,7 @@ struct ServerCardView:View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    manager.settingsRouter.append(.serverInfo(server: item))
+                    manager.router.append(.serverInfo(server: item))
                 }
 
 

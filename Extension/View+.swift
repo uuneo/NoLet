@@ -470,15 +470,9 @@ extension View{
     @ViewBuilder
     func background26<S>(_ color: S, radius: CGFloat = 0) -> some View where S : ShapeStyle{
         if #available(iOS 26.0, *){
-            self
-                .glassEffect(.regular.interactive(),in: .rect(cornerRadius: radius))
+            self.glassEffect(.regular.interactive(),in: .rect(cornerRadius: radius))
         }else{
-            self
-                .background(
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(color)
-
-                )
+            self.background( RoundedRectangle(cornerRadius: radius).fill(color) )
         }
     }
 

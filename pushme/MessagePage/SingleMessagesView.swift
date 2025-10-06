@@ -76,7 +76,7 @@ struct SingleMessagesView: View {
                 self.loadData(proxy: proxy , limit: min(messages.count, 150))
             }
             .onChange(of: messageManager.updateSign) {  newValue in
-                loadData(proxy: proxy, limit: max(messages.count, 30))
+                loadData(proxy: proxy, limit: max(messages.count, 50))
             }
         }
         .diff{ view in
@@ -145,7 +145,7 @@ struct SingleMessagesView: View {
         }
     }
     
-    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int =  30, item:Message? = nil){
+    private func loadData(proxy:ScrollViewProxy? = nil, limit:Int = 50, item:Message? = nil){
         guard !self.showLoading else { return }
         self.showLoading = true
 
