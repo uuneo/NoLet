@@ -257,17 +257,15 @@ struct ContentView: View {
             case .scan:
                 
                 ScanView{ code in
-                    if let data = AppManager.shared.HandlerOpenUrl(url: code){
-                        if data.hasHttp(){
-                            let success = await manager.appendServer(server: PushServerModel(url: code))
-                            if success{
-                                manager.sheetPage = .none
-                                manager.fullPage = .none
-                                manager.page = .setting
-                                manager.router = [.server]
-                            }else{
-                                Toast.error(title: "添加失败")
-                            }
+                    if let data = AppManager.shared.HandlerOpenUrl(url: code),data.hasHttp(){
+                        let success = await manager.appendServer(server: PushServerModel(url: code))
+                        if success{
+                            manager.sheetPage = .none
+                            manager.fullPage = .none
+                            manager.page = .setting
+                            manager.router = [.server]
+                        }else{
+                            Toast.error(title: "添加失败")
                         }
                     }else{
                         manager.sheetPage = .none

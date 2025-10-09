@@ -157,9 +157,9 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
 	var createDate:Date = .now
 	var updateDate:Date = .now
     var voice: Bool = false
-    var system: Bool = false
+    var sign:String? = nil
     
-    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now, voice: Bool = false, system: Bool = false) {
+    init(id: String = UUID().uuidString, device: String? = nil, url: String, key: String = "", status: Bool = false, createDate: Date = .now, updateDate: Date = .now, voice: Bool = false, sign:String? = nil) {
         self.id = id
         self.device = device ?? BaseConfig.deviceInfoString()
         self.url = url
@@ -168,7 +168,7 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
         self.createDate = createDate
         self.updateDate = updateDate
         self.voice = voice
-        self.system = system
+        self.sign = sign
     }
 
 	var name:String{
@@ -184,6 +184,8 @@ struct PushServerModel: Codable, Identifiable, Equatable, Hashable{
         return self.url + "/" + self.key
     }
 }
+
+
 
 // MARK: - BadgeAutoMode
 
@@ -310,8 +312,7 @@ enum OutDataType{
     
     case text(String)
     case crypto(String)
-    case server(String)
-    case serverKey(url:String,key:String)
+    case server(url: String,key: String?, sign:String?)
     case otherUrl(String)
     case assistant(String)
     case page(page:pageType, title:String?, data:String)

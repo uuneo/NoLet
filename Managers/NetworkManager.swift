@@ -25,9 +25,7 @@ class NetworkManager: NSObject {
 		case POST = "POST"
         case HEAD = "HEAD"
 		
-		var method:String{
-			self.rawValue
-		}
+		var method:String{ self.rawValue }
 	}
     
     struct EmptyResponse: Codable {}
@@ -35,8 +33,8 @@ class NetworkManager: NSObject {
     
     
     /// 无返回值
-    func fetchVoid(url: String, method: requestMethod = .GET, params: [String: Any] = [:]) async {
-        _ = try? await self.fetch(url: url, method: method, params: params, timeout: 3)
+    func fetchVoid(url: String, method: requestMethod = .GET, params: [String: Any] = [:], sign: String? = nil) async {
+        _ = try? await self.fetch(url: url, method: method, params: params, timeout: 3, sign: sign)
     }
     
     /// 通用网络请求方法
@@ -45,8 +43,8 @@ class NetworkManager: NSObject {
     ///   - method: 请求方法（默认为 GET）
     ///   - params: 请求参数（支持 GET 查询参数或 POST body）
     /// - Returns: 返回泛型解码后的模型数据
-    func fetch<T: Codable>(url: String, method: requestMethod = .GET, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30) async throws -> T {
-        let data  = try await self.fetch(url: url, method: method, params: params, headers: headers, timeout: timeout)
+    func fetch<T: Codable>(url: String, method: requestMethod = .GET, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30, sign: String? = nil) async throws -> T {
+        let data  = try await self.fetch(url: url, method: method, params: params, headers: headers, timeout: timeout, sign: sign)
         
         guard let response = data.1 as? HTTPURLResponse else{ throw APIError.invalidURL}
         guard 200...299 ~= response.statusCode else{ throw APIError.invalidCode(response.statusCode)}
@@ -62,15 +60,15 @@ class NetworkManager: NSObject {
         
     }
     
-    func health(url: String) async -> Bool {
-        guard let data  = try? await self.fetch(url: url + "/health", method: .GET, params: [:], headers: [:], timeout: 3),  let response = data.1 as? HTTPURLResponse  else {
+    func health(url: String, sign: String? = nil) async -> Bool {
+        guard let data  = try? await self.fetch(url: url + "/health", method: .GET, params: [:], headers: [:], timeout: 3, sign: sign),  let response = data.1 as? HTTPURLResponse  else {
             return false
         }
         return String(bytes: data.0, encoding: .utf8) == "OK" && response.statusCode == 200
     }
 
     
-    func fetch(url: String, method: requestMethod = .HEAD, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30) async throws -> (Data, URLResponse) {
+    func fetch(url: String, method: requestMethod = .GET, params: [String: Any] = [:], headers:[String:String] = [:], timeout:Double = 30, sign: String? = nil) async throws -> (Data, URLResponse) {
         
         // 尝试将字符串转换为 URL，如果失败则抛出错误
         guard var requestUrl = URL(string: url) else {
@@ -92,7 +90,8 @@ class NetworkManager: NSObject {
         // 构造 URLRequest 请求对象
         var request = URLRequest(url: requestUrl)
         request.httpMethod = method.method  // .get 或 .post
-        if let signStr = sign(url: url){
+        
+        if let signStr = signature(url: url, sign: sign){
             request.setValue( signStr, forHTTPHeaderField:"X-Signature")
         }
         request.setValue(self.customUserAgentDetailed(), forHTTPHeaderField: "User-Agent" )
@@ -118,19 +117,22 @@ class NetworkManager: NSObject {
        return try await session.data(for: request)
     }
 
-    func sign(url: String) -> String?{
-        let config = url.hasPrefix(BaseConfig.defaultServer) ? .data : Defaults[.cryptoConfigs].first(
-            where: {$0.system}) ?? .data
-
-        if let data = "\(Int(Date().timeIntervalSince1970))".data(using: .utf8),
-           let data = CryptoManager(config).encrypt(inputData: data) {
-            let result = data.base64EncodedString()
-                .replacingOccurrences(of: "+", with: "-")
-                .replacingOccurrences(of: "/", with: "_")
-                .replacingOccurrences(of: "=", with: "")
-            return result
+    func signature( url: String, sign:String? = nil) -> String?{
+        var config:CryptoModelConfig?{
+            if url.contains(BaseConfig.defaultServer){
+                return .data
+            }
+            if let sign {
+                return CryptoModelConfig(inputText: sign)
+            }
+            return .data
         }
-        return nil
+        guard let config else{ return nil }
+        return CryptoManager(config)
+            .encrypt("\(Int(Date().timeIntervalSince1970))")?
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 
 

@@ -21,9 +21,12 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     static let shared = AudioManager()
     private var manager = FileManager.default
     
+    private var mainQueue = Queue.mainQueue()
+    
     private override init() {
         super.init()
         self.setFileList()
+       
     }
     
     
@@ -37,6 +40,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     @Published var loading:Bool = false
     
     @Published var ShareURL: URL?  = nil
+    
+   
     
     func allSounds()-> [String] {
         let (customSounds , defaultSounds) = AudioManager.shared.getFileList()
@@ -87,7 +92,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         Task.detached(priority: .userInitiated) {
             let (customSounds, defaultSounds) = self.getFileList()
             // 回到主线程，更新界面相关状态（如 SwiftUI 或 UIKit 列表）
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.customSounds = customSounds
                 self.defaultSounds = defaultSounds
             }
@@ -180,7 +185,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
         
         // 如果传入的 URL 为空，或者与当前正在播放的是同一个音频，则认为是“停止播放”的操作
         guard let audio = url, playingAudio != url else {
-            Queue.mainQueue().async {
+            mainQueue.async {
                 self.playingAudio = nil
                 self.soundID = 0
             }
@@ -189,7 +194,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     
         
         // 创建 SystemSoundID，用于播放系统音效（仅支持较小的音频文件，通常小于30秒）
-        Queue.mainQueue().async {
+        mainQueue.async {
             // 设置当前正在播放的音频
             self.playingAudio = audio
             AudioServicesCreateSystemSoundID(audio as CFURL, &self.soundID)
@@ -199,7 +204,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
                 if self.playingAudio == url {
                     // 释放资源
                     AudioServicesDisposeSystemSoundID(self.soundID)
-                    DispatchQueue.main.async {
+                    self.mainQueue.async {
                         // 重置播放状态
                         self.playingAudio = nil
                         self.soundID = 0
@@ -308,7 +313,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioPlayerDelegate{
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        DispatchQueue.main.async{
+        Task{@MainActor in
             withAnimation(.default) {
                 AppManager.shared.speaking = false
                 self.speakPlayer = nil

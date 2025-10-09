@@ -155,7 +155,7 @@ struct AssistantPageView:View {
         .sheet(isPresented: $showMenu) {
             OpenChatHistoryView(show: $showMenu)
                 .onChange(of: showMenu) { value in
-                    DispatchQueue.main.async {
+                    Task{@MainActor in
                         self.hideKeyboard()
                     }
                 }
@@ -259,8 +259,7 @@ struct AssistantPageView:View {
         
         if !text.isEmpty {
             
-            
-            DispatchQueue.main.async {
+            Task{@MainActor in
                 chatManager.currentMessageId = UUID().uuidString
                 manager.isLoading = true
                 chatManager.currentRequest = text
@@ -280,7 +279,7 @@ struct AssistantPageView:View {
                     do{
                         try  DatabaseManager.shared.dbQueue.write { db in
                             try group.insert(db)
-                            DispatchQueue.main.async{
+                            Task{@MainActor in
                                 chatManager.chatgroup = group
                             }
                         }
@@ -300,7 +299,7 @@ struct AssistantPageView:View {
                 case .success(let result):
                    
                     if let res = result.choices.first?.delta.content {
-                        DispatchQueue.main.async{
+                        Task{@MainActor in
                             chatManager.currentContent = chatManager.currentContent + res
                         }
                         if AppManager.shared.inAssistant {
@@ -321,7 +320,7 @@ struct AssistantPageView:View {
                 if let error{
                     Toast.error(title: "发生错误\(error.localizedDescription)")
                     Log.error(error)
-                    DispatchQueue.main.async{
+                    Task{@MainActor in
                         manager.isLoading = false
                         chatManager.currentRequest = ""
                         chatManager.currentContent = ""
@@ -350,7 +349,7 @@ struct AssistantPageView:View {
                             try responseMessage.insert(db)
                         }
                         
-                        DispatchQueue.main.async {
+                        Task{@MainActor in
                             openChatManager.shared.currentRequest = ""
                             AppManager.shared.isLoading = false
                             self.hideKeyboard()

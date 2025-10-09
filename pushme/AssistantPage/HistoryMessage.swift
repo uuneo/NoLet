@@ -69,7 +69,7 @@ struct HistoryMessage:View {
             let count = try await DatabaseManager.shared.dbQueue.read { db in
                 try ChatMessage.fetchCount(db)
             }
-             DispatchQueue.main.async {
+            await MainActor.run {
                 self.allCount = count
                 if item == nil {
                     self.messages = results

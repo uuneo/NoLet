@@ -72,7 +72,6 @@ struct CryptoModelConfig: Identifiable, Equatable, Codable, Hashable{
     var mode: CryptoMode
     var key: String
     var iv: String
-    var system:Bool = false
 
     static let data = CryptoModelConfig(algorithm: .AES256,
                                         mode: .GCM,
@@ -108,26 +107,33 @@ extension [CryptoModelConfig]{
 }
 
 extension CryptoModelConfig {
-    func obfuscator() -> String? {
-        Domap.obfuscator(m: mode.rawValue, k: key, iv: iv)
+    func obfuscator(sign:Bool = false) -> String? {
+        guard let result = Domap.obfuscator(m: mode.rawValue, k: key, iv: iv)else{ return nil }
+        return sign ? CryptoManager(.data).encrypt(result) : result
     }
     
-    init?(inputText: String){
-        guard let (mode, key, iv) = Domap.deobfuscator(result: inputText),
+    init?(inputText: String, sign:Bool = false){
+        var result:String{
+            if sign, let result = CryptoManager(.data).decrypt(base64: inputText){
+                return result
+            }
+            return inputText
+        }
+        
+        guard let (mode, key, iv) = Domap.deobfuscator(result: result),
               let mode = CryptoMode(rawValue: mode),
               let algorithm = CryptoAlgorithm(rawValue: key.count)
         else { return nil}
         self.init(algorithm: algorithm, mode: mode, key: key, iv: iv)
     }
     
+    
     func encrypt(inputData: Data) -> Data?{
-        let manager = CryptoManager(self)
-        return manager.encrypt(inputData: inputData)
+        CryptoManager(self).encrypt(inputData: inputData)
     }
     
     func decrypt(inputData: Data) -> Data? {
-        let manager = CryptoManager(self)
-        return manager.decrypt(inputData: inputData)
+       CryptoManager(self).decrypt(inputData: inputData)
     }
     
 }
@@ -161,6 +167,12 @@ final class CryptoManager {
         let data:Data? = self.encrypt(inputData: plaintext)
             /// .replacingOccurrences(of: "+", with: "%2B")
         return data?.base64EncodedString()
+    }
+    
+    func decrypt(base64 plaintext: String) -> String? {
+       
+        guard let plaintextData = Data(base64Encoded: plaintext) else { return nil }
+        return self.decrypt(plaintextData)
     }
     
     func decrypt(_ ciphertext: Data) -> String? {

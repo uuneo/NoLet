@@ -169,7 +169,7 @@ struct OpenChatHistoryView: View {
                                 // 查找 ChatGroup
                                 let groups = try ChatGroup.fetchCount(db)
                                 if groups == 1 || openChatManager.shared.chatgroup == chatgroup{
-                                    DispatchQueue.main.async{
+                                    Task{@MainActor in
                                         openChatManager.shared.chatgroup = nil
                                     }
                                     

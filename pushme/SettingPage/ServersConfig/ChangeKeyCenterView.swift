@@ -27,6 +27,7 @@ struct ChangeKeyCenterView: View {
     @State private var circleY:CGFloat = CGFloat.zero
     
     @Default(.servers) var servers
+    @Default(.cryptoConfigs) var cryptoConfigs
 
     @FocusState private var isPhoneFocused
     @FocusState private var isHostFocused
@@ -40,6 +41,8 @@ struct ChangeKeyCenterView: View {
     var dismiss:() -> Void = {}
     
     @State private var buttonState:AnimatedButton.buttonState = .normal
+    
+    @State private var selectCrypto:CryptoModelConfig? = nil
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -64,43 +67,49 @@ struct ChangeKeyCenterView: View {
                 }
             }
             
-            
-            HStack{
-
-
-                Spacer()
-                
-                
-                Menu{
-                    ForEach(serversSelects, id: \.self){item in
-                        
-                        Button{
-                            self.keyHost = item
-                            Haptic.impact()
-                        }label:{
-                            Text(item.removeHTTPPrefix())
-                                .minimumScaleFactor(0.5)
-                        }
-                    }
-                }label: {
-                    HStack{
-                        Image(systemName: "filemenu.and.selection")
-                            .imageScale(.medium)
-                            .symbolRenderingMode(.palette)
-                            .customForegroundStyle(.accent, .primary)
-                        
-                        Text("选择服务器")
-                        
-                        
-                    }.padding(.trailing)
+            if cryptoConfigs.count > 0{
+                HStack{
                     
+                    
+                    Menu{
+                        ForEach(cryptoConfigs, id: \.id) { item in
+                            Button{
+                                self.selectCrypto = item
+                                Haptic.impact()
+                            }label:{
+                                Text( maskString(item.key ))
+                                    .minimumScaleFactor(0.5)
+                            }
+                        }
+                       
+                    }label: {
+                        HStack{
+                            Image(systemName: "filemenu.and.selection")
+                                .imageScale(.medium)
+                                .symbolRenderingMode(.palette)
+                                .customForegroundStyle(.accent, .primary)
+                            
+                            Text("选择签名")
+                            
+                        }
+                        
+                    }
+                    .foregroundColor(.primary)
+                    .blendMode(.overlay)
+                    
+                    Spacer()
+                    
+                    if let selectCrypto{
+                        Text( maskString(selectCrypto.key ))
+                            .minimumScaleFactor(0.5)
+                            .foregroundColor(.primary)
+                            .blendMode(.overlay)
+                    }
                 }
-                .foregroundColor(.primary)
-                .blendMode(.overlay)
+                .padding(.horizontal)
             }
-            
-            
-            
+           
+        
             VStack{
                 
                 InputHost()
@@ -255,7 +264,7 @@ struct ChangeKeyCenterView: View {
                 
                  DispatchQueue.main.async {
                     self.keyName = self.keyName.trimmingSpaceAndNewLines
-                    self.keyHost = self.keyHost.trimmingCharacters(in: .whitespacesAndNewlines)
+                    self.keyHost = self.keyHost.trimmingSpaceAndNewLines
                 }
                 
                 try? await Task.sleep(for: .seconds(0.5))
@@ -272,14 +281,19 @@ struct ChangeKeyCenterView: View {
                 
                 
                 await view.next(.loading(1))
-
                 
-                let success = await manager.restore(address: keyHost, deviceKey: self.keyName)
+                if keyHost.contains(BaseConfig.defaultServer){
+                    self.selectCrypto = nil
+                }
+                
+                let success = await manager.restore(address: keyHost,
+                                                    deviceKey: self.keyName,
+                                                    sign: selectCrypto?.obfuscator())
                 
                 if success{
                     try? await Task.sleep(for: .seconds(1))
                     await view.next(.success){
-                         DispatchQueue.main.async{
+                        DispatchQueue.main.async{
                             self.dismiss()
                             self.disabledPage = false
                         }
@@ -325,10 +339,13 @@ struct ChangeKeyCenterView: View {
                     return
                 }
 
+                if keyHost.contains(BaseConfig.defaultServer){
+                    self.selectCrypto = nil
+                }
+                
                 await view.next(.loading(1))
                 
-                
-                let item = PushServerModel(url: keyHost)
+                let item = PushServerModel(url: keyHost, sign: selectCrypto?.obfuscator())
                 let success = await manager.appendServer(server: item)
                 if success{
                     
@@ -366,7 +383,10 @@ struct ChangeKeyCenterView: View {
             appear[2] = true
         }
     }
-
+    fileprivate func maskString(_ str: String) -> String {
+        guard str.count > 9 else { return String(repeating: "*", count: 3) +  str }
+        return str.prefix(3) + String(repeating: "*", count: 3) + str.suffix(5)
+    }
 
 }
 
@@ -476,6 +496,8 @@ struct ChangeKeyView: View {
         }
   
     }
+    
+   
 }
 
 // MARK: -   PreferenceKey+.swift

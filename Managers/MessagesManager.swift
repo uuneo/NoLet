@@ -37,16 +37,17 @@ class MessagesManager: ObservableObject{
                 Log.error("Failed to observe unread count:", error)
             },
             onChange: { [weak self] newUnreadCount in
+                guard let self else{ return }
                 DispatchQueue.main.async {
-                    self?.showGroupLoading = true
-                    self?.updateSign += 1
-                    self?.unreadCount = newUnreadCount.0
-                    self?.allCount = newUnreadCount.1
+                    self.showGroupLoading = true
+                    self.updateSign += 1
+                    self.unreadCount = newUnreadCount.0
+                    self.allCount = newUnreadCount.1
                 }
-                Task.detached(priority: .userInitiated) { [unowned self] in
-                    await self?.updateGroup()
+                Task.detached(priority: .userInitiated) {
+                    await self.updateGroup()
                     await MainActor.run {
-                        self?.showGroupLoading = false
+                        self.showGroupLoading = false
                     }
                 }
             }

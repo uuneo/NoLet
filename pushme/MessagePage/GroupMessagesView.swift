@@ -80,7 +80,7 @@ struct GroupMessagesView: View {
             .onChange(of: messageManager.allCount) { _ in
                 if let selectGroup = manager.selectGroup{
                     proxyTo(proxy: proxy, selectGroup: selectGroup)
-                     DispatchQueue.main.async{
+                    Task{@MainActor in
                         manager.router.append(.messageDetail(selectGroup))
                     }
                 }
@@ -216,7 +216,7 @@ struct MessageRow: View {
                     .filter(Message.Columns.read == false)
                     .fetchCount(db)
             }
-             DispatchQueue.main.async{
+            await MainActor.run {
                 self.unreadCount = count
             }
         }

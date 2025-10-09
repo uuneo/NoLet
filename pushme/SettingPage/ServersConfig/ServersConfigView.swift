@@ -14,7 +14,6 @@ struct ServersConfigView: View {
     @Default(.cloudServers) var cloudServers
     @EnvironmentObject private var manager:AppManager
     
-    
     var showClose:Bool = false
     
     
@@ -133,16 +132,9 @@ struct ServersConfigView: View {
             .animation(.easeInOut, value: servers)
             .listRowSpacing(10)
             .listStyle(.grouped)
-            .refreshable {
-                // MARK: - 刷新策略
-                manager.registers(msg: true)
-
-            }
-            
+            .refreshable { manager.registers(msg: true) }
             .toolbar{
-                
-                
-                
+            
                 ToolbarItem {
                     withAnimation {
                         Button{

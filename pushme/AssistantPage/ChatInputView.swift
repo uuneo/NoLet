@@ -180,14 +180,14 @@ struct ChatInputView<Content: View>: View  {
                         .onAppear{
                             Task.detached(priority: .background) {
                                 try? await  DatabaseManager.shared.dbQueue.write { db in
-                                     DispatchQueue.main.async{
+                                    Task{@MainActor in
                                         openChatManager.shared.chatgroup = nil
                                     }
                                     
                                     // 尝试查找 quote.id 对应的 group
                                     if let group = try  ChatGroup.fetchOne(db, key: quote.id) {
                                         // 如果存在，就设为 current
-                                         DispatchQueue.main.async{
+                                        Task{@MainActor in
                                             openChatManager.shared.chatgroup = group
                                         }
                                         
@@ -201,7 +201,7 @@ struct ChatInputView<Content: View>: View  {
                                             host: ""
                                         )
                                         try group.insert(db)
-                                         DispatchQueue.main.async{
+                                        Task{@MainActor in
                                             openChatManager.shared.chatgroup = group
                                         }
                                         
@@ -222,9 +222,9 @@ struct ChatInputView<Content: View>: View  {
                                         _ = try await DatabaseManager.shared.dbQueue.write { db in
                                             try group.delete(db)
                                         }
-                                        DispatchQueue.main.async{
-                                           openChatManager.shared.chatgroup = nil
-                                       }
+                                        Task{@MainActor in
+                                            openChatManager.shared.chatgroup = nil
+                                        }
                                     }
                                     
                                 }

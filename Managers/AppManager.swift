@@ -70,10 +70,11 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
     private override init() { super.init() }
     
     
-    func restore(address:String, deviceKey:String) async -> Bool{
+    func restore(address:String, deviceKey:String, sign:String? = nil) async -> Bool{
         let response:baseResponse<String>? = try? await self.fetch(url: address + "/register/\(deviceKey)")
         if let msg = response?.message, let code = response?.code,code == 200, msg == "success"{
-            let success = await self.appendServer(server: PushServerModel(url: address,key: deviceKey))
+            let serever = PushServerModel(url: address,key: deviceKey, sign: sign)
+            let success = await self.appendServer(server: serever)
             return success
         }else{
             return false
@@ -117,20 +118,17 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             let deviceToken = reset ? UUID().uuidString : Defaults[.deviceToken]
             let params  = DeviceInfo(deviceKey: server.key, deviceToken: deviceToken ).toEncodableDictionary() ?? [:]
             
-            let response:baseResponse<DeviceInfo> = try await self.fetch(url: server.url + "/register",method: .POST, params: params)
+            let response:baseResponse<DeviceInfo> = try await self.fetch(url: server.url + "/register",method: .POST, params: params, sign: server.sign)
             
             
             if let data = response.data {
                 server.key = data.deviceKey
                 server.status = true
-            
+                
                 if msg{
-                    if reset{
-                        Toast.info(title: "解绑成功")
-                    }else{
+                    if reset{ Toast.info(title: "解绑成功") }else{
                         Toast.success(title: "注册成功")
                     }
-                    
                 }
             }else{
                 server.status = false
@@ -157,6 +155,8 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             Toast.error(title: "服务器已存在")
             return false
         }
+        
+        
         let server = await self.register(server: server)
         if server.status {
             await MainActor.run {
@@ -189,7 +189,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
         case .crypto(let text):
             Log.log(text)
             if let config = CryptoModelConfig(inputText: text){
-                DispatchQueue.main.async{
+                Task{@MainActor in
                     self.page = .setting
                     self.router = [.crypto]
                     if !Defaults[.cryptoConfigs].contains(where: {$0 == config}){
@@ -201,22 +201,13 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
                 }
             }
            return nil
-        case .server(let url):
+        case .server(let url, let key, let sign):
             Task.detached(priority: .userInitiated) {
-                let success = await self.appendServer(server: PushServerModel(url: url))
+                let crypto = CryptoModelConfig(inputText: sign ?? "", sign: true)?.obfuscator()
+                let server = PushServerModel(url: url,key: key ?? "", sign: crypto)
+                let success = await self.appendServer(server: server)
                 if success{
-                    DispatchQueue.main.async {
-                        self.page = .setting
-                        self.router = [.server]
-                    }
-                }
-            }
-            return nil
-        case .serverKey(let url, let key):
-            Task.detached(priority: .userInitiated) {
-                let success = await self.restore(address: url, deviceKey: key)
-                if success{
-                    DispatchQueue.main.async {
+                    await MainActor.run {
                         self.page = .setting
                         self.router = [.server]
                     }
@@ -225,7 +216,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
             return nil
         case .assistant(let text):
             if let account = AssistantAccount(base64: text){
-                DispatchQueue.main.async {
+                Task{@MainActor in
                     self.page = .setting
                     self.router = [.assistantSetting(account)]
                 }
@@ -234,7 +225,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
         case .page(page: let page,title: let title, data: let data):
             switch page{
             case .widget:
-                DispatchQueue.main.async {
+                Task{@MainActor in
                     self.page = .setting
                     self.router = [.more, .widget(title: title, data: data)]
                 }
@@ -254,7 +245,7 @@ class AppManager:  NetworkManager, ObservableObject, @unchecked Sendable {
 
 extension AppManager{
     /// open app settings
-    static func openSetting(){
+    class func openSetting(){
         AppManager.openUrl(url: URL(string: UIApplication.openSettingsURLString)!)
     }
     /// Open a URL or handle a fallback if the URL cannot be opened
@@ -262,16 +253,9 @@ extension AppManager{
     ///   - url: The URL to open
     ///   - unOpen: A closure called when the URL cannot be opened, passing the URL as an argument
     class func openUrl(url: URL) {
-
-        if ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
-
-            switch Defaults[.defaultBrowser] {
-                case .app:
-                    AppManager.shared.fullPage = .web(url.absoluteString)
-                case .safari:
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-
+        
+        if url.absoluteString.hasHttp() && Defaults[.defaultBrowser] == .app {
+            AppManager.shared.fullPage = .web(url.absoluteString)
         } else {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
@@ -293,20 +277,22 @@ extension AppManager{
     // MARK: 注册设备以接收远程推送通知
     func registerForRemoteNotifications(_ isCriticalAlert:Bool = false) async -> Bool {
         
-        var auths: UNAuthorizationOptions{
-            if isCriticalAlert{  [.alert, .sound, .badge, .criticalAlert , .providesAppNotificationSettings]}else{
-                [.alert, .sound, .badge, .providesAppNotificationSettings]
-            }
-           
+        var auths: UNAuthorizationOptions = [.alert, .sound, .badge,
+                                             .providesAppNotificationSettings]
+        if isCriticalAlert{
+            auths.insert(.criticalAlert)
         }
+      
         
-        guard  let granted = try?  await  UNUserNotificationCenter.current().requestAuthorization(options: auths) else { return false}
+        guard let granted = try? await UNUserNotificationCenter.current()
+            .requestAuthorization(options: auths)
+        else { return false}
         
         
         
         if granted {
             // 如果授权，注册设备接收推送通知
-            DispatchQueue.main.async {
+            Task{@MainActor in
                 UIApplication.shared.registerForRemoteNotifications()
             }
         } else {
@@ -364,31 +350,35 @@ extension AppManager{
             return .text(address)
         }
         
-        if PBScheme.schemes.contains(scheme),let host = url.host(),let host = PBScheme.HostType(rawValue: host), let components = URLComponents(url: url, resolvingAgainstBaseURL: false){
+        if PBScheme.schemes.contains(scheme),
+           let host = url.host(),
+           let host = PBScheme.HostType(rawValue: host),
+           let components = URLComponents(url: url, resolvingAgainstBaseURL: false){
             let params = components.getParams()
             
-            if host == .server, let url = params["text"],let urlResponse = URL(string: url), url.hasHttp() {
-                let (result, key) = urlResponse.findNameAndKey()
-                if let key{
-                    return .serverKey(url: result, key: key)
-                }else {
-                    return .server(result)
+            switch host {
+            case .server:
+                if let url = params["text"],let urlResponse = URL(string: url), url.hasHttp() {
+                    let (result, key) = urlResponse.findNameAndKey()
+                    return .server(url: result, key:key, sign: params["sign"])
                 }
+            case .crypto:
+                if let config = params["text"]{
+                    return .crypto(config)
+                }
+            case .assistant:
+                if let config = params["text"]{
+                    return .assistant(config)
+                }
+                
+            case .openPage:
+                /// pb://openPage?type=widget&page=small
+                if let page = params["page"], let page = OutDataType.pageType(rawValue: page){
+                    return .page(page: page,title: params["title"], data: params["data"] ?? "")
+                }
+            default:
+                break
             }
-    
-            if host == .crypto,let config = params["text"]{
-                return .crypto(config)
-            }
-            
-            if host == .assistant, let config = params["text"]{
-                return .assistant(config)
-            }
-            
-            /// pb://openPage?type=widget&page=small
-            if host == .openPage, let page = params["page"], let page = OutDataType.pageType(rawValue: page) {
-                return .page(page: page,title: params["title"], data: params["data"] ?? "")
-            }
-        
             
         }
         

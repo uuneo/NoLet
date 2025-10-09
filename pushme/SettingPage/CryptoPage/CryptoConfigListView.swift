@@ -60,7 +60,7 @@ struct CryptoConfigListView: View {
                     Text(String(format: "%02d", index))
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundStyle(item.system ? .green : .primary)
+                        .foregroundStyle( .primary)
 
                 }
                 VStack(alignment: .leading, spacing: 5){
@@ -93,29 +93,6 @@ struct CryptoConfigListView: View {
 
                     Section{
                         Button{
-                            let system = item.system
-                            for index in cryptoConfigs.indices{
-                                if cryptoConfigs[index] == item && !system{
-                                    cryptoConfigs[index].system = true
-                                }else{
-                                    cryptoConfigs[index].system = false
-                                }
-                            }
-
-
-                        }label:{
-                            if item.system{
-                                Label("取消签名", systemImage: "xmark")
-                                    .tint(.red)
-                            }else{
-                                Label("设置签名", systemImage: "signature")
-                            }
-
-                        }.tint(.green)
-                    }
-
-                    Section{
-                        Button{
                             AppManager.shared.sheetPage = .crypto(item)
                         }label:{
                             Label("编辑", systemImage: "highlighter")
@@ -127,7 +104,7 @@ struct CryptoConfigListView: View {
                         Section{
                             Button{
                                 let local = PBScheme.pb.scheme(host: .crypto, params: ["text" : config])
-                                DispatchQueue.main.async{
+                                Task{@MainActor in
                                     AppManager.shared.sheetPage = .quickResponseCode(text: local.absoluteString,title: String(localized: "配置文件"),preview: String(localized: "分享配置"))
                                 }
                             }label:{

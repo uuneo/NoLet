@@ -99,15 +99,13 @@ struct ServerCardView:View {
                         if #available(iOS 26.0, *){
                             view
                                 .onTapGesture {
-                                    let local = PBScheme.pb.scheme(host: .server, params: ["text": item.server])
-                                    manager.sheetPage = .quickResponseCode(text: local.absoluteString, title: String(localized: "服务器配置"),preview: nil)
+                                    sharedSever()
                                     Haptic.impact()
                                 }
                         }else{
                             view
                                 .VButton(onRelease: { _ in
-                                    let local = PBScheme.pb.scheme(host: .server, params: ["text": item.server])
-                                    manager.sheetPage = .quickResponseCode(text: local.absoluteString, title: String(localized: "服务器配置"),preview: nil)
+                                    sharedSever()
                                     return true
                                 })
                         }
@@ -159,4 +157,29 @@ struct ServerCardView:View {
             complete()
         }
 	}
+    
+    private func sharedSever(){
+        var config:String?{
+            if item.url.contains(BaseConfig.defaultServer){
+                return nil
+            }
+            if let sign = item.sign,
+               let crypto = CryptoModelConfig(inputText: sign),
+               let result = crypto.obfuscator(sign: true) {
+                return result
+            }
+            return nil
+        }
+        var params:[String: Any]{
+            if let config = config, !item.url.contains(BaseConfig.defaultServer){
+                return ["text": item.url, "sign": config]
+            }
+            return ["text": item.url]
+        }
+        let local = PBScheme.pb.scheme(host: .server, params: params)
+        manager.sheetPage = .quickResponseCode(text: local.absoluteString,
+                                               title: String(localized: "服务器配置"),
+                                               preview: nil)
+    }
+
 }

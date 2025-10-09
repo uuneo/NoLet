@@ -102,8 +102,7 @@ class CiphertextHandler:NotificationContentHandler{
 		
 		if let iv = iv { cryptoConfig.iv = iv }
 
-		guard let textData = Data(base64Encoded: ciphertext),
-			  let json = CryptoManager(cryptoConfig).decrypt(textData),
+		guard let json = CryptoManager(cryptoConfig).decrypt(base64: ciphertext),
 			  let data = json.data(using: .utf8),
 			  let map = JSON(data).dictionaryObject else { throw "JSON parsing failed"  }
 

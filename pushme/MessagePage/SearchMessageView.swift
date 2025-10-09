@@ -114,7 +114,7 @@ struct SearchMessageView:View {
             guard !Task.isCancelled else { return }
             
             let results = await DatabaseManager.shared.query(search: searchText, group: group, limit: limit, item?.createDate)
-             DispatchQueue.main.async{
+            await MainActor.run{
                 if item == nil{
                     self.messages = results.0
                 }else{

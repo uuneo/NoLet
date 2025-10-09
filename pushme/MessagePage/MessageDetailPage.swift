@@ -150,7 +150,7 @@ struct MessageDetailPage: View {
         Task.detached(priority: .userInitiated) {
             let results = await DatabaseManager.shared.query(group: self.group, limit: limit, item?.createDate)
             let count = DatabaseManager.shared.count(group: self.group)
-             DispatchQueue.main.async {
+            await MainActor.run {
                 self.allCount = count
                 if item == nil {
                     self.messages = results
