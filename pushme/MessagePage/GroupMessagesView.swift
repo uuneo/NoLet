@@ -171,7 +171,7 @@ struct MessageRow: View {
         .swipeActions(edge: .leading) {
             Button {
                 Task.detached(priority: .userInitiated) {
-                    await DatabaseManager.shared.markAllRead(group: message.group)
+                    await MessagesManager.shared.markAllRead(group: message.group)
                 }
             } label: {
                 
@@ -191,7 +191,7 @@ struct MessageRow: View {
                 
                 Task.detached(priority: .background){
                     
-                    _ = await DatabaseManager.shared.delete(message, in: true)
+                    _ = await MessagesManager.shared.delete(message, in: true)
                 }
                 
             } label: {

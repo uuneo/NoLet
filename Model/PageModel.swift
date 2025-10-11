@@ -51,7 +51,7 @@ enum RouterPage: Hashable, Equatable {
     case about
     case dataSetting
     case serverInfo(server: PushServerModel?)
-    case files
+    case files(url: URL)
 }
 
 

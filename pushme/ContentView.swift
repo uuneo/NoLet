@@ -29,15 +29,15 @@ struct ContentView: View {
     var body: some View {
         
         ZStack{
-            
-            IphoneHomeView()
-                .if(ISPAD) { IpadHomeView() }
-            
-            
-            if firstStart{
-                firstStartLauchFirstStartView()
+            if .ISPAD{
+                IpadHomeView()
+            }else{
+                IphoneHomeView()
             }
             
+            if firstStart {
+                firstStartLauchFirstStartView()
+            }
         }
         .environmentObject(manager)
         .overlay{
@@ -48,11 +48,10 @@ struct ContentView: View {
         .if( !Defaults[.firstStart] ){ view in
             Group{
                 if #available(iOS 17.0, *) {
-                    view
-                        .subscriptionStatusTask(for: "21582431") {
+                    view.subscriptionStatusTask(for: "21582431") {
                             if let result = $0.value {
                                 let premiumUser = result.filter({ $0.state == .subscribed })
-                                Log.log("User Subscribed = \(!premiumUser.isEmpty)")
+                                NLog.log("User Subscribed = \(!premiumUser.isEmpty)")
                                 manager.PremiumUser = !premiumUser.isEmpty
                             }
                         }
@@ -76,14 +75,10 @@ struct ContentView: View {
                 TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
                     Tab(value: .message) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.mrouter){
                             // MARK: 信息页面
                             MessagePage()
-                                .if(manager.page == .message){ view in
-                                    view.router(manager)
-                                }
-                               
-
+                                .router(manager)
                         }
                     } label: {
                         Label( "消息", systemImage: "ellipsis.message")
@@ -95,13 +90,10 @@ struct ContentView: View {
 
 
                     Tab(value: .setting) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.srouter){
                             // MARK: 设置页面
                             SettingsPage()
-                                .if(manager.page == .setting){ view in
-                                    view.router(manager)
-                                }
-
+                                .router(manager)
                         }
                     } label: {
                         Label( "设置", systemImage: "gear.badge.questionmark")
@@ -111,12 +103,10 @@ struct ContentView: View {
 
 
                     Tab(value: .search, role: .search) {
-                        NavigationStack(path: $manager.router){
+                        NavigationStack(path: $manager.sorouter){
                             // MARK: 设置页面
-                            SearchMessageView(searchText: $manager.searchText)
-                                .if(manager.page == .search){ view in
-                                    view.router(manager)
-                                }
+                            SearchMessageView()
+                                .router(manager)
                         }
                     } label: {
                         Image(systemName: "magnifyingglass")
@@ -128,13 +118,10 @@ struct ContentView: View {
             }else{
                 TabView(selection: Binding(get: { manager.page }, set: { updateTab(with: $0) })) {
 
-                    NavigationStack(path: $manager.router){
+                    NavigationStack(path: $manager.mrouter){
                         // MARK: 信息页面
                         MessagePage()
-                            .if(manager.page == .message){ view in
-                                view
-                                    .router(manager)
-                            }
+                            .router(manager)
 
                     }
                     .tabItem {
@@ -148,13 +135,10 @@ struct ContentView: View {
 
 
 
-                    NavigationStack(path: $manager.router){
+                    NavigationStack(path: $manager.srouter){
                         // MARK: 设置页面
                         SettingsPage()
-                            .if(manager.page == .setting){ view in
-                                view.router(manager)
-                            }
-                        
+                            .router(manager)
                     }
                     .tabItem {
                         Label( "设置", systemImage: "gear.badge.questionmark")
@@ -183,7 +167,7 @@ struct ContentView: View {
                 .environmentObject(manager)
         } detail: {
             
-            NavigationStack(path: $manager.router){
+            NavigationStack(path: $manager.prouter){
                 MessagePage()
                     .router(manager)
             }
@@ -196,9 +180,13 @@ struct ContentView: View {
             withAnimation { self.firstStart.toggle() }
             
             Task.detached(priority: .userInitiated) {
-                for item in DatabaseManager.examples(){
-                    await DatabaseManager.shared.add(item)
+                for item in MessagesManager.examples(){
+                    await MessagesManager.shared.add(item)
                 }
+            }
+            
+            if Defaults[.cryptoConfigs].count == 0{
+                Defaults[.cryptoConfigs] = [CryptoModelConfig.creteNewModel()]
             }
             
         }
@@ -293,7 +281,6 @@ extension View{
                     switch router {
                     case .example:
                         ExampleView()
-                        
                     case .messageDetail(let group):
                         MessageDetailPage(group: group)
                             .navigationTitle(group)
@@ -334,8 +321,8 @@ extension View{
                     case .serverInfo(let server):
                         ServerMonitoringView(server: server)
 
-                    case .files:
-                        NoletFileList()
+                    case .files(let url):
+                        NoletFileList(rootURL: url)
                            
 
                     }
@@ -344,11 +331,8 @@ extension View{
                 .navigationBarTitleDisplayMode(.large)
                 .environmentObject(manager)
                 
-                
-                
             }
     }
-    
 }
 
 #Preview {
